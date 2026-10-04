@@ -2,7 +2,7 @@
 -- Kauf während einer Freischaltung, doppelte Meldung, und wer die Funktion aufrufen darf.
 begin;
 set search_path = public, extensions, tests;
-select plan(46);
+select plan(55);
 select tests.fixtures();
 
 delete from prices;
@@ -189,6 +189,33 @@ select throws_ok($$ select grant_pass(tests.uid('alice'), 'free', 'month', 'cs_f
   'there is no Free pass');
 select throws_ok($$ select grant_pass(tests.uid('alice'), 'plus', 'month', null, 2900) $$, '22023', 'invalid_pass',
   'a grant needs its Stripe session');
+
+-- ---------------------------------------------------------------------------------------------
+-- Erstattungen: an der Planphase vermerkt, der Zugang bleibt, wie er ist
+-- ---------------------------------------------------------------------------------------------
+
+select is(record_refund('cs_bob_1', 2900, '2026-10-05 10:00+02') - 'user_id',
+  jsonb_build_object('found', true, 'changed', true, 'plan', 'plus', 'starts_on', (select today from d),
+                     'ends_on', (select today + 42 from d), 'access_active', true),
+  'a refund is recorded and reports that the user still has access');
+select results_eq(
+  $$ select refunded_cents, refunded_at from plan_periods where stripe_session_id = 'cs_bob_1' $$,
+  $$ values (2900, '2026-10-05 10:00+02'::timestamptz) $$, 'the plan period carries amount and time of the refund');
+select is((select plan::text from plan_access where user_id = tests.uid('bob')), 'plus',
+  'the refund does not change the access; that stays with the admin');
+select ok((select text like 'Erstattung in Stripe: 29,00 € für den Plus-Pass%' from audit_log
+            where user_id = tests.uid('bob') and text like 'Erstattung%'), 'the refund appears in the audit log');
+select is(record_refund('cs_bob_1', 2900, '2026-10-06 10:00+02') ->> 'changed', 'false',
+  'recording the same refund again changes nothing');
+select is((select count(*) from audit_log where user_id = tests.uid('bob') and text like 'Erstattung%'), 1::bigint,
+  'and writes no second audit entry');
+select is(record_refund('cs_unknown', 100, now()), jsonb_build_object('found', false, 'changed', false),
+  'a refund for an unknown session is reported as not found');
+select tests.login('patrick', 'aal2');
+select throws_ok($$ select record_refund('cs_alice_1', 1400, now()) $$, '42501', null, 'an admin cannot record refunds through the API');
+select tests.login('alice');
+select throws_ok($$ select record_refund('cs_alice_1', 1400, now()) $$, '42501', null, 'a candidate cannot record refunds');
+select tests.as_service();
 
 -- Der Kandidat sieht das Ergebnis, kann es aber nicht verändern.
 select tests.login('alice');

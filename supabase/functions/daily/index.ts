@@ -3,7 +3,8 @@
 // Datenbank (pg_cron, siehe Migration daily_schedule), lokal von Hand.
 //
 // 1. daily_run(): vorgemerkte Pässe starten, abgelaufene Zugänge beenden, abgelaufene Jobs archivieren.
-// 2. Abgleich mit Stripe: bezahlte Sessions ohne Freischaltung nachtragen, Hinweis an den Admin.
+// 2. Abgleich mit Stripe: bezahlte Sessions ohne Freischaltung nachtragen, Erstattungen vermerken,
+//    Hinweis an den Admin.
 // 3. Fällige Mails verschicken und im email_log vermerken.
 //
 // Aufruf nur mit dem Service-Role-Schlüssel als Bearer-Token.
@@ -20,12 +21,42 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, serviceKey, { auth: { per
 const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 const stripe = stripeKey ? new Stripe(stripeKey) : null;
 
-// So weit zurück sucht der Abgleich nach bezahlten Sessions.
+// So weit zurück sucht der Abgleich nach bezahlten Sessions und nach Erstattungen.
 const RECONCILE_DAYS = 3;
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
+const euro = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 
-// Zahlungen ohne Freischaltung finden und nachtragen (Webhook ausgefallen oder nie angekommen).
+interface Refund {
+  session: Stripe.Checkout.Session;
+  cents: number; // insgesamt erstatteter Betrag
+  at: number; // Zeitpunkt der letzten Erstattung
+}
+
+// Erstattungen der letzten Tage, zugeordnet zur Checkout-Session des Portals. Maßgeblich ist der
+// insgesamt erstattete Betrag der Zahlung, nicht die einzelne Erstattung.
+async function findRefunds(stripe: Stripe, since: number): Promise<Map<string, Refund>> {
+  const latest = new Map<string, number>(); // payment_intent -> Zeitpunkt der letzten Erstattung
+  for await (const r of stripe.refunds.list({ created: { gte: since }, limit: 100 })) {
+    if (r.status !== "succeeded" || typeof r.payment_intent !== "string") continue;
+    latest.set(r.payment_intent, Math.max(latest.get(r.payment_intent) ?? 0, r.created));
+  }
+
+  const refunds = new Map<string, Refund>();
+  for (const [paymentIntent, at] of latest) {
+    const sessions = await stripe.checkout.sessions.list({ payment_intent: paymentIntent, limit: 1 });
+    const session = sessions.data[0];
+    if (!session?.metadata?.user_id) continue; // keine Zahlung des Portals
+    const intent = await stripe.paymentIntents.retrieve(paymentIntent, { expand: ["latest_charge"] });
+    const charge = intent.latest_charge;
+    const cents = typeof charge === "object" && charge !== null ? charge.amount_refunded : 0;
+    if (cents > 0) refunds.set(session.id, { session, cents, at });
+  }
+  return refunds;
+}
+
+// Zahlungen ohne Freischaltung finden und nachtragen (Webhook ausgefallen oder nie angekommen),
+// Erstattungen an der Planphase vermerken.
 async function reconcileStripe() {
   if (!stripe) return { skipped: "STRIPE_SECRET_KEY is not set" };
 
@@ -35,46 +66,78 @@ async function reconcileStripe() {
     // Nur Sessions, die das Portal erzeugt hat: sie tragen die Nutzer-ID.
     if (s.mode === "payment" && s.payment_status === "paid" && s.metadata?.user_id) paid.push(s);
   }
-  if (paid.length === 0) return { checked: 0, granted: [], failed: [] };
   // Älteste zuerst: Verlängerung und Upgrade hängen von der Reihenfolge der Käufe ab.
   paid.sort((a, b) => a.created - b.created);
+  const refunds = await findRefunds(stripe, since);
 
-  const { data: known, error } = await db.from("plan_periods").select("stripe_session_id")
-    .in("stripe_session_id", paid.map((s) => s.id));
-  if (error) throw error;
-  const done = new Set((known ?? []).map((r) => r.stripe_session_id));
+  let done = new Set<string>();
+  if (paid.length > 0) {
+    const { data: known, error } = await db.from("plan_periods").select("stripe_session_id")
+      .in("stripe_session_id", paid.map((s) => s.id));
+    if (error) throw error;
+    done = new Set((known ?? []).map((r) => r.stripe_session_id));
+  }
 
   const granted: string[] = [];
   const failed: string[] = [];
+  const refundedNotGranted: string[] = [];
   for (const session of paid.filter((s) => !done.has(s.id))) {
+    // Eine vollständig erstattete Zahlung wird nicht nachgetragen.
+    const refund = refunds.get(session.id);
+    if (refund && refund.cents >= (session.amount_total ?? 0)) {
+      // Nur beim ersten Fund melden, nicht an jedem Tag des Suchzeitraums wieder. Als Merker dient
+      // ein Eintrag in stripe_events mit eigener Kennung.
+      const { error: seen } = await db.from("stripe_events")
+        .insert({ id: `reconcile_refund_${session.id}`, type: "reconcile.refunded_not_granted" });
+      if (seen) continue;
+      refundedNotGranted.push(`${session.id}: ${euro(refund.cents)} erstattet, Nutzer ${session.metadata!.user_id}`);
+      continue;
+    }
     try {
       const r = await grantPass(stripe, db, session);
-      granted.push(`${session.id}: ${r.plan} ${r.starts_on} to ${r.ends_on} for user ${session.metadata!.user_id}`);
+      granted.push(`${session.id}: ${r.plan} ${r.starts_on} bis ${r.ends_on}, Nutzer ${session.metadata!.user_id}`);
     } catch (err) {
       failed.push(`${session.id}: ${message(err)}`);
     }
   }
 
+  // Erstattungen an bestehenden Planphasen vermerken. Der Zugang bleibt, wie er ist.
+  const refundsRecorded: string[] = [];
+  for (const [sessionId, refund] of refunds) {
+    const { data, error } = await db.rpc("record_refund", {
+      p_session_id: sessionId, p_refunded_cents: refund.cents, p_refunded_at: new Date(refund.at * 1000).toISOString(),
+    });
+    if (error) {
+      failed.push(`${sessionId}: Erstattung nicht vermerkt, ${error.message}`);
+    } else if (data.changed) {
+      refundsRecorded.push(
+        `${sessionId}: ${euro(refund.cents)} erstattet, ${data.plan} ${data.starts_on} bis ${data.ends_on}, Nutzer ${data.user_id}` +
+          (data.access_active ? " – Zugang läuft noch, bitte per Hand auf Free setzen" : ""),
+      );
+    }
+  }
+
   // Hinweis an Patrick bei Abweichungen.
-  if (granted.length + failed.length > 0) {
+  const findings = granted.length + failed.length + refundedNotGranted.length + refundsRecorded.length;
+  if (findings > 0) {
     const { data: setting } = await db.from("app_settings").select("value").eq("key", "admin_notify_email").maybeSingle();
     if (setting?.value && mailConfigured) {
+      const section = (title: string, lines: string[]) => [`${title} (${lines.length}):`, ...(lines.length ? lines.map((l) => `- ${l}`) : ["- keine"]), ""];
       await sendMail({
         to: setting.value,
-        subject: `Portal: ${granted.length + failed.length} Stripe-Zahlung(en) ohne Freischaltung`,
+        subject: `Portal: Abgleich mit Stripe, ${findings} Hinweis(e)`,
         text: [
-          "Der tägliche Abgleich mit Stripe hat bezahlte Checkout-Sessions ohne Freischaltung gefunden.",
+          "Der tägliche Abgleich mit Stripe hat Abweichungen gefunden.",
           "",
-          `Nachgetragen (${granted.length}):`,
-          ...(granted.length ? granted.map((g) => `- ${g}`) : ["- keine"]),
-          "",
-          `Nicht nachtragbar, bitte prüfen (${failed.length}):`,
-          ...(failed.length ? failed.map((f) => `- ${f}`) : ["- keine"]),
-        ].join("\n"),
+          ...section("Bezahlt und nachgetragen", granted),
+          ...section("Bezahlt, aber nicht nachtragbar, bitte prüfen", failed),
+          ...section("Erstattet und deshalb nicht nachgetragen", refundedNotGranted),
+          ...section("Erstattung an der Planphase vermerkt", refundsRecorded),
+        ].join("\n").trimEnd(),
       }).catch((err) => console.error("admin notice failed", err));
     }
   }
-  return { checked: paid.length, granted, failed };
+  return { checked: paid.length, granted, failed, refundedNotGranted, refundsRecorded };
 }
 
 // Fällige Mails verschicken. Erst nach erfolgreichem Versand wird die Mail vermerkt; schlägt

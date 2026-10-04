@@ -48,3 +48,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 2. pgTAP-Tests für alle Zugriffsregeln
 3. Seed-Daten mit Beispielinhalten für die lokale Entwicklung
 4. Edge Functions `create-checkout` und `stripe-webhook` an das Datenmodell anpassen
+
+## Offene Punkte im Fahrplan
+
+- **Inaktive Konten löschen (noch nicht bauen):** Konten ohne Login und ohne Pass werden nach 24 Monaten gelöscht, mit Ankündigung per Mail 30 Tage vorher (entschieden in `docs/datenmodell.md`, "Offene Fragen"). Gehört in die tägliche Funktion; braucht eine neue Mail-Art in `email_log` und einen Mailtext von Patrick.

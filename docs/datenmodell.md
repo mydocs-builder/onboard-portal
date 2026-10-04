@@ -81,6 +81,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | stripe\_session\_id | Text, eindeutig | verhindert doppelte Freischaltung |
 | granted\_by | Text | stripe, system oder Admin-Name |
 | superseded\_by | Verweis, leer | Planphase des Upgrades, das diesen vorgemerkten Pass ersetzt hat |
+| refunded\_at, refunded\_cents | Zeitpunkt, Zahl, leer | in Stripe erstatteter Betrag; trägt der tägliche Abgleich ein |
 
 **Freischaltung eines bezahlten Passes** läuft über die Datenbankfunktion `grant_pass(user, plan, length, stripe_session_id, amount_cents, promo_code, stripe_customer_id)`. Nur der Server darf sie aufrufen (der Stripe-Webhook), weder Kandidat noch Admin. Sie schreibt Planphase, Zugang und Änderungsprotokoll in einer Transaktion:
 
@@ -289,9 +290,11 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 - **Erinnerung vor Ablauf:** einmal je Enddatum, sobald das Ende höchstens pass\_reminder\_days entfernt ist, und nur, wenn kein weiterer Pass vorgemerkt ist.
 - **Fällige Schritte:** nur laufende Bewerbungen (planned, applied, interview, offer). Nach dem Versand steht der Termin in reminded\_for.
 - **Mail nach Ablauf** nennt die abgelaufene Stufe. Weil plan\_access dann schon auf free steht, kommen Stufe und Quelle aus der Planphase, die am Ablaufdatum endete; gibt es keine, bleibt der Text allgemein.
-- **Kaufbestätigung:** Der Webhook verschickt sie direkt nach der Freischaltung, der tägliche Abgleich beim Nachtragen; je Freischaltung einmal, nicht bei doppelten Meldungen. Sie nennt Stufe, Beginn und Ablaufdatum, beim Upgrade die umgerechneten Tage. Sie steht nicht im email\_log; ein Fehler beim Versand ändert nichts an der Freischaltung.
+- **Kaufbestätigung:** Der Webhook verschickt sie direkt nach der Freischaltung, der tägliche Abgleich beim Nachtragen; je Freischaltung einmal, nicht bei doppelten Meldungen. Sie nennt Stufe, Laufzeit, Beginn und Ablaufdatum, beim Upgrade die umgerechneten Tage. Sie steht nicht im email\_log; ein Fehler beim Versand ändert nichts an der Freischaltung.
 - **Gesperrte Konten** erhalten keine Mails.
-- **Abgleich mit Stripe:** bezahlte Checkout-Sessions der letzten drei Tage, die das Portal erzeugt hat (mit Nutzer-ID). Fehlt die Freischaltung, wird sie über `grant_pass` nachgetragen, in der Reihenfolge der Käufe; der Pass beginnt dann am Tag des Nachtrags. Der Hinweis geht an admin\_notify\_email.
+- **Abgleich mit Stripe:** bezahlte Checkout-Sessions der letzten drei Tage, die das Portal erzeugt hat (mit Nutzer-ID). Fehlt die Freischaltung, wird sie über `grant_pass` nachgetragen, in der Reihenfolge der Käufe (älteste zuerst); der Pass beginnt dann am Tag des Nachtrags. Der Hinweis geht an admin\_notify\_email.
+- **Erstattungen:** Der Abgleich liest die Erstattungen der letzten drei Tage aus Stripe. Eine vollständig erstattete Zahlung ohne Freischaltung wird nicht nachgetragen und einmal gemeldet (Merker in `stripe_events` mit der Kennung reconcile\_refund\_…). Gibt es die Planphase schon, vermerkt `record_refund` dort refunded\_at und refunded\_cents und schreibt einen Eintrag ins Änderungsprotokoll; maßgeblich ist der insgesamt erstattete Betrag der Zahlung. Der Zugang ändert sich dadurch nicht: Der Hinweis an den Admin nennt, ob er noch läuft, und der Admin setzt ihn per Hand auf Free. Auswertungen zählen erstattete Planphasen nicht als Verkauf.
+- **Offen:** Ein erstatteter, noch vorgemerkter Pass startet zu seinem Beginn trotzdem; bis das geregelt ist, muss der Admin ihn im Blick haben.
 - **Noch nicht gebaut:** das Löschen inaktiver Konten nach 24 Monaten mit Ankündigung 30 Tage vorher; dafür fehlt auch eine Mail-Art in email\_log.
 
 **email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at. Eindeutig je Art, Bezug und Tag.

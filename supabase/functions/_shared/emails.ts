@@ -105,13 +105,16 @@ export function buildMail(kind: string, to: string, firstName: string, data: Dat
 }
 
 // Kaufbestätigung direkt nach der Zahlung. Entwurf, von Patrick zu prüfen.
-// grant ist das Ergebnis von grant_pass(); today das heutige Datum in deutscher Zeit.
+// grant ist das Ergebnis von grant_pass(), length die Laufzeit (month, quarter), today das heutige
+// Datum in deutscher Zeit.
 export function buildPurchaseMail(
   to: string, firstName: string,
   grant: { plan: string; starts_on: string; ends_on: string; credit_days: number },
+  length: string,
   today: string,
 ): Mail {
   const plan = PLAN[grant.plan];
+  const pass = `${length === "quarter" ? "3-month" : "1-month"} ${plan} pass`;
   const days = grant.credit_days === 1 ? "1 extra day" : `${grant.credit_days} extra days`;
   return {
     to,
@@ -119,8 +122,8 @@ export function buildPurchaseMail(
     text: body(firstName, [
       "Thank you for your purchase.",
       (grant.starts_on <= today
-        ? `Your ${plan} pass starts today and runs until ${date(grant.ends_on)}.`
-        : `Your ${plan} pass starts on ${date(grant.starts_on)}, when your current access ends, and runs until ${date(grant.ends_on)}.`) +
+        ? `Your ${pass} starts today and runs until ${date(grant.ends_on)}.`
+        : `Your ${pass} starts on ${date(grant.starts_on)}, when your current access ends, and runs until ${date(grant.ends_on)}.`) +
       "\nIt ends automatically, so there is nothing to cancel.",
       grant.credit_days > 0 &&
       `The remaining value of your previous pass has been converted into ${days} of ${plan}, already included in this end date.`,

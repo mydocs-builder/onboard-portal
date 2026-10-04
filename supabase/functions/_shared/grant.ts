@@ -59,13 +59,13 @@ export async function grantPass(
     throw error;
   }
   const result = data as GrantResult;
-  if (!result.already_processed) await sendPurchaseConfirmation(db, userId, result);
+  if (!result.already_processed) await sendPurchaseConfirmation(db, userId, result, length);
   return result;
 }
 
-// Kaufbestätigung mit Beginn und Ablaufdatum, einmal je Freischaltung. Die Rechnung kommt von Stripe.
+// Kaufbestätigung mit Stufe, Laufzeit, Beginn und Ablaufdatum, einmal je Freischaltung. Die Rechnung kommt von Stripe.
 // Ein Fehler beim Versand ändert nichts an der Freischaltung und löst keine erneute Zustellung aus.
-async function sendPurchaseConfirmation(db: SupabaseClient, userId: string, grant: GrantResult) {
+async function sendPurchaseConfirmation(db: SupabaseClient, userId: string, grant: GrantResult, length: string) {
   if (!mailConfigured) return;
   try {
     const [profile, account] = await Promise.all([
@@ -76,7 +76,7 @@ async function sendPurchaseConfirmation(db: SupabaseClient, userId: string, gran
     if (!email || !profile.data) return;
     // Heute in deutscher Zeit, wie portal_today() in der Datenbank.
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(new Date());
-    await sendMail(buildPurchaseMail(email, profile.data.first_name, grant, today));
+    await sendMail(buildPurchaseMail(email, profile.data.first_name, grant, length, today));
   } catch (err) {
     console.error("purchase confirmation failed", err);
   }
