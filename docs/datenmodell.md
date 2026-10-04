@@ -51,7 +51,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 
 - **E-Mail und Passwort** liegen nur in `auth.users`. Eine E-Mail-Änderung läuft über den Bestätigungsablauf von Supabase.
 - **Status "Eingeladen"** ergibt sich daraus, dass `first_login_at` leer und `invited_by_admin` gesetzt ist; kein eigenes Feld.
-- **Konto löschen** entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Ausnahme: `plan_periods` behält bezahlte Käufe ohne Personenbezug für die Auswertung, die Nutzer-ID wird geleert.
+- **Konto löschen** entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Ausnahme: `plan_periods` behält alle Phasen (Pass, Pilot, manuell) für die Auswertung; die Nutzer-ID wird durch eine zufällige Kennung je gelöschtem Konto ersetzt, ohne Zuordnungstabelle. reason bleibt, stripe\_session\_id wird entfernt.
 
 ## Zugang, Pässe und Startphase
 
@@ -164,11 +164,11 @@ Alle redaktionellen Inhalte des Portals, mit Sprache und Mindeststufe je Eintrag
 | `articles` | slug, area (cv, linkedin, interview, guide, agencies, contract), title, lead, body (Markdown), min\_plan, language, sort, published | Leitfäden und Guide-Kapitel |
 | `templates` | title, description, format (docx, pdf), file\_path, min\_plan, sort, active | Vorlagen zum Download; Dateien im Speicherbereich |
 | `phrases` | category (cover\_letter, phone, interview, vocabulary), field (leer oder Berufsfeld), german, english, usage, min\_plan, sort | German for the job |
-| `glossary_terms` | term\_de, term\_en, what, look\_for, sort | Arbeitsvertrag erklärt |
+| `glossary_terms` | term\_de, term\_en, what, look\_for, min\_plan (Standard starter), sort | Arbeitsvertrag erklärt |
 
 - **body in Markdown:** Überschriften, Absätze, Listen und Hinweise lassen sich in der Pflegemaske schreiben, ohne HTML. Das Frontend gibt Markdown sicher aus, ohne fremden Code auszuführen.
 - **Vorlagendateien** sind nur für berechtigte Stufen abrufbar. Der Download läuft über einen kurzlebigen Link, den die Datenbank nur bei passendem Plan ausstellt.
-- **Sprache:** Jede Tabelle trägt ein Feld language (en, de), Standard en. So wird die deutsche Fassung ein Inhalts-, kein Umbauprojekt.
+- **Sprache:** articles, templates, phrases und glossary\_terms tragen ein Feld language (en, de), Standard en; ein deutscher Eintrag ist ein eigener Eintrag. Checklisten tragen keine Sprache: Ihre Texte sind in Phase 1 Englisch, die deutsche Fassung kommt später als Übersetzungstabelle je Punkt, damit Fortschritt und IDs beim Sprachwechsel erhalten bleiben.
 - **Gespiegelte Website-Inhalte** (Familiennachzug usw.) sind für später vorgesehen; sie würden nicht hier gespeichert, sondern über die Schnittstelle von WordPress gelesen.
 
 ## Listen und Import
@@ -220,6 +220,15 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 - **Gesperrte Konten** verlieren jeden Lesezugriff, auch auf eigene Daten, bis die Sperre aufgehoben ist.
 - **Gesperrte Inhalte** zeigt das Frontend als Stufen-Hinweis. Dafür liefert die Datenbank pro Bereich nur Titel und Mindeststufe, nicht den Inhalt.
 
+**Ergänzungen nach dem ersten Bau (4. Oktober 2026)**
+
+- `app_settings` ist nur für den Admin lesbar; Kandidaten erhalten über `public_settings()` nur free\_application\_limit und pass\_reminder\_days.
+- Admin-Rechte gelten nur in einer Sitzung mit zweitem Faktor; ohne ihn verhält sich ein Admin-Konto wie ein Kandidat.
+- Veröffentlichte Einträge in Listen werden archiviert, nicht gelöscht; Löschen nur bei Entwürfen. Checklistenpunkte mit Fortschritt werden deaktiviert, nicht gelöscht.
+- Die Registrierung liest über `registration_info()` nur Modus, Verkaufsstatus und Pilot-Stichtag; der Einladungscode wird in der Datenbank geprüft und ist nie lesbar.
+- Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe, bei Formulierungen, Glossar und Listen nur die Anzahl.
+- "Heute" rechnet überall in deutscher Zeit.
+
 ## Stufenlogik
 
 Eine Datenbankfunktion `effective_plan(user)` liefert die gültige Stufe; alle Zugriffsregeln auf Inhalte und Listen fragen nur sie.
@@ -268,7 +277,7 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 Alle fünf Punkte sind am 4. Oktober 2026 wie vorgeschlagen entschieden.
 
 - [x] **Inaktive Konten:** Konten ohne Login und ohne Pass werden nach 24 Monaten gelöscht, mit Ankündigung per Mail 30 Tage vorher.
-- [x] **Bezahlte Käufe nach Kontolöschung:** bleiben in `plan_periods` ohne Personenbezug für die Auswertung.
+- [x] **Planphasen nach Kontolöschung:** alle Phasen bleiben in `plan_periods`, mit zufälliger Kennung statt Nutzer-ID, für die Auswertung.
 - [x] **Erinnerung am Vortag eines Gesprächs:** wird aufgenommen, läuft über die tägliche Funktion.
 - [x] **Sprache der Mails:** Englisch; Deutsch mit der deutschen Fassung.
 - [x] **Herkunftsland und Zielstadt:** nicht in Phase 1, erst mit Dokumentenpfad und "Your city".
