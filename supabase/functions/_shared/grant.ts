@@ -7,6 +7,8 @@
 
 import type Stripe from "npm:stripe@17";
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2";
+import { buildPurchaseMail } from "./emails.ts";
+import { mailConfigured, sendMail } from "./mail.ts";
 
 const PLANS = ["starter", "plus"];
 const LENGTHS = ["month", "quarter"];
@@ -56,5 +58,26 @@ export async function grantPass(
     }
     throw error;
   }
-  return data as GrantResult;
+  const result = data as GrantResult;
+  if (!result.already_processed) await sendPurchaseConfirmation(db, userId, result);
+  return result;
+}
+
+// Kaufbestätigung mit Beginn und Ablaufdatum, einmal je Freischaltung. Die Rechnung kommt von Stripe.
+// Ein Fehler beim Versand ändert nichts an der Freischaltung und löst keine erneute Zustellung aus.
+async function sendPurchaseConfirmation(db: SupabaseClient, userId: string, grant: GrantResult) {
+  if (!mailConfigured) return;
+  try {
+    const [profile, account] = await Promise.all([
+      db.from("profiles").select("first_name").eq("user_id", userId).maybeSingle(),
+      db.auth.admin.getUserById(userId),
+    ]);
+    const email = account.data.user?.email;
+    if (!email || !profile.data) return;
+    // Heute in deutscher Zeit, wie portal_today() in der Datenbank.
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Berlin" }).format(new Date());
+    await sendMail(buildPurchaseMail(email, profile.data.first_name, grant, today));
+  } catch (err) {
+    console.error("purchase confirmation failed", err);
+  }
 }

@@ -2,7 +2,7 @@
 -- fällige Mails ableiten und vermerken. Nur der Server darf sie aufrufen.
 begin;
 set search_path = public, extensions, tests;
-select plan(37);
+select plan(39);
 select tests.fixtures();
 
 create temp table d as select portal_today() as today;
@@ -150,6 +150,16 @@ select is((select data -> 'applications' from daily_mails() where kind = 'remind
     jsonb_build_object('company', 'Alpha Co', 'position', 'Engineer', 'next_type', 'apply'),
     jsonb_build_object('company', 'Bob Co', 'position', null, 'next_type', 'follow_up')),
   'one collected mail per user: all steps due today, without closed or later ones');
+select is((select data from daily_mails() where kind = 'pass_ended'),
+  jsonb_build_object('ended_on', (select today - 1 from d), 'sales_enabled', false, 'plan', null, 'source', null),
+  'the ended mail stays general when no plan period ended on that day');
+select tests.logout();
+insert into plan_periods (user_id, plan, source, starts_on, ends_on, reason, granted_by, created_at)
+values (tests.uid('eve'), 'plus', 'pilot', portal_today() - 30, portal_today() - 1, 'Pilotphase', 'system', now() - interval '30 days');
+select tests.as_service();
+select is((select data - 'ended_on' - 'sales_enabled' from daily_mails() where kind = 'pass_ended'),
+  jsonb_build_object('plan', 'plus', 'source', 'pilot'),
+  'the ended mail names the plan and source of the period that ended');
 select is((select data ->> 'company' from daily_mails() where kind = 'interview_tomorrow'), 'Interview Co',
   'the interview reminder names the company');
 

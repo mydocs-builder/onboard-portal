@@ -288,6 +288,8 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 - **Mails sind wiederholbar:** Eine Mail wird erst nach erfolgreichem Versand vermerkt. Schlägt der Versand fehl, liefert der nächste Lauf sie wieder; Mails zu Pässen bis zu drei Tage lang.
 - **Erinnerung vor Ablauf:** einmal je Enddatum, sobald das Ende höchstens pass\_reminder\_days entfernt ist, und nur, wenn kein weiterer Pass vorgemerkt ist.
 - **Fällige Schritte:** nur laufende Bewerbungen (planned, applied, interview, offer). Nach dem Versand steht der Termin in reminded\_for.
+- **Mail nach Ablauf** nennt die abgelaufene Stufe. Weil plan\_access dann schon auf free steht, kommen Stufe und Quelle aus der Planphase, die am Ablaufdatum endete; gibt es keine, bleibt der Text allgemein.
+- **Kaufbestätigung:** Der Webhook verschickt sie direkt nach der Freischaltung, der tägliche Abgleich beim Nachtragen; je Freischaltung einmal, nicht bei doppelten Meldungen. Sie nennt Stufe, Beginn und Ablaufdatum, beim Upgrade die umgerechneten Tage. Sie steht nicht im email\_log; ein Fehler beim Versand ändert nichts an der Freischaltung.
 - **Gesperrte Konten** erhalten keine Mails.
 - **Abgleich mit Stripe:** bezahlte Checkout-Sessions der letzten drei Tage, die das Portal erzeugt hat (mit Nutzer-ID). Fehlt die Freischaltung, wird sie über `grant_pass` nachgetragen, in der Reihenfolge der Käufe; der Pass beginnt dann am Tag des Nachtrags. Der Hinweis geht an admin\_notify\_email.
 - **Noch nicht gebaut:** das Löschen inaktiver Konten nach 24 Monaten mit Ankündigung 30 Tage vorher; dafür fehlt auch eine Mail-Art in email\_log.
