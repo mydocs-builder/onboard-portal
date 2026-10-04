@@ -18,6 +18,9 @@ insert into public.prices (plan, pass_length, amount_cents, stripe_price_id) val
 -- Lokal ist der Verkauf eingeschaltet, damit sich die Bezahlung im Stripe-Testmodus durchspielen lässt.
 update public.launch_settings set sales_enabled = true;
 
+-- Lokal gehen Hinweise der täglichen Funktion an das Testkonto des Admins.
+insert into public.app_settings (key, value) values ('admin_notify_email', 'admin@example.com');
+
 -- Checklisten. Feste IDs: Der Fortschritt der Nutzer hängt an der ID des Punkts.
 insert into public.checklists (id, key, title, area, legal_note, sort) values
   (md5('seed:checklist:cv')::uuid, 'cv', 'CV checklist', 'cv', null, 1),

@@ -5,11 +5,12 @@
 // Diese Funktion wird ohne Supabase-Login aufgerufen (Stripe hat keinen). Die JWT-Prüfung ist für sie
 // abgeschaltet (supabase/config.toml), die Sicherheit kommt aus der Stripe-Signatur.
 //
-// Die Regeln für Beginn, Ende und Umrechnung stehen in der Datenbankfunktion grant_pass(); sie
-// schreibt Planphase, Zugang und Änderungsprotokoll in einer Transaktion.
+// Die Freischaltung selbst steht in _shared/grant.ts und der Datenbankfunktion grant_pass().
+// Unzustellbare Fälle (PermanentError) werden protokolliert und fallen beim täglichen Abgleich auf.
 
 import Stripe from "npm:stripe@17";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { grantPass, PermanentError } from "../_shared/grant.ts";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!);
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -19,49 +20,6 @@ const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
   auth: { persistSession: false },
 });
-
-const PLANS = ["starter", "plus"];
-const LENGTHS = ["month", "quarter"];
-
-// Fehler, bei denen eine erneute Zustellung nichts ändert. Sie werden protokolliert und fallen
-// beim täglichen Abgleich mit Stripe auf.
-class PermanentError extends Error {}
-
-// Freischaltung nach einer erfolgreichen Zahlung.
-async function grantPass(session: Stripe.Checkout.Session) {
-  const userId = session.metadata?.user_id;
-  const plan = session.metadata?.plan;
-  const length = session.metadata?.length;
-  if (!userId || !plan || !length || !PLANS.includes(plan) || !LENGTHS.includes(length)) {
-    throw new PermanentError(`Incomplete metadata on ${session.id}`);
-  }
-
-  // Gutscheincode lesen, falls einer verwendet wurde.
-  let promo: string | null = null;
-  if ((session.total_details?.amount_discount ?? 0) > 0) {
-    const full = await stripe.checkout.sessions.retrieve(session.id, { expand: ["discounts.promotion_code"] });
-    const code = full.discounts?.[0]?.promotion_code;
-    promo = typeof code === "object" && code !== null ? code.code : null;
-  }
-
-  const { data, error } = await db.rpc("grant_pass", {
-    p_user_id: userId,
-    p_plan: plan,
-    p_length: length,
-    p_session_id: session.id,
-    p_amount_cents: session.amount_total ?? 0,
-    p_promo_code: promo,
-    p_customer_id: typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
-  });
-  if (error) {
-    // P0002: Konto gibt es nicht (mehr). 22P02: Nutzer-ID ist keine UUID.
-    if (error.code === "P0002" || error.code === "22P02") {
-      throw new PermanentError(`Cannot grant ${session.id}: ${error.message}`);
-    }
-    throw error;
-  }
-  return data;
-}
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -92,7 +50,7 @@ Deno.serve(async (req) => {
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         // Bei verzögerten Zahlungsarten kommt erst "completed" mit Status "unpaid", später "async_payment_succeeded".
-        if (session.mode === "payment" && session.payment_status === "paid") result = await grantPass(session);
+        if (session.mode === "payment" && session.payment_status === "paid") result = await grantPass(stripe, db, session);
         break;
       }
       default:

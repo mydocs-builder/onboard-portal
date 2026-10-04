@@ -279,6 +279,19 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 | Abgelaufene Jobs | status archived | - |
 | Abgleich mit Stripe | Zahlungen ohne Freischaltung finden und nachtragen | Hinweis an Patrick bei Abweichungen |
 
+**Umsetzung der täglichen Funktion**
+
+- **Aufteilung:** Die Datenbankfunktion `daily_run()` ändert den Zustand in einer Transaktion (Pässe starten, Zugänge beenden, Jobs archivieren). `daily_mails()` leitet aus dem Zustand ab, welche Mails noch fehlen; `daily_mail_sent()` vermerkt eine verschickte Mail im `email_log`. Die Edge Function `daily` ruft sie auf, gleicht mit Stripe ab und verschickt die Mails. Alle drei Datenbankfunktionen darf nur der Server aufrufen, die Edge Function nur, wer den Service-Role-Schlüssel hat.
+- **Zeitplan:** täglich 04:00 UTC über pg\_cron (05:00 bzw. 06:00 Uhr deutscher Zeit). Adresse und Schlüssel stehen je Umgebung im Vault (`daily_function_url`, `daily_function_key`); fehlen sie, passiert nichts.
+- **Vorgemerkte Pässe:** Gestartet werden Planphasen, deren Beginn seit dem letzten Lauf erreicht ist (Merker `daily_last_run` in `app_settings`). Ein ausgefallener Lauf wird bis zu sieben Tage nachgeholt. Ersetzte Phasen (superseded\_by) starten nie. Planphasen mit früherem Beginn fasst der Lauf nicht an; ein nach Erstattung auf Free gesetztes Konto wird also nicht wieder freigeschaltet.
+- **Abgelaufene Zugänge:** plan wird free, source none; valid\_until bleibt als Datum des Ablaufs stehen.
+- **Mails sind wiederholbar:** Eine Mail wird erst nach erfolgreichem Versand vermerkt. Schlägt der Versand fehl, liefert der nächste Lauf sie wieder; Mails zu Pässen bis zu drei Tage lang.
+- **Erinnerung vor Ablauf:** einmal je Enddatum, sobald das Ende höchstens pass\_reminder\_days entfernt ist, und nur, wenn kein weiterer Pass vorgemerkt ist.
+- **Fällige Schritte:** nur laufende Bewerbungen (planned, applied, interview, offer). Nach dem Versand steht der Termin in reminded\_for.
+- **Gesperrte Konten** erhalten keine Mails.
+- **Abgleich mit Stripe:** bezahlte Checkout-Sessions der letzten drei Tage, die das Portal erzeugt hat (mit Nutzer-ID). Fehlt die Freischaltung, wird sie über `grant_pass` nachgetragen, in der Reihenfolge der Käufe; der Pass beginnt dann am Tag des Nachtrags. Der Hinweis geht an admin\_notify\_email.
+- **Noch nicht gebaut:** das Löschen inaktiver Konten nach 24 Monaten mit Ankündigung 30 Tage vorher; dafür fehlt auch eine Mail-Art in email\_log.
+
 **email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at. Eindeutig je Art, Bezug und Tag.
 
 **Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.

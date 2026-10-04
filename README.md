@@ -41,4 +41,14 @@ Solange das Frontend keine Anmeldeseite hat, laufen die Schritte 2 und 3 über d
 
 Die Regeln der Freischaltung (Beginn, Ende, Umrechnung beim Upgrade) stehen in der Datenbankfunktion `grant_pass` und sind in `supabase/tests/06_grant_pass.sql` getestet.
 
+### Tägliche Funktion lokal ausführen
+
+Die Edge Function `daily` startet vorgemerkte Pässe, beendet abgelaufene Zugänge, archiviert abgelaufene Jobs, gleicht mit Stripe ab und verschickt die fälligen Mails. Auf dem Server ruft die Datenbank sie jeden Morgen selbst auf; lokal von Hand:
+
+1. Für den Mailversand in `.env` eintragen: `SMTP_HOST=inbucket`, `SMTP_PORT=1025`, `SMTP_SENDER=Onboard Germany <portal@onboard-germany.de>`. Die Mails landen dann im lokalen Postfach unter http://127.0.0.1:54324 und verlassen den Rechner nicht.
+2. `npm run functions:serve` starten.
+3. Aufrufen mit dem lokalen Service-Role-Schlüssel (`npx supabase status`): `POST http://127.0.0.1:54321/functions/v1/daily` mit dem Header `Authorization: Bearer <Service-Role-Schlüssel>`.
+
+Die Antwort nennt, was der Lauf getan hat. Ohne SMTP-Angaben werden die Mails übersprungen, ohne Stripe-Schlüssel der Abgleich. Die Regeln sind in `supabase/tests/07_daily.sql` getestet, die Mailtexte stehen in `supabase/functions/_shared/emails.ts`.
+
 Arbeitsanweisung für Claude Code: `CLAUDE.md`.
