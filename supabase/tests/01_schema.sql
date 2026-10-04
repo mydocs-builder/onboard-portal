@@ -2,7 +2,7 @@
 -- die später dazukommen.
 begin;
 set search_path = public, extensions, tests;
-select plan(7);
+select plan(8);
 
 select is_empty($$
   select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -45,6 +45,10 @@ select is_empty($$
    where n.nspname = 'public' and p.prosecdef
      and not exists (select 1 from unnest(p.proconfig) c where c like 'search_path=%')
 $$, 'every security definer function pins its search_path');
+
+-- Der Verkauf ist nach den Migrationen aus; einschalten darf ihn nur der Admin (lokal: die Seed-Daten).
+select col_default_is('public', 'launch_settings', 'sales_enabled', 'false',
+  'no migration switches sales on: sales_enabled defaults to false');
 
 select * from finish();
 rollback;

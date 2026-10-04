@@ -2,7 +2,7 @@
 -- Kauf während einer Freischaltung, doppelte Meldung, und wer die Funktion aufrufen darf.
 begin;
 set search_path = public, extensions, tests;
-select plan(33);
+select plan(46);
 select tests.fixtures();
 
 delete from prices;
@@ -25,6 +25,12 @@ update plan_access set plan = 'starter', source = 'manual', pass_length = null, 
 select tests.create_user('zoe');
 update plan_access set plan = 'plus', source = 'pass', pass_length = 'month', valid_until = portal_today() - 1
  where user_id = tests.uid('zoe');
+
+-- quinn: Free, kauft unten Pässe auf Vorrat. rosa: kostenlose Starter-Freischaltung, noch 10 Tage
+select tests.create_user('quinn');
+select tests.create_user('rosa');
+update plan_access set plan = 'starter', source = 'manual', manual_reason = 'Test', valid_until = portal_today() + 10
+ where user_id = tests.uid('rosa');
 
 -- ---------------------------------------------------------------------------------------------
 -- Wer darf freischalten? Nur der Server.
@@ -132,6 +138,46 @@ select is(grant_pass(tests.uid('stella'), 'plus', 'quarter', 'cs_stella_1', 7500
 select results_eq(
   $$ select plan::text, source::text, manual_reason from plan_access where user_id = tests.uid('stella') $$,
   $$ values ('plus', 'pass', null::text) $$, 'upgrade from a free grant: the access becomes a paid pass');
+
+-- ---------------------------------------------------------------------------------------------
+-- Upgrade bei vorgemerkten Pässen: der gesamte bezahlte Restwert wird umgerechnet.
+-- quinn: Starter 1 Monat (läuft, 30 Resttage = 14,00 €) und Starter 3 Monate (vorgemerkt, 36,00 €),
+-- dann Plus 1 Monat: 50,00 € zu 2900/30 Cent pro Tag ergeben 51 Tage, also Plus für 81 Tage.
+-- ---------------------------------------------------------------------------------------------
+
+select lives_ok($$ select grant_pass(tests.uid('quinn'), 'starter', 'month', 'cs_q1', 1400) $$, 'quinn buys Starter for 1 month');
+select lives_ok($$ select grant_pass(tests.uid('quinn'), 'starter', 'quarter', 'cs_q2', 3600) $$, 'and queues Starter for 3 months');
+select is(grant_pass(tests.uid('quinn'), 'plus', 'month', 'cs_q3', 2900),
+  jsonb_build_object('already_processed', false, 'plan', 'plus', 'starts_on', (select today from d),
+                     'ends_on', (select today + 80 from d), 'credit_days', 51),
+  'upgrade with a queued pass: running and queued pass convert together into 51 Plus days');
+select is((select superseded_by from plan_periods where stripe_session_id = 'cs_q2'),
+          (select id from plan_periods where stripe_session_id = 'cs_q3'),
+  'the queued pass is marked as replaced by the upgrade');
+select is((select count(*) from plan_periods where user_id = tests.uid('quinn')), 3::bigint,
+  'the replaced pass is kept for the evaluation, not deleted');
+select is((select superseded_by from plan_periods where stripe_session_id = 'cs_q1'), null,
+  'the pass that was running stays unmarked');
+select results_eq(
+  $$ select plan::text, valid_until from plan_access where user_id = tests.uid('quinn') $$,
+  $$ select 'plus', today + 80 from d $$, 'afterwards there is one continuous Plus term');
+select ok((select text like '%51 Tage%1 vorgemerkte Pässe ersetzt%' from audit_log
+            where user_id = tests.uid('quinn') and text like 'Plus-Pass%'), 'the audit log mentions the replaced pass');
+
+select is((grant_pass(tests.uid('quinn'), 'starter', 'month', 'cs_q4', 1400) ->> 'starts_on')::date, (select today + 81 from d),
+  'a lower plan attaches to the latest end; the replaced pass no longer counts');
+select is((grant_pass(tests.uid('quinn'), 'plus', 'month', 'cs_q5', 2900) ->> 'starts_on')::date, (select today + 111 from d),
+  'a pass of the same plan attaches behind queued passes as well');
+
+-- rosa: kostenlose Starter-Freischaltung (nicht umgerechnet) und ein vorgemerkter Starter-Pass
+-- (14,00 € zu 7500/90 Cent pro Tag = 16 Tage), dann Plus 3 Monate.
+select is((grant_pass(tests.uid('rosa'), 'starter', 'month', 'cs_r1', 1400) ->> 'starts_on')::date, (select today + 11 from d),
+  'rosa queues a Starter pass behind her free grant');
+select is(grant_pass(tests.uid('rosa'), 'plus', 'quarter', 'cs_r2', 7500) - 'already_processed' - 'plan',
+  jsonb_build_object('starts_on', (select today from d), 'ends_on', (select today + 105 from d), 'credit_days', 16),
+  'upgrade from a free grant with a queued pass: only the paid pass converts');
+select isnt((select superseded_by from plan_periods where stripe_session_id = 'cs_r1'), null,
+  'and that queued pass is marked as replaced');
 
 -- ---------------------------------------------------------------------------------------------
 -- Fehlerfälle

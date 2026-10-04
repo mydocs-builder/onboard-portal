@@ -80,14 +80,15 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | amount\_cents, credit\_days | Zahl | bezahlter Betrag; umgerechnete Tage beim Upgrade |
 | stripe\_session\_id | Text, eindeutig | verhindert doppelte Freischaltung |
 | granted\_by | Text | stripe, system oder Admin-Name |
+| superseded\_by | Verweis, leer | Planphase des Upgrades, das diesen vorgemerkten Pass ersetzt hat |
 
 **Freischaltung eines bezahlten Passes** läuft über die Datenbankfunktion `grant_pass(user, plan, length, stripe_session_id, amount_cents, promo_code, stripe_customer_id)`. Nur der Server darf sie aufrufen (der Stripe-Webhook), weder Kandidat noch Admin. Sie schreibt Planphase, Zugang und Änderungsprotokoll in einer Transaktion:
 
 - **Kein laufender Zugang:** Beginn heute. Ein 1-Monats-Pass läuft 30 Tage, ein 3-Monats-Pass 90 Tage (`pass_days`).
-- **Gleiche oder niedrigere Stufe, auch während einer kostenlosen Freischaltung:** Beginn am Tag nach dem bisherigen Ende, bereits vorgemerkte Pässe eingerechnet. `plan_access` bleibt unverändert; die tägliche Funktion stellt am Beginn um.
-- **Upgrade:** gilt sofort. Resttage eines bezahlten Passes zählen einschließlich des heutigen Tages und werden zum aktiven Listenpreis pro Tag in Tage der neuen Stufe umgerechnet, abgerundet, und in credit\_days vermerkt. Resttage einer kostenlosen Freischaltung werden nicht umgerechnet.
+- **Gleiche oder niedrigere Stufe, auch während einer kostenlosen Freischaltung:** Der Pass hängt sich an das späteste Ende an, auch hinter bereits vorgemerkte Pässe; ersetzte Phasen zählen dabei nicht. `plan_access` bleibt unverändert; die tägliche Funktion stellt am Beginn um.
+- **Upgrade:** gilt sofort. Umgerechnet wird der gesamte bezahlte Restwert: die Resttage des laufenden Passes einschließlich des heutigen Tages und die volle Laufzeit aller vorgemerkten Pässe niedrigerer Stufe, jeweils zum aktiven Listenpreis pro Tag ihrer eigenen Stufe und Länge. Die Summe wird durch den Tagespreis des neuen Passes geteilt, einmal abgerundet und in credit\_days vermerkt. Danach gibt es eine durchgehende Laufzeit der höheren Stufe. Kostenlose Freischaltungen werden nicht umgerechnet.
+- **Ersetzte Pässe:** Die umgerechneten vorgemerkten Pässe werden nicht gelöscht, sondern über superseded\_by als ersetzt markiert und bleiben für die Auswertung erhalten. Die tägliche Funktion startet ersetzte Phasen nicht. Der Pass, der beim Upgrade gerade lief, bleibt unmarkiert.
 - **Dieselbe Stripe-Session** schaltet nur einmal frei; ein zweiter Aufruf liefert das erste Ergebnis zurück.
-- **Offen:** Hat ein Nutzer schon einen Pass vorgemerkt und kauft dann ein Upgrade, bleibt der vorgemerkte Pass unverändert stehen und kann sich mit dem Upgrade überschneiden. Zu klären mit der täglichen Funktion.
 
 **prices**: plan, pass\_length, amount\_cents, stripe\_price\_id, active. Die vier Preise der Pässe; das Portal liest Preise und Stripe-Kennungen von hier, nicht aus dem Code.
 
