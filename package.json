@@ -5,7 +5,8 @@
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "db:test": "supabase test db"
+    "db:test": "supabase test db",
+    "functions:serve": "supabase functions serve --env-file .env"
   },
   "devDependencies": {
     "supabase": "2.119.0"

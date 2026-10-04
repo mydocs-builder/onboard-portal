@@ -81,6 +81,14 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | stripe\_session\_id | Text, eindeutig | verhindert doppelte Freischaltung |
 | granted\_by | Text | stripe, system oder Admin-Name |
 
+**Freischaltung eines bezahlten Passes** läuft über die Datenbankfunktion `grant_pass(user, plan, length, stripe_session_id, amount_cents, promo_code, stripe_customer_id)`. Nur der Server darf sie aufrufen (der Stripe-Webhook), weder Kandidat noch Admin. Sie schreibt Planphase, Zugang und Änderungsprotokoll in einer Transaktion:
+
+- **Kein laufender Zugang:** Beginn heute. Ein 1-Monats-Pass läuft 30 Tage, ein 3-Monats-Pass 90 Tage (`pass_days`).
+- **Gleiche oder niedrigere Stufe, auch während einer kostenlosen Freischaltung:** Beginn am Tag nach dem bisherigen Ende, bereits vorgemerkte Pässe eingerechnet. `plan_access` bleibt unverändert; die tägliche Funktion stellt am Beginn um.
+- **Upgrade:** gilt sofort. Resttage eines bezahlten Passes zählen einschließlich des heutigen Tages und werden zum aktiven Listenpreis pro Tag in Tage der neuen Stufe umgerechnet, abgerundet, und in credit\_days vermerkt. Resttage einer kostenlosen Freischaltung werden nicht umgerechnet.
+- **Dieselbe Stripe-Session** schaltet nur einmal frei; ein zweiter Aufruf liefert das erste Ergebnis zurück.
+- **Offen:** Hat ein Nutzer schon einen Pass vorgemerkt und kauft dann ein Upgrade, bleibt der vorgemerkte Pass unverändert stehen und kann sich mit dem Upgrade überschneiden. Zu klären mit der täglichen Funktion.
+
 **prices**: plan, pass\_length, amount\_cents, stripe\_price\_id, active. Die vier Preise der Pässe; das Portal liest Preise und Stripe-Kennungen von hier, nicht aus dem Code.
 
 **launch\_settings**, genau ein Eintrag
