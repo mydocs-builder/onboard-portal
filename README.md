@@ -14,7 +14,7 @@ Voraussetzungen: Docker Desktop (läuft) und Node.js. Die Supabase CLI ist als D
 ```bash
 npm install
 npm run db:start   # lokaler Supabase-Stack, spielt alle Migrationen ein
-npm run db:reset   # Datenbank neu aus supabase/migrations/ aufbauen
+npm run db:reset   # Datenbank neu aus supabase/migrations/ aufbauen, danach supabase/seed.sql laden
 npm run db:test    # pgTAP-Tests aus supabase/tests/
 npm run db:stop
 ```
