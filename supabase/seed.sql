@@ -7,12 +7,16 @@
 --   delete ... where source = 'example' (als Entwurf) bzw. archivieren und purge_list_entry().
 -- Jobbörsen sind echte Anbieter aus dem Prototyp; checked_at bleibt leer, bis Patrick jede Adresse geöffnet hat.
 
--- Preise der Pässe in Cent. stripe_price_id folgt, sobald die Preise im Stripe-Testmodus angelegt sind.
-insert into public.prices (plan, pass_length, amount_cents) values
-  ('starter', 'month', 1400),
-  ('starter', 'quarter', 3600),
-  ('plus', 'month', 2900),
-  ('plus', 'quarter', 7500);
+-- Preise der Pässe in Cent, mit den Preis-IDs aus dem Stripe-TESTMODUS.
+-- Die Live-IDs werden vor dem Verkaufsstart im Admin-Bereich eingetragen, nicht hier.
+insert into public.prices (plan, pass_length, amount_cents, stripe_price_id) values
+  ('starter', 'month', 1400, 'price_1UMwaz2feYLU6PH2AtdiMiZy'),
+  ('starter', 'quarter', 3600, 'price_1UMwiD2feYLU6PH2K96cmnQt'),
+  ('plus', 'month', 2900, 'price_1UMwj12feYLU6PH2iuR0iAo7'),
+  ('plus', 'quarter', 7500, 'price_1UMwjc2feYLU6PH2aPNAPFvp');
+
+-- Lokal ist der Verkauf eingeschaltet, damit sich die Bezahlung im Stripe-Testmodus durchspielen lässt.
+update public.launch_settings set sales_enabled = true;
 
 -- Checklisten. Feste IDs: Der Fortschritt der Nutzer hängt an der ID des Punkts.
 insert into public.checklists (id, key, title, area, legal_note, sort) values
@@ -288,3 +292,73 @@ insert into public.jobs (title, company_name, company_id, location, industry, em
   ('Mechanical Design Engineer', 'Beispiel Maschinenbau KG', md5('seed:company:Beispiel Maschinenbau KG')::uuid, 'Stuttgart', 'engineering', null, '{english_ads,relocation_support}', public.portal_today() - 5, 'published', 'example'),
   ('Logistics Planner', 'Beispiel Logistik GmbH', md5('seed:company:Beispiel Logistik GmbH')::uuid, 'Hamburg', 'logistics', null, '{english_ads}', public.portal_today() - 8, 'published', 'example'),
   ('Electrical Engineer, Grid Projects', 'Beispiel Energie GmbH', md5('seed:company:Beispiel Energie GmbH')::uuid, 'Frankfurt', 'engineering', null, '{english_ads}', public.portal_today() - 11, 'published', 'example');
+
+-- ---------------------------------------------------------------------------------------------
+-- LOKALE TESTKONTEN – nur für die Entwicklung, nie für die Produktion.
+-- Diese Datei wird ausschließlich von der Supabase CLI in die lokale Datenbank geladen.
+-- Passwort und TOTP-Geheimnis stehen hier im Klartext und sind deshalb außerhalb der lokalen
+-- Umgebung wertlos zu halten: nie auf einem erreichbaren Server verwenden.
+--
+--   free@example.com     Kandidat, Free
+--   starter@example.com  Kandidat, Starter-Pass (1 Monat, noch 20 Tage)
+--   plus@example.com     Kandidat, Plus-Pass (3 Monate, noch 60 Tage)
+--   admin@example.com    Admin, zweiter Faktor (TOTP) bereits eingerichtet
+-- ---------------------------------------------------------------------------------------------
+do $$
+declare
+  dev_password constant text := 'onboard-local-dev';
+  -- In eine Authenticator-App eintragen (manuelle Eingabe, Typ zeitbasiert), Konto admin@example.com.
+  admin_totp_secret constant text := 'IAQGPKJAV4G5UMORXBNV4B63M4UTO2VG';
+  today constant date := public.portal_today();
+  u record;
+  uid uuid;
+begin
+  for u in
+    select * from (values
+      ('free@example.com', 'Fiona', 'Free'),
+      ('starter@example.com', 'Sam', 'Starter'),
+      ('plus@example.com', 'Priya', 'Plus'),
+      ('admin@example.com', 'Patrick', 'Admin')
+    ) as t (email, first_name, last_name)
+  loop
+    uid := md5('seed:user:' || u.email)::uuid;
+
+    insert into auth.users
+      (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+       raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+       confirmation_token, recovery_token, email_change, email_change_token_new)
+    values
+      (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', u.email,
+       extensions.crypt(dev_password, extensions.gen_salt('bf')), now(),
+       '{"provider":"email","providers":["email"]}',
+       jsonb_build_object('first_name', u.first_name, 'last_name', u.last_name, 'registration_source', 'seed'),
+       now(), now(), '', '', '', '');
+
+    insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+    values (gen_random_uuid(), uid, uid::text, 'email',
+            jsonb_build_object('sub', uid::text, 'email', u.email, 'email_verified', true), now(), now(), now());
+  end loop;
+
+  -- Starter: 1-Monats-Pass, vor 10 Tagen gekauft
+  uid := md5('seed:user:starter@example.com')::uuid;
+  update public.plan_access
+     set plan = 'starter', source = 'pass', pass_length = 'month', valid_until = today + 19
+   where user_id = uid;
+  insert into public.plan_periods (user_id, plan, source, pass_length, starts_on, ends_on, amount_cents, granted_by)
+  values (uid, 'starter', 'pass', 'month', today - 10, today + 19, 1400, 'seed');
+
+  -- Plus: 3-Monats-Pass, vor 30 Tagen gekauft
+  uid := md5('seed:user:plus@example.com')::uuid;
+  update public.plan_access
+     set plan = 'plus', source = 'pass', pass_length = 'quarter', valid_until = today + 59
+   where user_id = uid;
+  insert into public.plan_periods (user_id, plan, source, pass_length, starts_on, ends_on, amount_cents, granted_by)
+  values (uid, 'plus', 'pass', 'quarter', today - 30, today + 59, 7500, 'seed');
+
+  -- Admin: Rolle per Hand, wie im Datenmodell vorgesehen, und ein bestätigter TOTP-Faktor
+  uid := md5('seed:user:admin@example.com')::uuid;
+  update public.profiles set role = 'admin' where user_id = uid;
+  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at, secret)
+  values (md5('seed:factor:admin@example.com')::uuid, uid, 'Local development', 'totp', 'verified', now(), now(), admin_totp_secret);
+end;
+$$;

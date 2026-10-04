@@ -119,6 +119,11 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
+# Platzhalterdateien der Vorlagen, nur lokal: werden beim Start in den Speicherbereich geladen.
+[storage.buckets.templates]
+public = false
+objects_path = "./storage/templates"
+
 # Uncomment to configure local storage buckets
 # [storage.buckets.images]
 # public = false
