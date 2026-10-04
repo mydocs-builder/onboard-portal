@@ -31,7 +31,8 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 6. **Inhalte als Daten**, nicht im Code. Fortschritt hängt an festen IDs.
 7. **Nutzereingaben nie als HTML ausgeben.** Markdown nur über einen sicheren Renderer.
 8. **Code und Bezeichner englisch, Dokumentation deutsch.** Oberfläche zum Start nur Englisch, alle Texte über i18next.
-9. Texte im Portal: allgemeine Information, keine Einzelfallprüfung (RDG). Rechtliche Aussagen nur mit Paragraphenangabe, die Patrick geliefert hat.
+9. **`docs/datenmodell.md` pflegt Claude selbst** (seit 4. Oktober 2026): Jede Änderung an Migrationen wird im selben Schritt dort nachgetragen.
+10. Texte im Portal: allgemeine Information, keine Einzelfallprüfung (RDG). Rechtliche Aussagen nur mit Paragraphenangabe, die Patrick geliefert hat.
 
 ## Gestaltung (aus dem Styleguide von Onboard Germany)
 

@@ -73,6 +73,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | Feld | Typ | Bedeutung |
 | --- | --- | --- |
 | user\_id | Verweis, leerbar | wird beim Löschen des Kontos geleert |
+| deleted\_account\_id | UUID, leer | zufällige Kennung je gelöschtem Konto, tritt beim Löschen an die Stelle von user\_id; ohne Zuordnungstabelle |
 | plan, source, pass\_length | wie oben | source zusätzlich pilot |
 | starts\_on, ends\_on | Datum | Laufzeit; liegt starts\_on in der Zukunft, ist es ein vorgemerkter Pass |
 | reason, promo\_code | Text | Grund der Freischaltung, verwendeter Gutschein |
@@ -94,7 +95,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 
 **stripe\_events**: Ereignis-ID von Stripe als Primärschlüssel, Typ, Zeitpunkt. Jede Meldung wird genau einmal verarbeitet.
 
-**audit\_log**: user\_id, actor (stripe, system oder Admin-Name), text, Zeitpunkt. Das Änderungsprotokoll im Admin-Bereich; Einträge werden nie geändert.
+**audit\_log**: user\_id (leer bei Einträgen ohne Bezug zu einem Nutzerkonto, etwa endgültig gelöschten Listeneinträgen), actor (stripe, system oder Admin-Name), text, Zeitpunkt. Das Änderungsprotokoll im Admin-Bereich; Einträge werden nie geändert, auch nicht vom Server.
 
 ## Bewerbungen
 
@@ -194,7 +195,7 @@ Die Wertelisten liegen als eigene Typen in der Datenbank. Eine neue Branche ist 
 
 **import\_batches**: list (companies, jobs, agencies, job\_boards), file\_name, rows\_total, rows\_ok, rows\_failed, errors (Liste mit Zeile und Grund), created\_by, created\_at. Jeder Import erzeugt einen Eintrag; seine Zeilen landen als draft und werden über die Batch-ID gemeinsam veröffentlicht oder verworfen.
 
-**Phase 2:** n8n schreibt später in dieselben Tabellen, mit source = n8n und status = draft für neue Unternehmen. Am Modell ändert sich dadurch nichts.
+**Phase 2:** n8n schreibt später in dieselben Tabellen, mit source = n8n und status = draft für neue Unternehmen. Am Modell ändert sich dadurch nichts. Vorgemerkt, noch nicht gebaut: n8n bekommt dafür eine eigene, eingeschränkte Datenbankrolle (nur die Listentabellen und `import_batches`), nicht den Service-Role-Schlüssel.
 
 ## Zugriffsregeln
 
@@ -224,7 +225,10 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 
 - `app_settings` ist nur für den Admin lesbar; Kandidaten erhalten über `public_settings()` nur free\_application\_limit und pass\_reminder\_days.
 - Admin-Rechte gelten nur in einer Sitzung mit zweitem Faktor; ohne ihn verhält sich ein Admin-Konto wie ein Kandidat.
-- Veröffentlichte Einträge in Listen werden archiviert, nicht gelöscht; Löschen nur bei Entwürfen. Checklistenpunkte mit Fortschritt werden deaktiviert, nicht gelöscht.
+- Veröffentlichte Einträge in Listen werden archiviert, nicht gelöscht; Löschen nur bei Entwürfen. Die Sperre ist ein Trigger und gilt für jede Rolle, auch für Server-Funktionen mit Service-Role-Schlüssel.
+- Statuswechsel in Listen: draft → published → archived und archived → published. Kein Weg führt zurück auf draft, ebenfalls für jede Rolle.
+- Endgültig löschen kann nur der Admin über `purge_list_entry(list, id)`, und nur archivierte Einträge. Die Funktion schreibt einen Eintrag ins `audit_log` (ohne user\_id, actor = Name des Admins). Verweise in `applications` (company\_id, job\_id) werden dabei geleert; company und position der Bewerbung bleiben als Text.
+- Checklistenpunkte mit Fortschritt werden deaktiviert, nicht gelöscht.
 - Die Registrierung liest über `registration_info()` nur Modus, Verkaufsstatus und Pilot-Stichtag; der Einladungscode wird in der Datenbank geprüft und ist nie lesbar.
 - Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe, bei Formulierungen, Glossar und Listen nur die Anzahl.
 - "Heute" rechnet überall in deutscher Zeit.
