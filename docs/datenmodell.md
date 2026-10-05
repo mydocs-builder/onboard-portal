@@ -17,12 +17,12 @@ Das Modell bildet den freigegebenen Umfang von Phase 1 ab; spätere Erweiterunge
 
 ## Übersicht
 
-24 Tabellen in sieben Bereichen, dazu ein Speicherbereich für Vorlagendateien.
+26 Tabellen in sieben Bereichen, dazu ein Speicherbereich für Vorlagendateien.
 
 | Bereich | Tabellen |
 | --- | --- |
 | Konten | `profiles` |
-| Zugang und Bezahlung | `plan_access`, `plan_periods`, `stripe_events`, `launch_settings`, `prices`, `audit_log` |
+| Zugang und Bezahlung | `plan_access`, `plan_periods`, `stripe_events`, `launch_settings`, `prices`, `audit_log`, `consent_texts`, `purchase_consents` |
 | Bewerbungen | `applications`, `application_events` |
 | Checklisten | `checklists`, `checklist_items`, `checklist_progress`, `dismissed_tasks` |
 | Inhalte | `articles`, `templates`, `phrases`, `glossary_terms` |
@@ -90,6 +90,27 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 - **Upgrade:** gilt sofort. Umgerechnet wird der gesamte bezahlte Restwert: die Resttage des laufenden Passes einschließlich des heutigen Tages und die volle Laufzeit aller vorgemerkten Pässe niedrigerer Stufe, jeweils zum aktiven Listenpreis pro Tag ihrer eigenen Stufe und Länge. Die Summe wird durch den Tagespreis des neuen Passes geteilt, einmal abgerundet und in credit\_days vermerkt. Danach gibt es eine durchgehende Laufzeit der höheren Stufe. Kostenlose Freischaltungen werden nicht umgerechnet.
 - **Ersetzte Pässe:** Die umgerechneten vorgemerkten Pässe werden nicht gelöscht, sondern über superseded\_by als ersetzt markiert und bleiben für die Auswertung erhalten. Die tägliche Funktion startet ersetzte Phasen nicht. Der Pass, der beim Upgrade gerade lief, bleibt unmarkiert.
 - **Dieselbe Stripe-Session** schaltet nur einmal frei; ein zweiter Aufruf liefert das erste Ergebnis zurück.
+
+**Zustimmung beim Kauf** (sofortiger Beginn, Erlöschen des Widerrufsrechts)
+
+Ohne bestätigte Zustimmung zur aktiven Fassung des Wortlauts erzeugt `create-checkout` keine Bezahlseite. Pro Kauf werden Zeitpunkt, Fassung und Planphase festgehalten; der Wortlaut selbst steht versioniert in der Datenbank, damit nachvollziehbar bleibt, welcher Text galt.
+
+**consent\_texts**: version (Versionskennung, etwa 2026-10-05), language, body, active. Je Sprache ist genau eine Fassung aktiv. Eine Fassung wird nie geändert oder gelöscht, für keine Rolle; nur active lässt sich umschalten. Ein neuer Wortlaut ist ein neuer Eintrag.
+
+**purchase\_consents**, eine Zustimmung je begonnenem Kauf
+
+| Feld | Typ | Bedeutung |
+| --- | --- | --- |
+| user\_id | Verweis | wer zugestimmt hat; wird mit dem Konto gelöscht |
+| consent\_text\_id | Verweis | die Fassung des Wortlauts, der zugestimmt wurde |
+| consented\_at | Zeitpunkt | Zeit des Servers beim Aufruf von `create-checkout` |
+| plan, pass\_length | wie oben | der Pass, für den die Zustimmung gilt |
+| stripe\_session\_id | Text, eindeutig | die dazu erzeugte Bezahlseite |
+| plan\_period\_id | Verweis, leer | Bezug zur Planphase; wird gesetzt, sobald die Zahlung den Pass freischaltet. Bleibt er leer, wurde der Kauf nicht abgeschlossen |
+
+- **Ablauf:** Das Portal zeigt die aktive Fassung und schickt deren Versionskennung als consent\_version an `create-checkout`. Die Datenbankfunktion `begin_checkout` prüft Konto, Verkauf, Preis und Zustimmung und legt die Zustimmung an; fehlt die Angabe oder ist sie veraltet, scheitert der Kauf mit consent\_required, bevor Stripe aufgerufen wird. Danach vermerkt `attach_checkout_session` die Stripe-Session. Entsteht später die Planphase zu dieser Session, wird sie automatisch an der Zustimmung eingetragen.
+- **Ohne aktiven Wortlaut** lässt sich nichts kaufen. Die Migrationen legen keinen Text an; der rechtlich geprüfte Wortlaut wird vor dem Verkaufsstart als Fassung eingetragen.
+- **Freischaltung ohne Zustimmung:** `grant_pass` verlangt keine Zustimmung, damit eine bezahlte Zahlung nie ohne Pass bleibt. Die Sperre sitzt vor der Bezahlseite.
 
 **prices**: plan, pass\_length, amount\_cents, stripe\_price\_id, active. Die vier Preise der Pässe; das Portal liest Preise und Stripe-Kennungen von hier, nicht aus dem Code.
 
@@ -217,6 +238,8 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 | `plan_access` | eigenen lesen | alle lesen, manuell ändern | alles |
 | `plan_periods` | eigene lesen | alle lesen, manuelle Phasen anlegen | alles |
 | `prices`, `launch_settings` | aktive Preise lesen; Startphase nur soweit für die Registrierung nötig | lesen und ändern | alles |
+| `consent_texts` | aktive Fassung lesen | alle lesen, neue Fassung anlegen, aktiv schalten | alles außer Wortlaut ändern oder löschen |
+| `purchase_consents` | eigene lesen | alle lesen | anlegen über `begin_checkout` |
 | `stripe_events`, `email_log` | nichts | lesen | alles |
 | `audit_log` | nichts | lesen | anlegen |
 | `applications`, `application_events` | eigene lesen, anlegen, ändern, löschen | nichts | alles |

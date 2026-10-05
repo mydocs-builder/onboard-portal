@@ -18,6 +18,11 @@ insert into public.prices (plan, pass_length, amount_cents, stripe_price_id) val
 -- Lokal ist der Verkauf eingeschaltet, damit sich die Bezahlung im Stripe-Testmodus durchspielen lässt.
 update public.launch_settings set sales_enabled = true;
 
+-- Wortlaut der Zustimmung beim Kauf, aus dem Prototyp. ENTWURF: der rechtlich geprüfte Wortlaut
+-- wird vor dem Verkaufsstart als neue Fassung im Admin-Bereich angelegt, nicht hier.
+insert into public.consent_texts (version, language, body, active) values
+  ('2026-10-03-prototype', 'en', 'I want access to start immediately. I understand that I lose my right of withdrawal once access has started.', true);
+
 -- Lokal gehen Hinweise der täglichen Funktion an das Testkonto des Admins.
 insert into public.app_settings (key, value) values ('admin_notify_email', 'admin@example.com');
 
