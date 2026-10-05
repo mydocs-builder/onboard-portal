@@ -2,7 +2,7 @@
 -- Kauf während einer Freischaltung, doppelte Meldung, und wer die Funktion aufrufen darf.
 begin;
 set search_path = public, extensions, tests;
-select plan(55);
+select plan(59);
 select tests.fixtures();
 
 delete from prices;
@@ -115,6 +115,10 @@ select results_eq(
   $$ select 'plus', 'pass', today + 42 from d $$, 'upgrade: the higher plan applies at once');
 select is((select credit_days from plan_periods where stripe_session_id = 'cs_bob_1'), 13,
   'upgrade: the converted days are recorded with the plan period');
+select is((select upgraded_from::text from plan_periods where stripe_session_id = 'cs_bob_1'), 'starter',
+  'upgrade: the plan period records the plan it was upgraded from');
+select is_empty($$ select 1 from plan_periods where upgraded_from is not null and stripe_session_id in ('cs_alice_1', 'cs_alice_2', 'cs_zoe_1', 'cs_paula_2') $$,
+  'purchases, renewals and lower plans record no previous plan');
 select ok((select text like '%13 Tage aus dem bisherigen Pass umgerechnet%' from audit_log
             where user_id = tests.uid('bob') and actor = 'stripe'), 'upgrade: the audit log mentions the conversion');
 
@@ -138,6 +142,10 @@ select is(grant_pass(tests.uid('stella'), 'plus', 'quarter', 'cs_stella_1', 7500
 select results_eq(
   $$ select plan::text, source::text, manual_reason from plan_access where user_id = tests.uid('stella') $$,
   $$ values ('plus', 'pass', null::text) $$, 'upgrade from a free grant: the access becomes a paid pass');
+select is((select upgraded_from::text from plan_periods where stripe_session_id = 'cs_stella_1'), 'starter',
+  'upgrade from a free grant: the previous plan is recorded even without converted days');
+select is((select upgraded_from from plan_periods where stripe_session_id = 'cs_eve_1'), null,
+  'a queued pass of the same plan is no upgrade');
 
 -- ---------------------------------------------------------------------------------------------
 -- Upgrade bei vorgemerkten Pässen: der gesamte bezahlte Restwert wird umgerechnet.

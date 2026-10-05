@@ -104,25 +104,21 @@ export function buildMail(kind: string, to: string, firstName: string, data: Dat
   }
 }
 
-// Bezahlte Stufen in ihrer Rangfolge.
-const PAID_PLANS = ["starter", "plus"];
-
 // Kaufbestätigung direkt nach der Zahlung. Von Patrick freigegeben (5. Oktober 2026).
-// grant ist das Ergebnis von grant_pass(), length die Laufzeit (month, quarter), today das heutige
-// Datum in deutscher Zeit.
+// grant ist das Ergebnis von grant_pass(), length die Laufzeit (month, quarter), upgradedFrom die
+// bisherige Stufe bei einem Upgrade (aus der Planphase), today das heutige Datum in deutscher Zeit.
 export function buildPurchaseMail(
   to: string, firstName: string,
   grant: { plan: string; starts_on: string; ends_on: string; credit_days: number },
   length: string,
+  upgradedFrom: string | null,
   today: string,
 ): Mail {
   const plan = PLAN[grant.plan];
   const pass = `${length === "quarter" ? "3-month" : "1-month"} ${plan} pass`;
   const one = grant.credit_days === 1;
   const days = one ? "1 extra day" : `${grant.credit_days} extra days`;
-  // Umgerechnet werden nur bezahlte Pässe niedrigerer Stufe. Bei zwei bezahlten Stufen ist die
-  // bisherige Stufe eines Upgrades deshalb immer die Stufe direkt darunter.
-  const previous = PLAN[PAID_PLANS[PAID_PLANS.indexOf(grant.plan) - 1]];
+  const previous = upgradedFrom ? PLAN[upgradedFrom] : null;
   return {
     to,
     subject: `Your ${plan} pass is confirmed`,
