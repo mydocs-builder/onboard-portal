@@ -32,3 +32,30 @@ export function usePrices(): { status: "loading" | "error" | "ready"; prices: Pr
   }, []);
   return state;
 }
+
+type OwnPrices = Partial<Record<PassLength, number>> | undefined;
+
+/**
+ * "from €X / month": der Monatspreis des 3-Monats-Passes, auf ganze Euro gerundet (in Cent).
+ * Gibt es keinen 3-Monats-Pass, der Preis des 1-Monats-Passes; ohne Preis undefined.
+ */
+export function monthlyFrom(own: OwnPrices): number | undefined {
+  if (own?.quarter !== undefined) return Math.round(own.quarter / 300) * 100;
+  return own?.month;
+}
+
+/**
+ * Ersparnis des 3-Monats-Passes gegenüber drei 1-Monats-Pässen in ganzen Prozent, aus den Preisen
+ * berechnet. Unterscheiden sich die Stufen, gilt der kleinere Wert, damit die Aussage für jede Stufe
+ * stimmt. null, wenn sich nichts vergleichen lässt oder der 3-Monats-Pass nicht günstiger ist.
+ */
+export function quarterSavingPercent(prices: PriceTable): number | null {
+  const savings = PAID_PLANS.flatMap((plan) => {
+    const own = prices[plan];
+    if (own?.month === undefined || own.quarter === undefined || own.month <= 0) return [];
+    return [Math.round((1 - own.quarter / (own.month * 3)) * 100)];
+  });
+  if (savings.length === 0) return null;
+  const smallest = Math.min(...savings);
+  return smallest > 0 ? smallest : null;
+}

@@ -427,13 +427,12 @@
       "starter": "for your own job search",
       "plus": "with current jobs"
     },
-    "price": {
-      "month": "{{price}} for 1 month",
-      "quarter": "{{price}} for 3 months"
-    },
     "startFree": "Start with Free",
     "continueWith": "Continue with {{plan}}",
-    "included": "What is included in each plan?"
+    "included": "What is included in each plan?",
+    "fromPrice": "from {{price}} / month",
+    "lengthNote": "Choose 1 or 3 months in the next step.",
+    "saving": "3-month passes save {{percent}}%."
   },
   "account": {
     "lead": "Your personal details and your login details: email address and password. Your plan and your purchases are under Plan and billing.",
