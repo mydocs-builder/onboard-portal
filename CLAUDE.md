@@ -74,6 +74,12 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 **Später, Freischalt-Codes** (vorgemerkt am 5. Oktober 2026): Der Admin legt Codes an mit Stufe, Dauer in Tagen, maximaler Zahl der Einlösungen und "gültig bis". Kandidaten lösen sie unter "Plan and billing" ein. Die Freischaltung läuft wie eine manuelle, mit dem Code als Grund, und folgt denselben Regeln für Beginn und Ende wie Pässe. Rabatte auf Käufe bleiben bei den Gutscheincodes von Stripe; die Freischalt-Codes haben damit nichts zu tun.
 
+- Code mit höherer Stufe bei laufendem bezahltem Pass: Die höhere Stufe gilt sofort für die Dauer des Codes; der bezahlte Restwert wird wie beim Upgrade über `pass_terms` umgerechnet und angehängt.
+- Bei gleicher oder höherer laufender Stufe hängt sich der Code hinten an.
+- Resttage kostenloser Freischaltungen werden wie bisher nicht umgerechnet.
+- Jedes Konto kann einen Code nur einmal einlösen. "Maximale Einlösungen" ist die Gesamtzahl über alle Konten.
+- Zusätzlich je Code die Einstellung "nur für Konten ohne bisherigen Pass".
+
 ## Aktueller Stand (5. Oktober 2026)
 
 Gebaut ist alles bis Schritt 6; 530 pgTAP-Tests und 39 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
