@@ -56,7 +56,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     if (!userId) return;
-    const [profile, access, plan, today, settings, registration, locked, companies, jobs, agencies, glossary, knowledge, checklists, checklistItems] =
+    const [profile, access, plan, today, settings, registration, locked, companies, jobs, agencies, glossary, knowledge, knowledgeTemplates, checklists, checklistItems] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
         supabase.from("plan_access").select("*").eq("user_id", userId).maybeSingle(),
@@ -70,6 +70,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
         count("agencies"),
         count("glossary_terms"),
         supabase.from("articles").select("id", { count: "exact", head: true }).in("area", ["interview", "guide"]),
+        supabase.from("templates").select("id", { count: "exact", head: true }).in("area", ["interview", "guide"]).eq("active", true),
         supabase.from("checklists").select("id, key, title, area, sort").eq("active", true).order("sort"),
         supabase.from("checklist_items").select("checklist_id").eq("active", true),
       ]);
@@ -127,7 +128,8 @@ export function PortalProvider({ children }: { children: ReactNode }) {
           locked: !(checklistItems.data ?? []).some((item) => item.checklist_id === list.id) && hasLocked("checklist_item", [list.key]),
         })),
         showJobs: !nothingVisible(jobs) || hasLocked("job"),
-        showKnowledge: !nothingVisible(knowledge) || hasLocked("article", ["interview", "guide"]),
+        showKnowledge: !nothingVisible(knowledge) || !nothingVisible(knowledgeTemplates)
+          || hasLocked("article", ["interview", "guide"]) || hasLocked("template", ["interview", "guide"]),
         firstSession,
       },
     });

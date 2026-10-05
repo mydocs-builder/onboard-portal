@@ -2,7 +2,7 @@
 -- Gesperrte Inhalte, Listenregeln, Import, Vorlagendateien.
 begin;
 set search_path = public, extensions, tests;
-select plan(144);
+select plan(155);
 select tests.fixtures();
 
 insert into storage.objects (bucket_id, name) values
@@ -193,6 +193,38 @@ select results_eq(
   $$ select company, position, company_id, job_id from applications where id = tests.uid('app-bob') $$,
   $$ values ('Bob Co', 'Nurse', null::uuid, null::uuid) $$,
   'a purge clears the links in applications and keeps company and position as text');
+
+-- ---------------------------------------------------------------------------------------------
+-- Vorlagen: Bereich wie bei den Leitfäden, Formate docx, pdf und xlsx
+-- ---------------------------------------------------------------------------------------------
+
+select is((select count(*) from templates where title like 'T %' and area = 'cv'), 4::bigint,
+  'templates without a stated area belong to the CV page');
+select col_not_null('public', 'templates', 'area', 'every template has an area');
+select col_type_is('public', 'templates', 'area', 'article_area', 'templates use the same areas as articles');
+select is(enum_range(null::template_format)::text[], array['docx', 'pdf', 'xlsx'],
+  'template formats are docx, pdf and xlsx, nothing else');
+
+select lives_ok($$ insert into templates (title, format, file_path, area, min_plan)
+                   values ('T contract sheet', 'xlsx', 'T/contract.xlsx', 'contract', 'starter') $$,
+  'a template can be an xlsx file in another area');
+select throws_ok($$ insert into templates (title, format, file_path) values ('T slides', 'pptx', 'T/slides.pptx') $$,
+  '22P02', null, 'other file formats are refused');
+select throws_ok($$ insert into templates (title, format, file_path, area) values ('T stray', 'pdf', 'T/stray.pdf', 'somewhere') $$,
+  '22P02', null, 'a template cannot be put into an unknown area');
+
+select tests.login('stella');
+select results_eq($$ select format::text, area::text from templates where title = 'T contract sheet' $$,
+  $$ values ('xlsx', 'contract') $$, 'Starter reads the template with its area and format');
+select tests.login('alice');
+select is_empty($$ select 1 from templates where title = 'T contract sheet' $$, 'Free does not see the Starter template');
+select results_eq(
+  $$ select kind, area, min_plan::text from locked_content() where title in ('T contract sheet', 'T starter template') order by title $$,
+  $$ values ('template', 'contract', 'starter'), ('template', 'cv', 'starter') $$,
+  'locked_content() names locked templates with their area');
+select is_empty($$ update templates set area = 'contract' where title = 'T free template' returning 1 $$,
+  'a candidate cannot move a template to another area');
+select tests.logout();
 
 select * from finish();
 rollback;

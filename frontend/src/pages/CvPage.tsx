@@ -3,44 +3,27 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useChecklists } from "../checklists/useChecklists";
 import { ChecklistItems, ChecklistProgress } from "../components/Checklist";
-import { LockHint } from "../components/LockHint";
 import { PageStatus } from "../components/PageStatus";
-import { useToast } from "../components/Toast";
+import { Templates } from "../components/Templates";
 import { supabase, type Tables } from "../lib/supabase";
 import { PLAN_NAME } from "../lib/plan";
 import { usePortal } from "../portal/PortalProvider";
 import { PATHS, guidePath } from "../routes";
 
-type Content = { templates: Tables<"templates">[]; articles: Tables<"articles">[] };
-
 export function CvPage() {
   const { t } = useTranslation();
-  const flash = useToast();
   const { locked } = usePortal();
   const { status, lists, done, toggle } = useChecklists("cv");
-  const [content, setContent] = useState<Content | null>(null);
+  const [articles, setArticles] = useState<Tables<"articles">[]>([]);
 
   useEffect(() => {
-    Promise.all([
-      supabase.from("templates").select("*").eq("active", true).eq("language", "en").order("sort"),
-      supabase.from("articles").select("*").eq("area", "cv").eq("published", true).eq("language", "en").order("sort"),
-    ]).then(([templates, articles]) => setContent({ templates: templates.data ?? [], articles: articles.data ?? [] }));
+    supabase.from("articles").select("*").eq("area", "cv").eq("published", true).eq("language", "en").order("sort")
+      .then(({ data }) => setArticles(data ?? []));
   }, []);
 
-  // Der Link gilt eine Minute und wird nur ausgestellt, wenn die Stufe die Datei abrufen darf.
-  async function download(template: Tables<"templates">) {
-    const { data, error } = await supabase.storage.from("templates").createSignedUrl(template.file_path, 60, { download: true });
-    if (error || !data) {
-      flash(t("cv.downloadError"));
-      return;
-    }
-    window.location.assign(data.signedUrl);
-  }
-
-  const lockedTemplates = locked.filter((row) => row.kind === "template");
   const lockedArticles = locked.filter((row) => row.kind === "article" && row.area === "cv");
   const guides = [
-    ...(content?.articles ?? []).map((article) => ({ key: article.slug, title: article.title, lead: article.lead, slug: article.slug as string | null, minPlan: null as string | null })),
+    ...articles.map((article) => ({ key: article.slug, title: article.title, lead: article.lead, slug: article.slug as string | null, minPlan: null as string | null })),
     ...lockedArticles.map((row) => ({ key: row.title, title: row.title, lead: null, slug: null, minPlan: PLAN_NAME[row.min_plan] })),
   ];
 
@@ -59,26 +42,7 @@ export function CvPage() {
         </div>
       ))}
 
-      <h2 className="t2">{t("cv.templates")}</h2>
-      {content && content.templates.length > 0 && (
-        <div style={{ borderTop: "1px solid var(--line)", maxWidth: 900 }}>
-          {content.templates.map((template) => (
-            <div className="dl" key={template.id}>
-              <div><div className="dt">{template.title}</div>{template.description && <div className="dd">{template.description}</div>}</div>
-              <div>
-                <span className="fmt">{template.format.toUpperCase()}</span>
-                <button className="btn2" onClick={() => download(template)} aria-label={t("cv.downloadAria", { title: template.title })}>{t("cv.download")}</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      {lockedTemplates.length > 0 && (
-        <LockHint title={t("lock.fromPlan", { plan: PLAN_NAME[lockedTemplates[0].min_plan] })}>
-          {lockedTemplates.map((row) => row.title).join(", ")}.
-        </LockHint>
-      )}
-      {content && content.templates.length === 0 && lockedTemplates.length === 0 && <p className="empty">{t("common.nothingYet")}</p>}
+      <Templates areas={["cv"]} always />
 
       <h2 className="t2">{t("cv.guides")}</h2>
       <div className="steps">

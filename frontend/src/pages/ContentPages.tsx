@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { LockHint } from "../components/LockHint";
 import { Markdown } from "../components/Markdown";
 import { PageStatus } from "../components/PageStatus";
+import { Templates } from "../components/Templates";
 import { PLAN_NAME } from "../lib/plan";
 import { supabase, type Enums, type Tables } from "../lib/supabase";
 import { usePortal } from "../portal/PortalProvider";
@@ -108,8 +109,8 @@ export function KnowledgePage() {
           </div>
         ))}
       </div>
+      <Templates areas={["interview", "guide"]} />
       {lockedAreas.knowledge && <LockHint title={t("lock.fromPlan", { plan: PLAN_NAME[lockedArticles[0].min_plan] })}>{t("knowledge.lock")}</LockHint>}
-      {state.status === "ready" && state.articles.length === 0 && !lockedAreas.knowledge && <p className="empty">{t("common.nothingYet")}</p>}
     </>
   );
 }
@@ -159,6 +160,7 @@ export function ContractPage() {
           <Markdown>{article.body}</Markdown>
         </div>
       ))}
+      <Templates areas={["contract"]} />
       {state.status === "ready" && state.terms.length === 0 && state.articles.length === 0 && !lockedAreas.contract && <p className="empty">{t("common.nothingYet")}</p>}
     </>
   );

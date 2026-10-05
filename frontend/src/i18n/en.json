@@ -101,11 +101,7 @@
     "title": "Your CV and cover letter",
     "lead": "The CV is the first thing an employer in Germany sees from you. Bring it into German format before you send the first application.",
     "checklist": "Checklist for your CV",
-    "templates": "Templates",
-    "guides": "Guides",
-    "download": "Download",
-    "downloadAria": "Download: {{title}}",
-    "downloadError": "The download could not be started. Please try again."
+    "guides": "Guides"
   },
   "profiles": {
     "title": "Your profile for German recruiters",
@@ -820,5 +816,11 @@
       "errorSame": "Please choose a password that differs from your current one.",
       "errorOther": "The password could not be saved. Please request a new link."
     }
+  },
+  "templates": {
+    "title": "Templates",
+    "download": "Download",
+    "downloadAria": "Download: {{title}}",
+    "downloadError": "The download could not be started. Please try again."
   }
 }

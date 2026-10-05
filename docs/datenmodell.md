@@ -213,11 +213,12 @@ Alle redaktionellen Inhalte des Portals, mit Sprache und Mindeststufe je Eintrag
 | Tabelle | Felder | Zweck |
 | --- | --- | --- |
 | `articles` | slug, area (cv, linkedin, interview, guide, agencies, contract), title, lead, body (Markdown), min\_plan, language, sort, published | Leitfäden und Guide-Kapitel |
-| `templates` | title, description, format (docx, pdf), file\_path, min\_plan, sort, active | Vorlagen zum Download; Dateien im Speicherbereich |
+| `templates` | title, description, format (docx, pdf, xlsx), file\_path, area (wie bei articles, Standard cv), min\_plan, sort, active | Vorlagen zum Download; Dateien im Speicherbereich |
 | `phrases` | category (cover\_letter, phone, interview, vocabulary), field (leer oder Berufsfeld), german, english, usage, min\_plan, sort | German for the job |
 | `glossary_terms` | term\_de, term\_en, what, look\_for, min\_plan (Standard starter), sort | Arbeitsvertrag erklärt |
 
 - **body in Markdown:** Überschriften, Absätze, Listen und Hinweise lassen sich in der Pflegemaske schreiben, ohne HTML. Das Frontend gibt Markdown sicher aus, ohne fremden Code auszuführen.
+- **Vorlagen je Bereich:** Eine Vorlage erscheint auf der Seite ihres Bereichs: cv auf "CV and cover letter", linkedin auf "LinkedIn and XING", interview und guide auf "Interview and guide", agencies auf "Recruitment agencies", contract auf "Employment contract". Eine neue Vorlage braucht keine Änderung am Code. Erlaubte Formate sind docx, pdf und xlsx; ein weiteres Format oder ein weiterer Bereich ist eine kleine Migration.
 - **Vorlagendateien** sind nur für berechtigte Stufen abrufbar. Der Download läuft über einen kurzlebigen Link, den die Datenbank nur bei passendem Plan ausstellt.
 - **Sprache:** articles, templates, phrases und glossary\_terms tragen ein Feld language (en, de), Standard en; ein deutscher Eintrag ist ein eigener Eintrag. Checklisten tragen keine Sprache: Ihre Texte sind in Phase 1 Englisch, die deutsche Fassung kommt später als Übersetzungstabelle je Punkt, damit Fortschritt und IDs beim Sprachwechsel erhalten bleiben.
 - **Gespiegelte Website-Inhalte** (Familiennachzug usw.) sind für später vorgesehen; sie würden nicht hier gespeichert, sondern über die Schnittstelle von WordPress gelesen.
@@ -282,7 +283,7 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 - Endgültig löschen kann nur der Admin über `purge_list_entry(list, id)`, und nur archivierte Einträge. Die Funktion schreibt einen Eintrag ins `audit_log` (ohne user\_id, actor = Name des Admins). Verweise in `applications` (company\_id, job\_id) werden dabei geleert; company und position der Bewerbung bleiben als Text.
 - Checklistenpunkte mit Fortschritt werden deaktiviert, nicht gelöscht.
 - Die Registrierung liest über `registration_info()` nur Modus, Verkaufsstatus, Pilot-Stichtag und confirmation\_resend\_limit (die Seite "Check your inbox" sieht ein Besucher vor der Anmeldung, und Besucher dürfen nur diese Funktion aufrufen); der Einladungscode wird in der Datenbank geprüft und ist nie lesbar.
-- Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe, bei Formulierungen, Glossar und Listen nur die Anzahl.
+- Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe (bei Checklistenpunkten ist der Bereich der Schlüssel der Checkliste, bei Leitfäden und Vorlagen ihr Feld area), bei Formulierungen, Glossar und Listen nur die Anzahl.
 - "Heute" rechnet überall in deutscher Zeit.
 
 **Funktionen der Datenbank im Überblick**

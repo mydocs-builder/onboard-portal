@@ -197,11 +197,11 @@ A good recruiter matches you with suitable employers, prepares you for the inter
   ('guide-first-job', 'guide', 'Guide: Land your first job in Germany', 'The complete guide, chapter by chapter.', '', 'starter', 1, false);
 
 -- Vorlagen. Die Dateien selbst liefert Patrick; bis dahin liegt unter file_path noch nichts im Speicherbereich.
-insert into public.templates (title, description, format, file_path, min_plan, sort) values
-  ('CV template, German format', 'Tabular layout on two pages, with a note on each section.', 'docx', 'cv-template-german-format.docx', 'starter', 1),
-  ('Cover letter template', 'One page, structured the way German recruiters read it.', 'docx', 'cover-letter-template.docx', 'starter', 2),
-  ('Sample CV', 'A completed example to compare your own CV against.', 'pdf', 'sample-cv.pdf', 'starter', 3),
-  ('Follow-up email template', 'For asking about the status of your application.', 'docx', 'follow-up-email-template.docx', 'starter', 4);
+insert into public.templates (title, description, format, file_path, area, min_plan, sort) values
+  ('CV template, German format', 'Tabular layout on two pages, with a note on each section.', 'docx', 'cv-template-german-format.docx', 'cv', 'starter', 1),
+  ('Cover letter template', 'One page, structured the way German recruiters read it.', 'docx', 'cover-letter-template.docx', 'cv', 'starter', 2),
+  ('Sample CV', 'A completed example to compare your own CV against.', 'pdf', 'sample-cv.pdf', 'cv', 'starter', 3),
+  ('Follow-up email template', 'For asking about the status of your application.', 'docx', 'follow-up-email-template.docx', 'cv', 'starter', 4);
 
 -- Formulierungen: Anschreiben in Free, alles andere ab Starter. Fachvokabular ohne field ist das allgemeine.
 insert into public.phrases (category, field, german, english, usage, min_plan, sort) values

@@ -5,6 +5,7 @@ import { LockHint } from "../components/LockHint";
 import { Markdown } from "../components/Markdown";
 import { PageStatus } from "../components/PageStatus";
 import { SIGNALS, Signals, type Signal } from "../components/Signals";
+import { Templates } from "../components/Templates";
 import { useToast } from "../components/Toast";
 import { daysBetween, formatDate } from "../lib/dates";
 import { FIELDS, type Field } from "../lib/fields";
@@ -146,6 +147,7 @@ export function AgenciesPage() {
       {lockedAreas.agencies && <LockHint title={t("lock.fromPlan", { plan: PLAN_NAME[lockedAgencies[0].min_plan] })}>{t("agencies.lockAll")}</LockHint>}
 
       {guide && <Markdown className="read sec">{guide.body}</Markdown>}
+      <Templates areas={["agencies"]} />
 
       {rows.length > 0 && (
         <>

@@ -5,6 +5,7 @@ import { ChecklistItems, ChecklistProgress } from "../components/Checklist";
 import { ExternalLink } from "../components/ExternalLink";
 import { LockHint } from "../components/LockHint";
 import { PageStatus } from "../components/PageStatus";
+import { Templates } from "../components/Templates";
 import { IMMIGRATION_CALL_URL } from "../lib/links";
 import { PLAN_NAME } from "../lib/plan";
 import { usePortal } from "../portal/PortalProvider";
@@ -57,6 +58,7 @@ export function ProfilesPage() {
           )}
         </>
       )}
+      <Templates areas={["linkedin"]} />
     </>
   );
 }

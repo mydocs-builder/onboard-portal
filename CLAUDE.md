@@ -82,7 +82,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 58 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 542 pgTAP-Tests und 58 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 
@@ -92,6 +92,7 @@ Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 58 Tests der Frontend-Logik 
 - Gestaltung: `src/styles/portal.css` ist das CSS des Prototyps mit Farben und Schriften als Variablen, `src/styles/app.css` die Ergänzungen. Kleinste Schriftgröße 14 px (Styleguide); der Prototyp hatte stellenweise 11 bis 13 px.
 - Adressen und Menü stehen je an genau einer Stelle: `src/routes.ts` hält die Adresse jeder Seite (im übrigen Code steht keine Adresse als Text), `src/portal/nav.ts` Gruppen, Reihenfolge und Einträge des Menüs; die Beschriftung kommt aus den Texten (`nav.items.*`, `nav.groups.*`). Ändert sich eine Adresse, kommt die alte in `REDIRECTS` in `src/routes.ts` und leitet auf die neue weiter. Außerhalb des Frontends stehen Portal-Adressen nur in `create-checkout` (Rückkehr von Stripe) und in den Mailtexten.
 - Checklisten kommen aus der Datenbank ins Menü: Ihr Feld `area` bestimmt die Stelle (Regel und Tabelle in `docs/datenmodell.md`, Abschnitt Checklisten; Code in `src/portal/checklistNav.ts`). Eine neue aktive Checkliste erscheint ohne Code-Änderung, als Reiter auf einer bestehenden Seite oder als eigener Menüeintrag unter `/checklists/<key>`.
+- Vorlagen erscheinen auf der Seite ihres Bereichs (`templates.area`, dieselben Bereiche wie bei `articles`); die gemeinsame Komponente ist `src/components/Templates.tsx`. "Interview and guide" erscheint im Menü auch dann, wenn es dort nur Vorlagen gibt.
 - Links aus Mails führen auf `/auth/callback` (optional mit `?next=`). Die Rückkehr von Stripe führt auf `/billing/success` und `/plan?checkout=cancelled`.
 - Nach jeder Migration `npm run db:types` ausführen und die erzeugte Datei mit einchecken.
 
