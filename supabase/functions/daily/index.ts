@@ -2,7 +2,8 @@
 // Die tägliche Funktion: erledigt alles Zeitgesteuerte. Aufgerufen einmal am Morgen von der
 // Datenbank (pg_cron, siehe Migration daily_schedule), lokal von Hand.
 //
-// 1. daily_run(): vorgemerkte Pässe starten, abgelaufene Zugänge beenden, abgelaufene Jobs archivieren.
+// 1. daily_run(): vorgemerkte Pässe starten, abgelaufene Zugänge beenden, abgelaufene Jobs archivieren,
+//    abgelaufene Zustimmungen und unbestätigte Konten löschen.
 // 2. Abgleich mit Stripe: bezahlte Sessions ohne Freischaltung nachtragen, Erstattungen vermerken,
 //    Hinweis an den Admin.
 // 3. Fällige Mails verschicken und im email_log vermerken.

@@ -425,13 +425,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "blocked_at": string | null,"created_at": string,"field": Database["public"]['Enums']["industry"] | null,"first_login_at": string | null,"first_name": string,"invited_by_admin": boolean,"language": Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source": string,"reminders_enabled": boolean,"role": Database["public"]['Enums']["user_role"],"updated_at": string,"user_id": string
+                    "blocked_at": string | null,"confirmation_resends": number,"created_at": string,"field": Database["public"]['Enums']["industry"] | null,"first_login_at": string | null,"first_name": string,"invited_by_admin": boolean,"language": Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source": string,"reminders_enabled": boolean,"role": Database["public"]['Enums']["user_role"],"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "blocked_at"?: string | null,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name": string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id": string
+                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name": string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "blocked_at"?: string | null,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name"?: string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name"?: string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id"?: string
+                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name"?: string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name"?: string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     

@@ -73,13 +73,13 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 499 pgTAP-Tests und 31 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 530 pgTAP-Tests und 39 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 
 - Seiten unter `src/pages/`, gemeinsame Bausteine unter `src/components/`, alle Bedientexte in `src/i18n/en.json`. Inhalte (Checklisten, Leitfäden, Formulierungen, Glossar, Listen, Preise, Zustimmungstext) kommen aus der Datenbank.
 - `src/portal/PortalProvider.tsx` lädt nach der Anmeldung Profil, Stufe (`effective_plan`), heutiges Datum (`portal_today`), Grenzwerte und `locked_content()`. Das Schloss im Menü wird daraus abgeleitet: Ein Bereich gilt als gesperrt, wenn die Stufe dort nichts sieht und es gesperrte Einträge gibt.
-- Logik mit Tests: `src/tracker/logic.ts` (Vorschläge beim Statuswechsel, Fälligkeit, "What happened?", Dubletten) und `src/overview/steps.ts` (nächste Schritte, "Completed").
+- Logik mit Tests: `src/tracker/logic.ts` (Vorschläge beim Statuswechsel, Fälligkeit, "What happened?", Dubletten) , `src/overview/steps.ts` (nächste Schritte, "Completed") und `src/lib/emailSuggestion.ts` (Hinweis bei Tippfehlern in verbreiteten E-Mail-Domains).
 - Gestaltung: `src/styles/portal.css` ist das CSS des Prototyps mit Farben und Schriften als Variablen, `src/styles/app.css` die Ergänzungen. Kleinste Schriftgröße 14 px (Styleguide); der Prototyp hatte stellenweise 11 bis 13 px.
 - Links aus Mails führen auf `/auth/callback` (optional mit `?next=`). Die Rückkehr von Stripe führt auf `/billing/success` und `/plan?checkout=cancelled`.
 - Nach jeder Migration `npm run db:types` ausführen und die erzeugte Datei mit einchecken.

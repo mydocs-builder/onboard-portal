@@ -48,8 +48,11 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | invited\_by\_admin | ja/nein | von Patrick angelegt und eingeladen |
 | blocked\_at | Zeitpunkt | gesetzt, wenn ein Konto gesperrt ist |
 | registration\_source | Text | z. B. website, admin, navigator; für die Auswertung |
+| confirmation\_resends | Zahl | wie oft der Bestätigungslink erneut verschickt wurde; Standard 0, nur vom Server geschrieben |
 
 - **E-Mail und Passwort** liegen nur in `auth.users`. Eine E-Mail-Änderung läuft über den Bestätigungsablauf von Supabase.
+- **Unbestätigte Konten:** Ein selbst registriertes Konto, dessen E-Mail-Adresse nach unconfirmed\_account\_days Tagen (Standard 7, deutsche Zeit) nicht bestätigt ist, löscht die tägliche Funktion samt Profil. Vom Admin angelegte Konten mit Status "Eingeladen" sind ausgenommen. Weil ein solches Konto nie angemeldet war, werden auch seine Planphasen (Pilotphase) gelöscht und nicht ohne Nutzerbezug aufbewahrt; sonst zählten sie in der Auswertung als kostenlose Phase ohne Buchung. Je gelöschtem Konto bleibt ein Eintrag im `audit_log` ohne Nutzerbezug, ohne Name und Adresse, nur mit dem Tag der Registrierung; so bleibt zählbar, wie viele Registrierungen nie bestätigt wurden.
+- **Bestätigungslink erneut senden:** höchstens confirmation\_resend\_limit Mal je Konto (Standard 3). Ein Trigger auf `auth.users` zählt jeden weiteren Versand in confirmation\_resends mit und weist ihn danach mit confirmation\_resend\_limit\_reached ab; das gilt für jeden Weg, auch an der Oberfläche vorbei. Der erste Versand bei der Registrierung zählt nicht, bestätigte und eingeladene Konten sind nicht begrenzt. Eine erneute Registrierung mit derselben, noch unbestätigten Adresse verschickt den Link ebenfalls und zählt mit. Supabase Auth gibt die Ablehnung nur als allgemeinen Fehler weiter; das Portal zählt deshalb im Browser mit und zeigt den Hinweis nach dem dritten Mal.
 - **Status "Eingeladen"** ergibt sich daraus, dass `first_login_at` leer und `invited_by_admin` gesetzt ist; kein eigenes Feld.
 - **Konto löschen** läuft über die Edge Function `delete-account`: Der angemeldete Nutzer bestätigt mit seinem Passwort, die Funktion prüft es mit einer eigenen Anmeldung und löscht dann das Konto mit dem Service-Role-Schlüssel. Das entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Zwei Ausnahmen: `purchase_consents` behält den Nachweis der Zustimmung ohne Nutzerbezug bis zum Ende der Aufbewahrungsfrist, und `plan_periods` behält alle Phasen (Pass, Pilot, manuell) für die Auswertung; die Nutzer-ID wird durch eine zufällige Kennung je gelöschtem Konto ersetzt, ohne Zuordnungstabelle. reason bleibt, stripe\_session\_id wird entfernt.
 
@@ -327,11 +330,12 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 | Gesprächstermine morgen | nichts | Erinnerung am Vortag |
 | Abgelaufene Jobs | status archived | - |
 | Zustimmungen nach Ablauf der Aufbewahrungsfrist | Eintrag in `purchase_consents` wird gelöscht | - |
+| Unbestätigte Konten nach Ablauf der Frist | selbst registriertes Konto wird samt Profil gelöscht, Eintrag im Änderungsprotokoll ohne Nutzerbezug | - |
 | Abgleich mit Stripe | Zahlungen ohne Freischaltung finden und nachtragen | Hinweis an Patrick bei Abweichungen |
 
 **Umsetzung der täglichen Funktion**
 
-- **Aufteilung:** Die Datenbankfunktion `daily_run()` ändert den Zustand in einer Transaktion (Pässe starten, Zugänge beenden, Jobs archivieren). `daily_mails()` leitet aus dem Zustand ab, welche Mails noch fehlen; `daily_mail_sent()` vermerkt eine verschickte Mail im `email_log`. Die Edge Function `daily` ruft sie auf, gleicht mit Stripe ab und verschickt die Mails. Alle drei Datenbankfunktionen darf nur der Server aufrufen, die Edge Function nur, wer den Service-Role-Schlüssel hat.
+- **Aufteilung:** Die Datenbankfunktion `daily_run()` ändert den Zustand in einer Transaktion (Pässe starten, Zugänge beenden, Jobs archivieren, abgelaufene Zustimmungen und unbestätigte Konten löschen). `daily_mails()` leitet aus dem Zustand ab, welche Mails noch fehlen; `daily_mail_sent()` vermerkt eine verschickte Mail im `email_log`. Die Edge Function `daily` ruft sie auf, gleicht mit Stripe ab und verschickt die Mails. Alle drei Datenbankfunktionen darf nur der Server aufrufen, die Edge Function nur, wer den Service-Role-Schlüssel hat.
 - **Zeitplan:** täglich 04:00 UTC über pg\_cron (05:00 bzw. 06:00 Uhr deutscher Zeit). Adresse und Schlüssel stehen je Umgebung im Vault (`daily_function_url`, `daily_function_key`); fehlen sie, passiert nichts.
 - **Vorgemerkte Pässe:** Gestartet werden Planphasen, deren Beginn seit dem letzten Lauf erreicht ist (Merker `daily_last_run` in `app_settings`). Ein ausgefallener Lauf wird bis zu sieben Tage nachgeholt. Ersetzte Phasen (superseded\_by) starten nie. Planphasen mit früherem Beginn fasst der Lauf nicht an; ein nach Erstattung auf Free gesetztes Konto wird also nicht wieder freigeschaltet.
 - **Abgelaufene Zugänge:** plan wird free, source none; valid\_until bleibt als Datum des Ablaufs stehen.
@@ -350,7 +354,7 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 
 **Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
 
-**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, admin\_notify\_email.
+**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, unconfirmed\_account\_days = 7, confirmation\_resend\_limit = 3, admin\_notify\_email.
 
 ## Offene Fragen
 
