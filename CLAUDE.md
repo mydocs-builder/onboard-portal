@@ -49,6 +49,10 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 3. Seed-Daten mit Beispielinhalten für die lokale Entwicklung
 4. Edge Functions `create-checkout` und `stripe-webhook` an das Datenmodell anpassen
 
+## Vor dem Verkaufsstart
+
+- **Stripe, Kunden-E-Mails:** In Stripe müssen die Kunden-E-Mails für erfolgreiche Zahlungen eingeschaltet sein. Sonst stimmt der Rechnungssatz der Kaufbestätigung nicht ("You will receive your invoice in a separate email from Stripe", `supabase/functions/_shared/emails.ts`).
+
 ## Offene Punkte im Fahrplan
 
 - **Admin-Bereich, Seite "Zustimmungstexte"** (Wortlaut der Zustimmung beim Kauf, Tabelle `consent_texts`):

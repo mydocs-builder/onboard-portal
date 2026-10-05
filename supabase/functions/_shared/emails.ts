@@ -1,7 +1,7 @@
 // Texte der Mails des Portals: die fünf Mails der täglichen Funktion und die Kaufbestätigung.
 // Englisch; die deutsche Fassung folgt mit der deutschen Fassung des Portals.
-// Allgemeine Information, keine rechtlichen Aussagen. Die Texte der täglichen Funktion sind von
-// Patrick freigegeben (5. Oktober 2026).
+// Allgemeine Information, keine rechtlichen Aussagen. Alle Texte sind von Patrick freigegeben
+// (5. Oktober 2026).
 
 import { PORTAL_URL } from "./http.ts";
 import type { Mail } from "./mail.ts";
@@ -104,7 +104,10 @@ export function buildMail(kind: string, to: string, firstName: string, data: Dat
   }
 }
 
-// Kaufbestätigung direkt nach der Zahlung. Entwurf, von Patrick zu prüfen.
+// Bezahlte Stufen in ihrer Rangfolge.
+const PAID_PLANS = ["starter", "plus"];
+
+// Kaufbestätigung direkt nach der Zahlung. Von Patrick freigegeben (5. Oktober 2026).
 // grant ist das Ergebnis von grant_pass(), length die Laufzeit (month, quarter), today das heutige
 // Datum in deutscher Zeit.
 export function buildPurchaseMail(
@@ -115,7 +118,11 @@ export function buildPurchaseMail(
 ): Mail {
   const plan = PLAN[grant.plan];
   const pass = `${length === "quarter" ? "3-month" : "1-month"} ${plan} pass`;
-  const days = grant.credit_days === 1 ? "1 extra day" : `${grant.credit_days} extra days`;
+  const one = grant.credit_days === 1;
+  const days = one ? "1 extra day" : `${grant.credit_days} extra days`;
+  // Umgerechnet werden nur bezahlte Pässe niedrigerer Stufe. Bei zwei bezahlten Stufen ist die
+  // bisherige Stufe eines Upgrades deshalb immer die Stufe direkt darunter.
+  const previous = PLAN[PAID_PLANS[PAID_PLANS.indexOf(grant.plan) - 1]];
   return {
     to,
     subject: `Your ${plan} pass is confirmed`,
@@ -125,9 +132,10 @@ export function buildPurchaseMail(
         ? `Your ${pass} starts today and runs until ${date(grant.ends_on)}.`
         : `Your ${pass} starts on ${date(grant.starts_on)}, when your current access ends, and runs until ${date(grant.ends_on)}.`) +
       "\nIt ends automatically, so there is nothing to cancel.",
-      grant.credit_days > 0 &&
-      `The remaining value of your previous pass has been converted into ${days} of ${plan}, already included in this end date.`,
-      "Your invoice comes from Stripe, our payment provider.",
+      grant.credit_days > 0 && previous &&
+      `The remaining value of your ${previous} pass has been converted into ${days} of ${plan}. ${one ? "It is" : "They are"} already included in this end date.`,
+      // Stimmt nur, wenn in Stripe die Kunden-E-Mails für erfolgreiche Zahlungen eingeschaltet sind (CLAUDE.md).
+      "You will receive your invoice in a separate email from Stripe, our payment provider.",
       `Go to your portal: ${PORTAL_URL}`,
     ]),
   };
