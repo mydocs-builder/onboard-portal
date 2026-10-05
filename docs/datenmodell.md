@@ -111,7 +111,8 @@ Ohne bestätigte Zustimmung zur aktiven Fassung des Wortlauts erzeugt `create-ch
 - **Ablauf:** Das Portal zeigt die aktive Fassung und schickt deren Versionskennung als consent\_version an `create-checkout`. Die Datenbankfunktion `begin_checkout` prüft Konto, Verkauf, Preis und Zustimmung und legt die Zustimmung an; fehlt die Angabe oder ist sie veraltet, scheitert der Kauf mit consent\_required, bevor Stripe aufgerufen wird. Danach vermerkt `attach_checkout_session` die Stripe-Session. Entsteht später die Planphase zu dieser Session, wird sie automatisch an der Zustimmung eingetragen.
 - **Ohne aktiven Wortlaut** lässt sich nichts kaufen. Die Migrationen legen keinen Text an; der rechtlich geprüfte Wortlaut wird vor dem Verkaufsstart als Fassung eingetragen.
 - **Kontolöschung:** Der Nachweis der Zustimmung bleibt erhalten. Entfernt wird nur der Nutzerbezug; der Verweis auf die Planphase und die Stripe-Session bleiben.
-- **Aufbewahrung:** bis zum Ende des dritten Kalenderjahres nach dem Kauf (maßgeblich ist consented\_at in deutscher Zeit). Danach löscht die tägliche Funktion den Eintrag; das gilt auch für Zustimmungen zu nicht abgeschlossenen Käufen. Die Frist steht als consent\_retention\_years in `app_settings` (Standard 3). **Vermerk: Die Frist wird mit den Rechtstexten noch geprüft.**
+- **Aufbewahrung:** bis zum Ende des dritten Kalenderjahres nach dem Kauf (maßgeblich ist consented\_at in deutscher Zeit). Danach löscht die tägliche Funktion den Eintrag. Die Frist steht als consent\_retention\_years in `app_settings` (Standard 3). **Vermerk: Die Frist wird mit den Rechtstexten noch geprüft.**
+- **Nicht abgeschlossene Käufe:** Zustimmungen ohne Planphase (Bezahlseite erzeugt, nicht bezahlt) löscht die tägliche Funktion schon nach 30 Tagen. Die Frist steht als abandoned\_consent\_days in `app_settings` (Standard 30). Sobald eine Zustimmung eine Planphase hat, gilt für sie nur noch die lange Frist.
 - **Freischaltung ohne Zustimmung:** `grant_pass` verlangt keine Zustimmung, damit eine bezahlte Zahlung nie ohne Pass bleibt. Die Sperre sitzt vor der Bezahlseite.
 
 **prices**: plan, pass\_length, amount\_cents, stripe\_price\_id, active. Die vier Preise der Pässe; das Portal liest Preise und Stripe-Kennungen von hier, nicht aus dem Code.
@@ -327,7 +328,7 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 
 **Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
 
-**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, admin\_notify\_email.
+**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, admin\_notify\_email.
 
 ## Offene Fragen
 

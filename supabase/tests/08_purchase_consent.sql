@@ -2,7 +2,7 @@
 -- werden Zeitpunkt, Fassung und Planphase festgehalten. Der Wortlaut ist unveränderlich.
 begin;
 set search_path = public, extensions, tests;
-select plan(52);
+select plan(58);
 select tests.fixtures();
 
 update launch_settings set sales_enabled = true;
@@ -168,14 +168,33 @@ select is((select count(*) from purchase_consents where user_id is null), 2::big
 
 create temp table y as select extract(year from portal_today())::integer as this_year;
 grant select on y to public;
+-- Abgeschlossene Käufe (mit Planphase) aus früheren Jahren
+insert into purchase_consents (id, user_id, consent_text_id, plan, pass_length, consented_at, plan_period_id)
+select v.id, v.user_id, tests.uid('consent-new'), 'plus', 'month', v.consented_at,
+       (select id from plan_periods where stripe_session_id = 'cs_test_paula')
+  from (values
+    (tests.uid('consent-4y-last-day'), null::uuid, make_timestamptz((select this_year - 4 from y), 12, 31, 23, 30, 0, 'Europe/Berlin')),
+    (tests.uid('consent-3y-first-day'), null, make_timestamptz((select this_year - 3 from y), 1, 1, 0, 30, 0, 'Europe/Berlin')),
+    (tests.uid('consent-1y'), tests.uid('paula'), make_timestamptz((select this_year - 1 from y), 6, 15, 12, 0, 0, 'Europe/Berlin')),
+    (tests.uid('consent-paid-31d'), tests.uid('paula'), now() - interval '31 days')
+  ) as v (id, user_id, consented_at);
+-- Nicht abgeschlossene Käufe (ohne Planphase)
 insert into purchase_consents (id, user_id, consent_text_id, plan, pass_length, consented_at) values
-  (tests.uid('consent-4y-last-day'), null, tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 4 from y), 12, 31, 23, 30, 0, 'Europe/Berlin')),
-  (tests.uid('consent-3y-first-day'), null, tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 3 from y), 1, 1, 0, 30, 0, 'Europe/Berlin')),
-  (tests.uid('consent-1y'), tests.uid('paula'), tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 1 from y), 6, 15, 12, 0, 0, 'Europe/Berlin'));
+  (tests.uid('consent-open-31d'), tests.uid('paula'), tests.uid('consent-new'), 'plus', 'month', now() - interval '31 days'),
+  (tests.uid('consent-open-30d'), tests.uid('paula'), tests.uid('consent-new'), 'plus', 'month', now() - interval '30 days'),
+  (tests.uid('consent-open-10d'), null, tests.uid('consent-new'), 'plus', 'month', now() - interval '10 days');
 select is((select value from app_settings where key = 'consent_retention_years'), '3', 'the retention period is a setting, three years by default');
+select is((select value from app_settings where key = 'abandoned_consent_days'), '30',
+  'the period for purchases that were not completed is its own setting, 30 days by default');
 
 select tests.as_service();
-select is((daily_run() ->> 'consents_deleted')::integer, 1, 'the daily job deletes consents whose retention has ended');
+select is((daily_run() ->> 'consents_deleted')::integer, 2, 'the daily job deletes consents whose retention has ended');
+select is_empty($$ select 1 from purchase_consents where id = tests.uid('consent-open-31d') $$,
+  'a consent without plan period is deleted after 30 days');
+select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-open-30d') $$,
+  'on day 30 it is still there');
+select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-paid-31d') $$,
+  'a consent with a plan period is not touched by the 30-day rule');
 select is_empty($$ select 1 from purchase_consents where id = tests.uid('consent-4y-last-day') $$,
   'a purchase from four calendar years ago is gone');
 select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-3y-first-day') $$,
@@ -190,6 +209,13 @@ select tests.as_service();
 select is((daily_run() ->> 'consents_deleted')::integer, 1, 'a shorter retention period takes effect on the next run');
 select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-1y') $$,
   'with one year, last year''s purchase stays until the end of this year');
+
+select tests.logout();
+update app_settings set value = '5' where key = 'abandoned_consent_days';
+select tests.as_service();
+select is((daily_run() ->> 'consents_deleted')::integer, 2, 'a shorter period for unfinished purchases takes effect on the next run');
+select is((select count(*) from purchase_consents where plan_period_id is null), 2::bigint,
+  'today''s unfinished purchases stay');
 
 select * from finish();
 rollback;
