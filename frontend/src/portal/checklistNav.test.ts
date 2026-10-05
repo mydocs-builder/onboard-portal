@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { placeChecklist, withChecklists, type ChecklistRef } from "./checklistNav";
+import { Constants } from "../lib/database.types";
+import { placeChecklist, withChecklists, type ChecklistArea, type ChecklistRef } from "./checklistNav";
 
-const list = (key: string, area: string, sort = 0): ChecklistRef => ({ key, title: key, area, sort });
+const list = (key: string, area: ChecklistArea, sort = 0): ChecklistRef => ({ key, title: key, area, sort });
 const labels = (entries: ReturnType<typeof withChecklists>) => entries.map((entry) => (entry.type === "page" ? entry.id : `[${entry.list.key}]`));
 
 describe("placeChecklist", () => {
+  it("has a place for every area the database allows", () => {
+    for (const area of Constants.public.Enums.checklist_area) {
+      expect(placeChecklist(area), area).not.toBeNull();
+    }
+  });
+
   it("keeps the five checklists of phase 1 on their pages", () => {
     expect(placeChecklist("cv")).toEqual({ kind: "page", page: "cv" });
     expect(placeChecklist("linkedin")).toEqual({ kind: "page", page: "linkedin" });
@@ -15,16 +22,17 @@ describe("placeChecklist", () => {
   it("gives a checklist its own entry behind another menu entry", () => {
     expect(placeChecklist("contract")).toEqual({ kind: "own", group: "found", after: "contract" });
     expect(placeChecklist("german")).toEqual({ kind: "own", group: "preparation", after: "german" });
+    expect(placeChecklist("applications")).toEqual({ kind: "own", group: "search", after: "applications" });
   });
 
   it("gives a checklist its own entry at the end of a menu group", () => {
     expect(placeChecklist("search")).toEqual({ kind: "own", group: "search", after: null });
+    expect(placeChecklist("found")).toEqual({ kind: "own", group: "found", after: null });
   });
 
-  it("never loses a checklist: unknown areas and account pages fall back to one group", () => {
-    expect(placeChecklist("family")).toEqual({ kind: "own", group: "preparation", after: null });
-    expect(placeChecklist("")).toEqual({ kind: "own", group: "preparation", after: null });
-    expect(placeChecklist("plan")).toEqual({ kind: "own", group: "preparation", after: null });
+  it("has no fallback: a value this file does not know is not placed", () => {
+    expect(placeChecklist("family" as ChecklistArea)).toBeNull();
+    expect(labels(withChecklists("preparation", ["checklist", "german"], [list("x", "family" as ChecklistArea)]))).toEqual(["checklist", "german"]);
   });
 });
 
@@ -39,8 +47,8 @@ describe("withChecklists", () => {
     expect(labels(withChecklists("preparation", [...preparation], [list("german_exam", "german")]))).toEqual(["checklist", "german", "[german_exam]", "knowledge"]);
   });
 
-  it("appends entries for a group and for unknown areas at the end, ordered by sort", () => {
-    const lists = [list("b", "preparation", 2), list("a", "family", 1)];
+  it("appends entries for a group at the end, ordered by sort", () => {
+    const lists = [list("b", "preparation", 2), list("a", "preparation", 1)];
     expect(labels(withChecklists("preparation", [...preparation], lists))).toEqual(["checklist", "german", "knowledge", "[a]", "[b]"]);
   });
 
@@ -55,7 +63,7 @@ describe("withChecklists", () => {
   });
 
   it("adds nothing to the group without a title or to the account group", () => {
-    expect(labels(withChecklists(null, ["overview"], [list("x", "family")]))).toEqual(["overview"]);
-    expect(labels(withChecklists("account", ["plan", "account"], [list("x", "plan")]))).toEqual(["plan", "account"]);
+    expect(labels(withChecklists(null, ["overview"], [list("x", "start")]))).toEqual(["overview"]);
+    expect(labels(withChecklists("account", ["plan", "account"], [list("x", "found")]))).toEqual(["plan", "account"]);
   });
 });

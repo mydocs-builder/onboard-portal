@@ -117,7 +117,7 @@ begin
   insert into public.email_log (user_id, kind) values (tests.uid('alice'), 'pass_ending');
 
   -- Checkliste mit Punkten
-  insert into public.checklists (id, key, title, area) values (tests.uid('checklist'), 't_checklist', 'T checklist', 'test');
+  insert into public.checklists (id, key, title, area) values (tests.uid('checklist'), 't_checklist', 'T checklist', 'cv');
   insert into public.checklist_items (id, checklist_id, title, min_plan, active) values
     (tests.uid('item-free'), tests.uid('checklist'), 'T free item', 'free', true),
     (tests.uid('item-starter'), tests.uid('checklist'), 'T starter item', 'starter', true),

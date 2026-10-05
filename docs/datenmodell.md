@@ -177,16 +177,15 @@ Fünf Checklisten in Phase 1, alle im selben Modell; eine neue Checkliste, etwa 
 
 **checklists**: key (cv, linkedin, xing, visa\_chancenkarte, after\_offer), title, area (der Menüpunkt, in dem sie erscheint), legal\_note (Fundstellenzeile, etwa bei der Visa-Checkliste), sort, active.
 
-**Wo eine Checkliste im Portal erscheint,** bestimmt allein ihr Feld area. Eine neu angelegte, aktive Checkliste braucht keine Änderung am Code:
+**Wo eine Checkliste im Portal erscheint,** bestimmt allein ihr Feld area. Es ist eine feste Werteliste (Typ checklist\_area); andere Werte weist die Datenbank ab. Eine neu angelegte, aktive Checkliste braucht keine Änderung am Code:
 
 | area | Wirkung |
 | --- | --- |
 | cv, linkedin, checklist, arrival | erscheint auf dieser Seite; hat der Menüpunkt mehrere aktive Checklisten, als Reiter |
-| ein anderer Menüeintrag, z. B. german oder contract | eigener Menüeintrag direkt hinter diesem Eintrag, mit dem Titel der Checkliste |
+| ein anderer Menüeintrag: applications, jobs, companies, boards, agencies, german, knowledge, contract | eigener Menüeintrag direkt hinter diesem Eintrag, mit dem Titel der Checkliste |
 | eine Gruppe des Menüs: start, search, preparation, found | eigener Menüeintrag am Ende dieser Gruppe |
-| alles andere | eigener Menüeintrag am Ende der Gruppe "Preparation", damit keine aktive Checkliste unsichtbar bleibt |
 
-Mehrere eigene Einträge an derselben Stelle stehen in der Reihenfolge von sort. Die Kennungen der Menüeinträge und Gruppen stehen im Frontend in `src/portal/nav.ts`, die Regel in `src/portal/checklistNav.ts`. Die Aufgaben der Übersicht (CV, LinkedIn, XING, Visa) sind davon unabhängig und an task\_key gebunden; eine neue Checkliste erzeugt keine neue Aufgabe.
+Mehrere eigene Einträge an derselben Stelle stehen in der Reihenfolge von sort. Ein weiterer Wert ist eine kleine Migration, zusammen mit seiner Stelle im Menü. Bei `templates` ist area ebenfalls eine feste Werteliste, dieselbe wie bei `articles`. Die Kennungen der Menüeinträge und Gruppen stehen im Frontend in `src/portal/nav.ts`, die Regel in `src/portal/checklistNav.ts`. Die Aufgaben der Übersicht (CV, LinkedIn, XING, Visa) sind davon unabhängig und an task\_key gebunden; eine neue Checkliste erzeugt keine neue Aufgabe.
 
 **checklist\_items**
 

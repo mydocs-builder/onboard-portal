@@ -2,7 +2,7 @@
 -- Gesperrte Inhalte, Listenregeln, Import, Vorlagendateien.
 begin;
 set search_path = public, extensions, tests;
-select plan(155);
+select plan(161);
 select tests.fixtures();
 
 insert into storage.objects (bucket_id, name) values
@@ -225,6 +225,24 @@ select results_eq(
 select is_empty($$ update templates set area = 'contract' where title = 'T free template' returning 1 $$,
   'a candidate cannot move a template to another area');
 select tests.logout();
+
+-- ---------------------------------------------------------------------------------------------
+-- Checklisten: der Bereich ist eine feste Werteliste
+-- ---------------------------------------------------------------------------------------------
+
+select col_type_is('public', 'checklists', 'area', 'checklist_area', 'the area of a checklist is a fixed list of values');
+select is(enum_range(null::checklist_area)::text[],
+  array['cv', 'linkedin', 'checklist', 'arrival', 'applications', 'jobs', 'companies', 'boards', 'agencies', 'german',
+        'knowledge', 'contract', 'start', 'search', 'preparation', 'found'],
+  'a checklist belongs to a checklist page, sits behind a menu entry or at the end of a menu group');
+select lives_ok($$ insert into checklists (key, title, area) values ('t_family', 'T family', 'found') $$,
+  'a checklist can be placed in a menu group');
+select throws_ok($$ insert into checklists (key, title, area) values ('t_stray', 'T stray', 'somewhere') $$, '22P02', null,
+  'a checklist cannot be put into an unknown area');
+select throws_ok($$ insert into checklists (key, title, area) values ('t_account', 'T account', 'plan') $$, '22P02', null,
+  'nor into the account pages');
+select throws_ok($$ update checklists set area = 'test' where key = 't_checklist' $$, '22P02', null,
+  'and an existing checklist cannot be moved to an unknown area');
 
 select * from finish();
 rollback;
