@@ -1,4 +1,5 @@
-// Texte der Mails des Portals: die fünf Mails der täglichen Funktion und die Kaufbestätigung.
+// Texte der Mails des Portals: die fünf Mails der täglichen Funktion, die Kaufbestätigung und die
+// Bestätigung des Newsletters.
 // Englisch; die deutsche Fassung folgt mit der deutschen Fassung des Portals.
 // Allgemeine Information, keine rechtlichen Aussagen. Alle Texte sind von Patrick freigegeben
 // (5. Oktober 2026).
@@ -138,15 +139,15 @@ export function buildPurchaseMail(
 }
 
 // Bestätigung des Newsletters (Double-Opt-in). Erst der Klick auf den Link bestellt den Newsletter.
-// ENTWURF vom 5. Oktober 2026, von Patrick noch nicht freigegeben.
+// Wortlaut von Patrick freigegeben (5. Oktober 2026). Die Mail darf keine Werbung enthalten und
+// deshalb nichts außer der Bitte um Bestätigung; keine weiteren Inhalte ergänzen.
 export function buildNewsletterConfirmMail(to: string, firstName: string, link: string): Mail {
   return {
     to,
     subject: "Please confirm your newsletter subscription",
     text: body(firstName, [
       `You asked to receive the Onboard Germany newsletter with job search tips and news. Please confirm your subscription:\n${link}`,
-      "If you did not ask for this, you can ignore this email. You will not receive the newsletter.",
-      "You can unsubscribe at any time in your portal under Account settings.",
+      "If you did not ask for this, simply ignore this email. You will not receive the newsletter.",
     ]),
   };
 }

@@ -395,7 +395,7 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 
 **email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at, sent\_on (Tag des Versands in deutscher Zeit). Eindeutig je Nutzer, Art, Bezug und Tag.
 
-**Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Bestätigungsmail zum Newsletter verschickt die Edge Function `newsletter`. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
+**Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Bestätigungsmail zum Newsletter verschickt die Edge Function `newsletter`; sie enthält nur die Bitte um Bestätigung, keine Werbung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
 
 **app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, unconfirmed\_account\_days = 7, confirmation\_resend\_limit = 3, newsletter\_confirmation\_sends = 5, admin\_notify\_email.
 

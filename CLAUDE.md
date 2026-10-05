@@ -8,6 +8,7 @@ Abo-freies Portal mit Pässen für internationale Fachkräfte auf Jobsuche in De
 
 - `umfang-phase-1.md` – freigegebener Funktionsumfang (Export des Claude Docs)
 - `datenmodell.md` – Datenmodell mit Zugriffsregeln; beschreibt den gebauten Stand und wird von Claude gepflegt
+- `frontend.md` – Aufbau des Frontends, Entscheidungen, Abweichungen vom Prototyp, bekannte Lücken; wird von Claude gepflegt
 - `uebergabe.md` – abgelöst; verweist nur noch auf `CLAUDE.md` und `datenmodell.md`
 - `entwurf-001_billing.sql` – früher Entwurf, geht im Datenmodell auf; nicht direkt verwenden
 - `prototyp.html` – klickbarer Prototyp: Vorbild für Aussehen und Abläufe, Quelle der Seed-Texte
@@ -41,7 +42,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 - Schriften: Spectral (Überschriften) und Inter (Text, Bedienung), lokal eingebunden, nicht von Google geladen
 - Ecken überall eckig (Radius 0), 8-px-Raster, kleinste Schriftgröße 14 px
 - Türkis nie als Textfarbe auf Creme (Kontrast); Zahlen und Text in Textblau
-- Der gefüllte Kasten (Info-Fläche) ist wichtigen Hinweisen vorbehalten, höchstens einmal pro Seite; alles andere, etwa ein "Tip", ist ein Hinweis mit Linie links. In Leitfäden steuert das die Zeile `[!IMPORTANT]` am Anfang eines Zitats (`frontend/src/lib/markdownNotes.ts`)
+- Der gefüllte Kasten (Info-Fläche) ist wichtigen Hinweisen vorbehalten, höchstens einmal pro Seite; alles andere, etwa ein "Tip", ist ein Hinweis mit Linie links
 - Vorbild für Aussehen und Abläufe ist der Prototyp (`docs/prototyp.html`)
 
 ## Fahrplan
@@ -61,14 +62,17 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 | später | Freischalt-Codes im Portal | nicht bauen, bis Patrick es freigibt |
 | später | Aufgaben der Übersicht je Checkliste einstellbar | nicht bauen, bis Patrick es freigibt |
 
-**Schritt 7, Admin-Bereich** (Deutsch): Übersicht, Auswertungen, Nutzer, Nutzer anlegen, Plan ändern, Startphase, Zustimmungstexte, Inhaltspflege, CSV-Import.
+**Schritt 7, Admin-Bereich** (Deutsch): Übersicht, Auswertungen, Nutzer, Nutzer anlegen, Plan ändern, Startphase, Zustimmungstexte, Inhaltspflege, CSV-Import, Partnerangebote.
 
+- **Zuerst der Prototyp:** Vor dem Bau der Pflegemasken entwirft Patrick sie mit Claude im Prototyp. Nicht mit dem Bau der Masken beginnen, bevor dieser Entwurf vorliegt.
 - Auswertungen: Summen-Funktionen in der Datenbank, noch nicht gebaut. Erstattete Planphasen zählen nicht als Verkauf, ersetzte (superseded_by) nicht als eigener Pass.
 - Zustimmungstexte (`consent_texts`): Fassungen anzeigen mit Zahl der Käufe, neue Fassung anlegen, aktiv schalten mit Bestätigung, kein Bearbeiten oder Löschen, Warnhinweis ohne aktive Fassung.
 - Startphase: beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
 - Änderungen des Admins an Plan und Sperre sollen im Änderungsprotokoll landen; das ist für Admin-Aktionen noch nicht gebaut.
-- Seitenleiste wie im Kandidatenportal: dieselben Klassen (`side`, `navgroup`, `navgroup line`, `grp`, `nav`), dann gelten Abstände, Linien über den Rubriken und Schrift der Rubriknamen aus `frontend/src/styles/app.css` auch dort. Nicht einklappbar.
+- Seitenleiste wie im Kandidatenportal, mit denselben Klassen (`docs/frontend.md`, Gestaltung). Nicht einklappbar.
 - Newsletter und Talentpool: in der Übersicht die Zahl der Newsletter-Abonnenten (Status active) und der Talentpool-Interessenten, als Summen-Funktion; Export der Newsletter-Abonnenten mit Status active als CSV für rapidmail. Die Seite "Zustimmungstexte" pflegt auch die Wortlaute der beiden Häkchen (`marketing_consent_texts`), nach denselben Regeln wie `consent_texts`.
+- Pflegemaske für Leitfäden: Knöpfe "Hinweis" und "Wichtiger Hinweis", die das Markdown selbst setzen (`> ...` bzw. `> [!IMPORTANT]`), und eine Vorschau.
+- Partnerangebote: Tabelle `partner_offers` mit Anbieter, Titel, Kategorie, Kurzbeschreibung, Link, optionalem Gutscheincode, gültig bis, Stelle im Portal, Reihenfolge, Status. Für alle Stufen sichtbar, als Baustein an der zugeordneten Stelle und auf einer Übersichtsseite "Partner offers"; ohne veröffentlichte Angebote erscheint nichts. Hinweis bei jedem Angebot: "Partner link: We may receive a commission. The price for you stays the same." Klicks je Angebot zählen, ohne Bezug zum Nutzer.
 - Anmeldung des Admins: Nach E-Mail und Passwort fehlt im Frontend noch der Schritt für den zweiten Faktor (TOTP); bis dahin verhält sich ein Admin-Konto im Portal wie ein Kandidat.
 - Einladung: `first_name` in den Angaben des Nutzers mitgeben (Anrede der Mail) und als Ziel `/auth/callback?next=/reset-password` setzen; die Seite zum Setzen des Passworts gibt es schon.
 
@@ -88,71 +92,48 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 606 pgTAP-Tests und 75 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6. 606 pgTAP-Tests und 75 Tests der Frontend-Logik (Vitest) laufen durch. Den gebauten Stand beschreiben `docs/datenmodell.md` (Datenbank) und `docs/frontend.md` (Frontend, Entscheidungen, Abweichungen vom Prototyp, bekannte Lücken). Vor der Arbeit an einem Bereich dort nachlesen.
 
-**Frontend (`frontend/`)**
+**Nächster Schritt: Schritt 7, Admin-Bereich.** Er beginnt nicht mit Code: Zuerst entwirft Patrick die Pflegemasken mit Claude im Prototyp. Was dazugehört, steht oben im Fahrplan.
 
-- Seiten unter `src/pages/`, gemeinsame Bausteine unter `src/components/`, alle Bedientexte in `src/i18n/en.json`. Inhalte (Checklisten, Leitfäden, Formulierungen, Glossar, Listen, Preise, Zustimmungstext) kommen aus der Datenbank.
-- `src/portal/PortalProvider.tsx` lädt nach der Anmeldung Profil, Stufe (`effective_plan`), heutiges Datum (`portal_today`), Grenzwerte und `locked_content()`. Das Schloss im Menü wird daraus abgeleitet: Ein Bereich gilt als gesperrt, wenn die Stufe dort nichts sieht und es gesperrte Einträge gibt.
-- Logik mit Tests: `src/tracker/logic.ts` (Vorschläge beim Statuswechsel, Fälligkeit, "What happened?", Dubletten), `src/overview/steps.ts` (nächste Schritte, "Completed") und `src/lib/emailSuggestion.ts` (Hinweis bei Tippfehlern in verbreiteten E-Mail-Domains).
-- Gestaltung: `src/styles/portal.css` ist das CSS des Prototyps mit Farben und Schriften als Variablen, `src/styles/app.css` die Ergänzungen. Kleinste Schriftgröße 14 px (Styleguide); der Prototyp hatte stellenweise 11 bis 13 px.
-- Adressen und Menü stehen je an genau einer Stelle: `src/routes.ts` hält die Adresse jeder Seite (im übrigen Code steht keine Adresse als Text), `src/portal/nav.ts` Gruppen, Reihenfolge und Einträge des Menüs; die Beschriftung kommt aus den Texten (`nav.items.*`, `nav.groups.*`). Ändert sich eine Adresse, kommt die alte in `REDIRECTS` in `src/routes.ts` und leitet auf die neue weiter. Außerhalb des Frontends stehen Portal-Adressen nur in `create-checkout` (Rückkehr von Stripe) und in den Mailtexten.
-- Checklisten kommen aus der Datenbank ins Menü: Ihr Feld `area` bestimmt die Stelle (Regel und Tabelle in `docs/datenmodell.md`, Abschnitt Checklisten; Code in `src/portal/checklistNav.ts`). Eine neue aktive Checkliste erscheint ohne Code-Änderung, als Reiter auf einer bestehenden Seite oder als eigener Menüeintrag unter `/checklists/<key>`. `area` ist bei Checklisten wie bei Vorlagen eine feste Werteliste in der Datenbank; eine Auffangregel für unbekannte Werte gibt es nicht.
-- Vorlagen erscheinen auf der Seite ihres Bereichs (`templates.area`, dieselben Bereiche wie bei `articles`); die gemeinsame Komponente ist `src/components/Templates.tsx`. "Interview and guide" erscheint im Menü auch dann, wenn es dort nur Vorlagen gibt.
-- Links aus Mails führen auf `/auth/callback` (optional mit `?next=`). Die Rückkehr von Stripe führt auf `/billing/success` und `/plan?checkout=cancelled`.
-- Nach jeder Migration `npm run db:types` ausführen und die erzeugte Datei mit einchecken.
+**In der Sitzung vom 5. Oktober gebaut**
+
+- Frontend des Kandidatenportals in `frontend/`: Anmeldung und Registrierung, Übersicht, Checklisten, Tracker, Listen, Inhaltsseiten, Account settings, Plan und Kauf.
+- Datenbank: `preview_pass` und `pass_terms` (eine Rechnung für Vorschau und Freischaltung), Löschen unbestätigter Konten und Grenze für das erneute Senden des Bestätigungslinks, `area` als feste Werteliste bei Checklisten und Vorlagen, Format xlsx für Vorlagen, Newsletter mit Double-Opt-in und Talentpool mit versionierten Wortlauten und Nachweis.
+- Edge Functions `delete-account` und `newsletter`.
+- Mails von Supabase Auth mit freigegebenem Wortlaut (`supabase/templates/`), Bestätigungsmail zum Newsletter.
+- `npm run portal` und `npm run portal:stripe` (`scripts/portal.mjs`).
 
 **Arbeitsweise**
 
 - Nach jedem abgeschlossenen Schritt committen, direkt auf `main`. Pushen nur, wenn Patrick es sagt. Scheitert der Push an der Anmeldung, muss Patrick ihn einmal selbst ausführen (die Anmeldung bei GitHub braucht den Browser).
-- Committete Migrationen werden nicht mehr geändert; jede Änderung ist eine neue Migration. Geänderte Funktionen werden dort mit `create or replace` vollständig neu angegeben.
-- Neue Funktionen sind für niemanden ausführbar, bis ein `grant execute` dasteht (Standardrechte sind entzogen).
+- Committete Migrationen werden nicht mehr geändert; jede Änderung ist eine neue Migration. Geänderte Funktionen werden dort mit `create or replace` vollständig neu angegeben; ändert sich der Rückgabetyp, wird die Funktion gelöscht und mit ihren Rechten neu angelegt.
+- Neue Funktionen sind für niemanden ausführbar, bis ein `grant execute` dasteht (Standardrechte sind entzogen). Besucher dürfen nur `registration_info()` aufrufen; jede Tabelle braucht mindestens eine ausdrückliche Regel. Beides prüft `supabase/tests/01_schema.sql`.
+- Nach jeder Migration `npm run db:types` ausführen, `docs/datenmodell.md` nachtragen und Tests ergänzen. Änderungen am Frontend in `docs/frontend.md` nachtragen.
 - `.env` enthält Patricks Stripe-Testschlüssel. Werte nicht auslesen oder anzeigen; nur prüfen, ob sie gesetzt sind.
+- Mailtexte sind von Patrick freigegeben; Änderungen am Wortlaut nur nach Rücksprache. Das gilt für `supabase/functions/_shared/emails.ts` (reiner Text) und `supabase/templates/` (Supabase Auth). Die Bestätigungsmail zum Newsletter darf keine Werbung und keine weiteren Inhalte enthalten.
+- Neue Wortlaute für das Portal (Häkchen, rechtliche Hinweise) nicht selbst festlegen: als Entwurf kennzeichnen und Patrick vorlegen.
 
 **Lokale Arbeit** (Befehle und Schritte in `README.md`)
 
-- `npm run portal` startet alles auf einmal (Supabase, Funktionen, Frontend unter http://127.0.0.1:5173), `npm run portal:stripe` zusätzlich `stripe listen`; das Skript ist `scripts/portal.mjs`. Einzeln: `npm run db:start`, `db:reset`, `db:test`, `db:types`, `functions:serve`, `dev`. Die Supabase CLI ist in `package.json` festgeschrieben.
-- `frontend/.env.local` (ignoriert) enthält Adresse und öffentlichen Schlüssel (anon) der lokalen Umgebung; Vorlage ist `frontend/.env.example`.
-- Für Kauf und Kontolöschung im Browser muss `npm run functions:serve` laufen: Ohne die `.env` erlauben die Funktionen nur Aufrufe von der Adresse des Servers (`PORTAL_URL`), nicht von 127.0.0.1.
-- Testkonten aus `supabase/seed.sql`: `free@`, `starter@`, `plus@`, `admin@example.com`; Passwort unter `dev_password`.
-- Admin-Rechte gelten erst mit zweitem Faktor (TOTP). Für `admin@example.com` ist er eingerichtet; das Geheimnis steht in `seed.sql` unter `admin_totp_secret`.
-- Stripe: `stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook`. Ohne `--events` startet es bei Patrick nicht.
-- Mails lokal: in `.env` stehen `SMTP_HOST=inbucket`, `SMTP_PORT=1025`, `SMTP_SENDER=...`; Postfach unter http://127.0.0.1:54324.
-- Die tägliche Funktion wird lokal von Hand aufgerufen, mit dem Service-Role-Schlüssel als Bearer-Token.
-- `sales_enabled` ist nur in den Seed-Daten an; nach den Migrationen allein ist der Verkauf aus.
+- `npm run portal` startet Supabase, Funktionen und Frontend (http://127.0.0.1:5173), `npm run portal:stripe` zusätzlich `stripe listen` mit `--events` (ohne die Angabe startet es bei Patrick nicht). Einzeln: `npm run db:start`, `db:reset`, `db:test`, `db:types`, `functions:serve`, `dev`. Die Supabase CLI ist in `package.json` festgeschrieben.
+- Die Funktionen müssen mit der `.env` laufen (`functions:serve` oder `portal`): Sonst erlauben sie nur Aufrufe von der Adresse des Servers und verschicken keine Mails.
+- Testkonten aus `supabase/seed.sql`: `free@`, `starter@`, `plus@`, `admin@example.com`; Passwort unter `dev_password`. Admin-Rechte gelten erst mit zweitem Faktor (TOTP); das Geheimnis steht in `seed.sql` unter `admin_totp_secret`.
+- Mails landen lokal im Postfach unter http://127.0.0.1:54324. Die tägliche Funktion wird lokal von Hand aufgerufen, mit dem Service-Role-Schlüssel als Bearer-Token.
+- Nur lokal, durch die Seed-Daten: Verkauf eingeschaltet, Entwürfe der Wortlaute (Kauf, Newsletter, Talentpool) aktiv, Beispieldaten für Unternehmen, Jobs und Personaldienstleister (Name beginnt mit "Beispiel", `source = 'example'`). Nach den Migrationen allein ist der Verkauf aus und es gibt keine Wortlaute.
+- In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen vom 4. und 5. Oktober.
 
-**Entscheidungen, die nicht im Datenmodell stehen**
+**Offene Punkte**
 
-- Mailtexte in `supabase/functions/_shared/emails.ts` sind von Patrick freigegeben (fünf Mails der täglichen Funktion, Kaufbestätigung). Reiner Text, kein HTML. Änderungen am Wortlaut nur nach Rücksprache.
-- Die vier Mails von Supabase Auth (Bestätigung der Registrierung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) stehen in `supabase/templates/`, Betreff in `supabase/config.toml`; Wortlaut von Patrick freigegeben (5. Oktober 2026). Supabase Auth verschickt Mails nur als HTML, deshalb enthalten die Vorlagen nichts außer Absätzen und dem Link, ohne Gestaltung. Die Anrede nimmt den Vornamen aus den Angaben der Registrierung (`first_name`). Alle Links gelten 24 Stunden (`otp_expiry`), auch der zum Zurücksetzen des Passworts.
-- Eine E-Mail-Änderung wird an der alten und an der neuen Adresse bestätigt (`double_confirm_changes = true`, Entscheidung von Patrick am 5. Oktober 2026); beide erhalten dieselbe Mail, die die neue Adresse nennt. Die Anmeldung wechselt erst, wenn beide Links geklickt sind.
-- `create-checkout` erwartet `consent_version`; das Frontend liest die aktive Fassung aus `consent_texts` und schickt deren Versionskennung mit.
-- Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example` oder liegt unter `example.com`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
-- In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen aus den Tests vom 4. und 5. Oktober.
-
-- Newsletter und Talentpool (5. Oktober 2026): zwei freiwillige Häkchen bei der Registrierung und der Abschnitt "Emails from us" in den Account settings; Regeln in `docs/datenmodell.md`, Abschnitt "Newsletter und Talentpool". Die Bestätigungsmail zum Newsletter (`buildNewsletterConfirmMail` in `supabase/functions/_shared/emails.ts`) ist ein Entwurf und von Patrick noch nicht freigegeben. In "Emails from us" steht als Beschreibung von Newsletter und Talentpool der versionierte Wortlaut aus der Datenbank, nicht der Kurztext des Prototyps, damit angezeigter und festgehaltener Text übereinstimmen.
-- Rechnungen (5. Oktober 2026): Im Portal gibt es keine Links zu Rechnungen. "Plan and billing" zeigt die Käufe mit Datum, Pass und Betrag und den Satz, dass die Rechnungen per Mail von Stripe kamen. Rechnungs-IDs werden nicht gespeichert.
-- Visa-Checkliste: nur Chancenkarte, ohne Reiter. Die Reiter erscheinen von selbst, sobald im Menüpunkt eine zweite Checkliste aktiv ist (gilt für jeden Menüpunkt mit mehreren Checklisten, so auch LinkedIn und XING).
-- Sprachumschalter und das Feld "Portal language" sind ausgeblendet, bis es die deutsche Fassung gibt.
-- Abweichungen vom Prototyp, von Patrick bestätigt: Unternehmen nur in Plus (auch in der Preiskarte), "pass" statt "subscription" beim Löschen des Kontos, "Jobs for internationals" erst mit dem ersten veröffentlichten Job, ohne Verkauf keine Stufenwahl und auf "Plan" der Pilot-Hinweis.
-- Texte zu Jobs sagen nicht "updated daily" (im Prototyp so); in Phase 1 werden Jobs von Hand gepflegt.
-- Konto löschen und Bewerbung löschen verlangen eine Bestätigung (Passwort bzw. zweiter Klick); der Prototyp löschte sofort.
-- Der Verlauf einer Bewerbung wird als fertiger englischer Satz gespeichert (`application_events.text`), nicht als Schlüssel.
-- Wer nach dem Anfordern einer E-Mail-Änderung sein Passwort ändert, macht den Bestätigungslink ungültig (Verhalten von Supabase Auth); die Seite sagt dann, dass der Link nicht mehr gilt.
-
-**Bekannte Lücken**
-
-- Die Verweise auf Impressum, Datenschutzerklärung, Nutzungsbedingungen und die Buchung des Immigration Call zeigen vorläufig auf `https://onboard-germany.de/` (`frontend/src/lib/links.ts`).
-- "Interview and guide" erscheint im Menü erst, wenn dort ein Leitfaden veröffentlicht ist (wie "Jobs for internationals"); bis dahin ist der Menüpunkt für alle Stufen ausgeblendet.
-- Die Mails von Supabase Auth gehen technisch als HTML hinaus (nur Absätze und Link). Echter reiner Text wie bei den übrigen Mails bräuchte einen eigenen Versand über einen Send-Email-Hook.
-- Das Aussehen wurde in Schritt 6 nur stichprobenhaft am Bildschirm geprüft (Login, Navigation, mobile Leiste); die übrigen Seiten über Inhalt und Verhalten. Der Blick auf jede Seite, auch mobil, gehört zu Schritt 8.
-
-- Vier Leitfäden haben im Prototyp nur Titel und Kurztext; sie sind angelegt, aber unveröffentlicht.
-- Die Verweise auf Hubs der Website in "From offer to first day" zeigen vorläufig auf `https://onboard-germany.de/`.
-- Der Prototyp enthält 9 Beispielfirmen, der Umfang nennt 10.
-- Vorlagen sind Platzhalterdateien in `supabase/storage/templates/`.
-- Die Aufbewahrungsfrist der Zustimmungen (drei Kalenderjahre) wird mit den Rechtstexten noch geprüft.
+- Die Adressen für Impressum und Germany Immigration Call fehlen; die Verweise zeigen vorläufig auf die Startseite (siehe "Vor dem Verkaufsstart").
+- Ohne aktiven Wortlaut zeigt das Portal die Häkchen für Newsletter und Talentpool nicht an und verkauft nichts. Auf dem Server lassen sich die Wortlaute erst mit dem Admin-Bereich anlegen.
+- Vier Leitfäden sind angelegt, aber unveröffentlicht (im Prototyp nur Titel und Kurztext). "Interview and guide" ist deshalb im Menü ausgeblendet, und die gesperrten Starter-Leitfäden der CV-Seite erscheinen noch nicht.
+- Vorlagen sind Platzhalterdateien in `supabase/storage/templates/`. Der Prototyp enthält 9 Beispielfirmen, der Umfang nennt 10.
+- Mit den Rechtstexten zu prüfen: Aufbewahrungsfrist der Zustimmungen zum Kauf (drei Kalenderjahre) und ob der Nachweis zu Newsletter und Talentpool die Löschung des Kontos überdauern muss.
+- Änderungen des Admins an Plan und Sperre landen noch nicht im Änderungsprotokoll; die Summen-Funktionen für die Auswertungen fehlen (beides Schritt 7).
+- Das Beenden von `npm run portal` mit Strg+C hat Patrick noch nicht bestätigt.
 - Eine eigene eingeschränkte Datenbankrolle für n8n (Phase 2) ist vorgemerkt, nicht gebaut.
+- Weitere bekannte Lücken des Frontends stehen in `docs/frontend.md`.
 
 ## Aufgaben bei Patrick
 
@@ -171,7 +152,8 @@ Gebaut ist alles bis Schritt 6; 606 pgTAP-Tests und 75 Tests der Frontend-Logik 
 - [ ] **Stripe Live-Modus:** Produkte und Preise neu anlegen, Webhook einrichten, Live-Preis-IDs in `prices` eintragen
 - [ ] **Umsatzsteuer** bei digitalen Leistungen ins Ausland (OSS) geklärt
 - [ ] **Zustimmungstext:** geprüfter Wortlaut angelegt und aktiv geschaltet
-- [ ] **Einwilligungstexte für Newsletter und Talentpool:** Die Wortlaute der beiden Häkchen sind Entwürfe aus dem Prototyp (lokal in `supabase/seed.sql`). Mit den Rechtstexten prüfen und die geprüften Fassungen im Admin-Bereich anlegen und aktiv schalten; ohne aktive Fassung zeigt das Portal das jeweilige Häkchen nicht an. Dabei auch klären, ob der Nachweis einer Einwilligung nach der Löschung des Kontos aufbewahrt werden muss (heute wird er mitgelöscht), und den Text der Bestätigungsmail zum Newsletter freigeben
+- [ ] **Einwilligungstexte für Newsletter und Talentpool:** Die Wortlaute der beiden Häkchen sind Entwürfe aus dem Prototyp (lokal in `supabase/seed.sql`). Mit den Rechtstexten prüfen und die geprüften Fassungen im Admin-Bereich anlegen und aktiv schalten; ohne aktive Fassung zeigt das Portal das jeweilige Häkchen nicht an. Dabei auch klären, ob der Nachweis einer Einwilligung nach der Löschung des Kontos aufbewahrt werden muss (heute wird er mitgelöscht)
+- [ ] **Partnerangebote:** Kennzeichnungstext der Partnerlinks prüfen; vor Versicherungsempfehlungen mit Provision die Erlaubnispflicht klären
 - [ ] **Rechtstexte:** Nutzungsbedingungen, Datenschutzerklärung und Widerrufsbelehrung für das Portal geprüft
 - [ ] **Mailversand:** Transaktionsmails bei rapidmail geklärt, SMTP-Daten auf dem Server, Absenderdomain bestätigt
 - [ ] **Unternehmen:** Mindestzahl echter, geprüfter Unternehmen erreicht
