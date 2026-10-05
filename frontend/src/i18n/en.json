@@ -13,7 +13,8 @@
     "notFoundTitle": "Page not found",
     "notFoundText": "This page does not exist or has moved.",
     "backToOverview": "Back to the overview",
-    "comingSoon": "This section is being built."
+    "comingSoon": "This section is being built.",
+    "nothingYet": "Nothing here yet. This section is being prepared."
   },
   "plans": { "free": "Free", "starter": "Starter", "plus": "Plus" },
   "fields": {
@@ -62,6 +63,54 @@
   "blocked": {
     "title": "Your account is blocked",
     "text": "You cannot use the portal at the moment. If you think this is a mistake, please contact Onboard Germany."
+  },
+  "lock": {
+    "fromPlan": "Included from the {{plan}} plan.",
+    "inPlan": "Included in the {{plan}} plan.",
+    "fromPlanShort": "Included from {{plan}}"
+  },
+  "checklist": {
+    "done": "{{done}} of {{total}} done",
+    "ready": "{{done}} of {{total}} ready",
+    "markDone": "Mark as done: {{title}}",
+    "markOpen": "Mark as open: {{title}}",
+    "showExample": "Show example",
+    "hideExample": "Hide example",
+    "copy": "Copy text",
+    "copied": "Copied. Replace the parts in brackets.",
+    "copyFailed": "Select the text and copy it."
+  },
+  "article": { "eyebrow": "Guide · {{area}}" },
+  "cv": {
+    "title": "Your CV and cover letter",
+    "lead": "The CV is the first thing an employer in Germany sees from you. Bring it into German format before you send the first application.",
+    "checklist": "Checklist for your CV",
+    "templates": "Templates",
+    "guides": "Guides",
+    "download": "Download",
+    "downloadAria": "Download: {{title}}",
+    "downloadError": "The download could not be started. Please try again."
+  },
+  "profiles": {
+    "title": "Your profile for German recruiters",
+    "lead": "Recruiters in Germany search LinkedIn and XING by job title, skills and location. Work through the checklist so that your profile turns up in those searches and holds up when someone opens it.",
+    "intro": {
+      "linkedin": "LinkedIn is the network most international employers in Germany use to find candidates. A complete profile is also what recruiters open after reading your application.",
+      "xing": "XING is the professional network of the German-speaking market. Many medium-sized companies and German recruiters still search here."
+    },
+    "lockTitle": "The Free plan shows the basics.",
+    "lockText": "The full checklists for LinkedIn and XING, with examples and message templates, are included from the {{plan}} plan."
+  },
+  "visa": {
+    "title": "Documents for your visa route",
+    "lead": "Tick off what you already have. The list covers the documents that follow from the law. Your mission abroad may ask for further formalities, which you will find on its website."
+  },
+  "firstDay": {
+    "title": "From job offer to your first day",
+    "lead": "You have the contract. What follows is a series of steps that build on each other: visa, a place to stay, the move, and the paperwork in your first weeks. Tick them off as you go.",
+    "callTitle": "Want an overview of your next steps?",
+    "callText": "In the Germany Immigration Call (€59) we go through your situation and the official sources together.",
+    "callButton": "Book the call"
   },
   "auth": {
     "login": {

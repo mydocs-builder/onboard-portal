@@ -11,6 +11,9 @@ import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { ArticlePage } from "./pages/ArticlePage";
+import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
+import { CvPage } from "./pages/CvPage";
 import { NotFoundPage, PlaceholderPage } from "./pages/PlaceholderPage";
 
 function Loading() {
@@ -41,8 +44,8 @@ function GuestOnly() {
 }
 
 const PLACEHOLDERS: NavId[] = [
-  "overview", "cv", "linkedin", "applications", "jobs", "companies", "boards", "agencies",
-  "checklist", "german", "knowledge", "contract", "arrival", "plan", "account",
+  "overview", "applications", "jobs", "companies", "boards", "agencies",
+  "german", "knowledge", "contract", "plan", "account",
 ];
 
 export function App() {
@@ -66,6 +69,11 @@ export function App() {
           {PLACEHOLDERS.map((id) => (
             <Route key={id} path={NAV_PATH[id]} element={<PlaceholderPage id={id} />} />
           ))}
+          <Route path="/cv" element={<CvPage />} />
+          <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
+          <Route path="/profiles" element={<ProfilesPage />} />
+          <Route path="/visa" element={<VisaPage />} />
+          <Route path="/first-day" element={<FirstDayPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

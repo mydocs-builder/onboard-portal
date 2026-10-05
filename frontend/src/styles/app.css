@@ -42,3 +42,9 @@ a.back{text-decoration:none}
 .chk button.cb{padding:0;cursor:pointer;color:var(--blue)}
 .chk > span{cursor:pointer}
 .cb{color:var(--blue)}
+
+a.tab{text-decoration:none;color:var(--blue);display:inline-flex;align-items:center}
+a.btn2.extlink,a.btn2{font:600 16px var(--sans)}
+.infobox{margin:28px 0}
+.infobox + .infobox{margin-top:-28px;padding-top:0}
+.read .quelle{margin-top:14px}
