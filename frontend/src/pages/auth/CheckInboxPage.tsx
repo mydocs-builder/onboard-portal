@@ -3,12 +3,13 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { useToast } from "../../components/Toast";
 import { supabase } from "../../lib/supabase";
-import { callbackUrl } from "./RegisterPage";
+import { callbackUrl, type RegistrationDetails } from "./RegisterPage";
 
 export function CheckInboxPage() {
   const { t } = useTranslation();
   const flash = useToast();
-  const email = (useLocation().state as { email?: string } | null)?.email;
+  const state = useLocation().state as { email?: string; details?: RegistrationDetails } | null;
+  const email = state?.email;
   const [busy, setBusy] = useState(false);
 
   if (!email) return <Navigate to="/login" replace />;
@@ -23,7 +24,17 @@ export function CheckInboxPage() {
   return (
     <>
       <h1 className="t1">{t("auth.inbox.title")}</h1>
-      <p className="pm"><Trans i18nKey="auth.inbox.text" values={{ email }} components={{ b: <strong style={{ fontWeight: 600 }} /> }} /></p>
+      <p className="pm">
+        <Trans
+          i18nKey="auth.inbox.text"
+          values={{ email }}
+          components={{
+            b: <strong style={{ fontWeight: 600 }} />,
+            // Zurück zur Registrierung, mit den schon gemachten Angaben (ohne Passwort).
+            change: <Link to="/register" state={{ prefill: state?.details ?? { first: "", last: "", email, code: "", field: "" } }} />,
+          }}
+        />
+      </p>
       <div className="aform">
         <button className="btn2" onClick={resend} disabled={busy}>{t("auth.inbox.resend")}</button>
         <Link className="linkbtn" to="/login">{t("auth.backToLogin")}</Link>

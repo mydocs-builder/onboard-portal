@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Trans, useTranslation } from "react-i18next";
 import { Checkbox } from "../../components/Checkbox";
 import { ExternalLink } from "../../components/ExternalLink";
+import { suggestEmail } from "../../lib/emailSuggestion";
 import { FIELDS } from "../../lib/fields";
 import { PRIVACY_URL, TERMS_URL } from "../../lib/links";
 import { supabase } from "../../lib/supabase";
@@ -10,6 +11,8 @@ import { supabase } from "../../lib/supabase";
 export const MIN_PASSWORD_LENGTH = 10;
 // Auf der Website vorgewählte Stufe (/register?plan=plus); die Stufenwahl nach der Bestätigung liest sie.
 export const PRESELECTED_PLAN_KEY = "og.preselectedPlan";
+/** Angaben der Registrierung ohne Passwort; "Wrong address? Change it" füllt das Formular damit wieder aus. */
+export type RegistrationDetails = { first: string; last: string; email: string; code: string; field: string };
 export const callbackUrl = (next?: string) =>
   `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
@@ -17,7 +20,8 @@ export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [search] = useSearchParams();
-  const [form, setForm] = useState({ first: "", last: "", email: "", password: "", code: "", field: "" });
+  const prefill = (useLocation().state as { prefill?: RegistrationDetails } | null)?.prefill;
+  const [form, setForm] = useState({ first: "", last: "", email: "", code: "", field: "", ...prefill, password: "" });
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -77,8 +81,12 @@ export function RegisterPage() {
       else setError(t("auth.register.errorOther"));
       return;
     }
-    navigate("/check-inbox", { state: { email } });
+    const details: RegistrationDetails = { first: form.first.trim(), last: form.last.trim(), email, code: form.code.trim(), field: form.field };
+    navigate("/check-inbox", { state: { email, details } });
   }
+
+  // Hinweis bei typischen Tippfehlern in verbreiteten Domains; nur ein Vorschlag, keine Sperre.
+  const suggestion = suggestEmail(form.email);
 
   return (
     <>
@@ -96,6 +104,12 @@ export function RegisterPage() {
         <div>
           <label className="fl" htmlFor="r-mail">{t("auth.login.email")}</label>
           <input id="r-mail" type="email" className="fi" value={form.email} onChange={set("email")} autoComplete="email" />
+          {suggestion && (
+            <div className="meta" style={{ marginTop: 6 }} role="status">
+              {t("auth.register.didYouMean")}{" "}
+              <button type="button" className="linkbtn" style={{ minHeight: 0 }} onClick={() => setForm({ ...form, email: suggestion })}>{suggestion}</button>?
+            </div>
+          )}
         </div>
         <div>
           <label className="fl" htmlFor="r-pw">{t("auth.login.password")}</label>

@@ -781,11 +781,12 @@
       "errorCodeInvalid": "This invitation code is not valid.",
       "errorTerms": "Please agree to the Terms of Use.",
       "errorRate": "Too many emails were requested in a short time. Please try again in a few minutes.",
-      "errorOther": "Your account could not be created. Please try again."
+      "errorOther": "Your account could not be created. Please try again.",
+      "didYouMean": "Did you mean"
     },
     "inbox": {
       "title": "Check your inbox",
-      "text": "We have sent a link to <b>{{email}}</b>. Click it to confirm your email address. The link is valid for 24 hours.",
+      "text": "We have sent a link to <b>{{email}}</b> (<change>Wrong address? Change it</change>). Click the link to confirm your email address. It is valid for 24 hours.",
       "resend": "Send the link again",
       "resent": "Confirmation link sent again.",
       "resendError": "The link could not be sent. Please try again in a few minutes."
