@@ -41,6 +41,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 - Schriften: Spectral (Überschriften) und Inter (Text, Bedienung), lokal eingebunden, nicht von Google geladen
 - Ecken überall eckig (Radius 0), 8-px-Raster, kleinste Schriftgröße 14 px
 - Türkis nie als Textfarbe auf Creme (Kontrast); Zahlen und Text in Textblau
+- Der gefüllte Kasten (Info-Fläche) ist wichtigen Hinweisen vorbehalten, höchstens einmal pro Seite; alles andere, etwa ein "Tip", ist ein Hinweis mit Linie links. In Leitfäden steuert das die Zeile `[!IMPORTANT]` am Anfang eines Zitats (`frontend/src/lib/markdownNotes.ts`)
 - Vorbild für Aussehen und Abläufe ist der Prototyp (`docs/prototyp.html`)
 
 ## Fahrplan
@@ -86,7 +87,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 68 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 74 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 

@@ -30,9 +30,6 @@ a.back{text-decoration:none}
 .read ul,.read ol{max-width:760px;margin:0 0 18px;padding-left:22px}
 .read li{font-size:clamp(1.05rem,1rem + 0.25vw,1.15rem);line-height:1.6;margin-bottom:8px}
 .read strong{font-weight:600}
-.read blockquote{margin:28px 0;border-left:3px solid var(--turq);padding:4px 0 4px 20px;max-width:760px}
-.read blockquote p{font-size:17px;margin:0 0 12px}
-.read blockquote p:last-child{margin:0}
 
 @media (max-width:860px){
 .sheet{max-height:calc(100vh - 61px);overflow-y:auto}
@@ -46,14 +43,15 @@ a.back{text-decoration:none}
 a.tab{text-decoration:none;color:var(--blue);display:inline-flex;align-items:center}
 a.btn2.extlink,a.btn2{font:600 16px var(--sans)}
 .infobox{margin:28px 0}
-.infobox + .infobox{margin-top:-28px;padding-top:0}
+.read .hint{margin:28px 0}
+.read .hint p:last-child{margin-bottom:0}
 .read .quelle{margin-top:14px}
 
 .listcount{margin:0 0 16px}
 .filters + .listcount,.filters + .empty{margin-top:-8px}
 
 /* Seitenleiste (Kandidatenportal und Admin-Bereich): etwa 28 px Abstand vor jeder Rubrik, über jeder
-   Rubrik außer der ersten eine Linie, zwischen den Punkten einer Gruppe 2 px. Nicht einklappbar. */
+   Rubrik eine Linie, zwischen den Punkten einer Gruppe 2 px. Nicht einklappbar. */
 .side .navgroup + .navgroup{margin-top:28px}
 .side .navgroup.line{margin-top:14px}
 .side .navgroup.line::before{content:"";display:block;height:1px;background:var(--line);margin:0 24px 14px}

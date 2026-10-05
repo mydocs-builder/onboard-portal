@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useChecklists } from "../checklists/useChecklists";
 import { ChecklistItems, ChecklistProgress } from "../components/Checklist";
+import { LockIcon } from "../components/Icons";
 import { PageStatus } from "../components/PageStatus";
 import { Templates } from "../components/Templates";
 import { supabase, type Tables } from "../lib/supabase";
@@ -54,7 +55,9 @@ export function CvPage() {
                 ? <Link className="linkh" to={guidePath("cv", guide.slug)}>{guide.title}</Link>
                 : <Link className="linkh" to={PATHS.plan}>{guide.title}</Link>}
               {guide.lead && <p className="sdesc">{guide.lead}</p>}
-              {guide.minPlan && <div className="lockline">{t("lock.fromPlanShort", { plan: guide.minPlan })}</div>}
+              {guide.minPlan && (
+                <div className="lockline"><LockIcon label={t("nav.locked")} /> {t("lock.fromPlanShort", { plan: guide.minPlan })}</div>
+              )}
             </div>
           </div>
         ))}

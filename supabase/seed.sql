@@ -174,8 +174,9 @@ Recruiters notice gaps of several months. A short line explaining the period, fo
 
 **Temporary agency work.** You are employed by the agency and work at one of its client companies. In Germany this is called Zeitarbeit or Arbeitnehmerüberlassung.
 
+> [!IMPORTANT]
 > **Important for your visa.** Where your residence permit needs the approval of the Federal Employment Agency, that approval must be refused if you are to work as a temporary agency worker. It must also be refused if the job came about through unauthorised placement or recruitment.
-
+>
 > Ask the agency at the start whether it places you directly with the employer.
 
 *Legal basis: Section 40(1) no. 1 and 2 AufenthG.*
@@ -190,7 +191,8 @@ Recruiters notice gaps of several months. A short line explaining the period, fo
 ## What an agency can do for you
 
 A good recruiter matches you with suitable employers, prepares you for the interview, gives feedback after it and can negotiate the salary on your behalf. Be cautious if an agency asks you to pay in advance.', 'starter', 1, true),
-  ('contract-and-visa', 'contract', 'Your contract and your visa', null, '> **Working conditions.** Where your residence permit needs the approval of the Federal Employment Agency, you must not be employed on less favourable terms than comparable employees in Germany. The approval can be withdrawn if that changes later.
+  ('contract-and-visa', 'contract', 'Your contract and your visa', null, '> [!IMPORTANT]
+> **Working conditions.** Where your residence permit needs the approval of the Federal Employment Agency, you must not be employed on less favourable terms than comparable employees in Germany. The approval can be withdrawn if that changes later.
 
 *Legal basis: Section 39(2) sentence 1 no. 1 and (3) no. 1 AufenthG on the approval, Section 41 AufenthG on the withdrawal.*', 'starter', 1, true),
   ('interview-preparation', 'interview', 'Preparing for a job interview in Germany', 'How interviews are structured, typical questions and what you should ask.', '', 'starter', 1, false),
