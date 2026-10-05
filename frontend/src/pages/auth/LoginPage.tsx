@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { SIGNED_OUT_KEY } from "../../components/PortalLayout";
 import { MAIN_URL } from "../../lib/links";
 import { supabase } from "../../lib/supabase";
+import { ACCOUNT_DELETED_KEY } from "../AccountPage";
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -15,6 +16,12 @@ export function LoginPage() {
   const [signedOut] = useState(() => {
     const flag = sessionStorage.getItem(SIGNED_OUT_KEY) === "1";
     sessionStorage.removeItem(SIGNED_OUT_KEY);
+    return flag;
+  });
+
+  const [deleted] = useState(() => {
+    const flag = sessionStorage.getItem(ACCOUNT_DELETED_KEY) === "1";
+    sessionStorage.removeItem(ACCOUNT_DELETED_KEY);
     return flag;
   });
 
@@ -39,6 +46,11 @@ export function LoginPage() {
       {signedOut && (
         <div className="hint" style={{ marginBottom: 28 }}>
           <p><strong>{t("auth.login.signedOut")}</strong> <a href={MAIN_URL}>{t("auth.login.backToWebsite")}</a></p>
+        </div>
+      )}
+      {deleted && (
+        <div className="hint" style={{ marginBottom: 28 }}>
+          <p><strong>{t("account.deleted")}</strong> <a href={MAIN_URL}>{t("auth.login.backToWebsite")}</a></p>
         </div>
       )}
       <h1 className="t1">{t("auth.login.title")}</h1>

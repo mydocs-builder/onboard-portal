@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { AccountPage, ACCOUNT_DELETED_KEY } from "./pages/AccountPage";
 import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
@@ -32,7 +33,7 @@ function RequireAuth() {
   if (loading) return <Loading />;
   if (!session) {
     // Nach dem Abmelden merkt sich das Login die letzte Seite nicht; das nächste Konto startet auf der Übersicht.
-    const signedOut = sessionStorage.getItem(SIGNED_OUT_KEY) === "1";
+    const signedOut = sessionStorage.getItem(SIGNED_OUT_KEY) === "1" || sessionStorage.getItem(ACCOUNT_DELETED_KEY) === "1";
     return <Navigate to="/login" replace state={signedOut ? null : { from: location.pathname + location.search }} />;
   }
   return <PortalProvider><Outlet /></PortalProvider>;
@@ -47,7 +48,7 @@ function GuestOnly() {
   return <Outlet />;
 }
 
-const PLACEHOLDERS: NavId[] = ["plan", "account"];
+const PLACEHOLDERS: NavId[] = ["plan"];
 
 export function App() {
   return (
@@ -80,6 +81,7 @@ export function App() {
           <Route path="/interview-guide" element={<KnowledgePage />} />
           <Route path="/interview-guide/:slug" element={<ArticlePage parent="knowledge" />} />
           <Route path="/contract" element={<ContractPage />} />
+          <Route path="/account" element={<AccountPage />} />
           <Route path="/cv" element={<CvPage />} />
           <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
           <Route path="/profiles" element={<ProfilesPage />} />
