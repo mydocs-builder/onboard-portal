@@ -112,6 +112,62 @@
     "callText": "In the Germany Immigration Call (€59) we go through your situation and the official sources together.",
     "callButton": "Book the call"
   },
+  "overview": {
+    "welcomeAboard": "Welcome aboard, {{name}}",
+    "welcomeBack": "Welcome back, {{name}}",
+    "leadFirst": "Good to have you here. This portal is here to help you turn your plan into reality: a job in Germany and a good start in your new home. The best way to begin is to bring your CV into German format and then set up your LinkedIn profile. Your next steps below show you the way.",
+    "lead": "Start with your CV and your LinkedIn profile, then keep track of your applications and the documents for your visa route.",
+    "statOpen": "Open applications",
+    "statDue": "Next steps due",
+    "statLinkedin": "LinkedIn profile",
+    "statVisa": "Visa documents ready",
+    "fieldTitle": "Which field do you work in?",
+    "fieldText": "We use it to filter jobs, companies and agencies for you. You can change it at any time under Account settings.",
+    "fieldSaved": "Saved. Jobs, companies and agencies are now filtered for {{field}}.",
+    "nextSteps": "Next steps",
+    "nothingOpen": "Nothing open right now. New steps appear here when a follow-up is due or new jobs come in.",
+    "markDone": "Mark as done",
+    "markDoneAria": "Mark as done: {{title}}",
+    "moved": "Moved to Completed.",
+    "reopen": "Reopen",
+    "reopenAria": "Reopen: {{title}}",
+    "movedBack": "Moved back to Next steps.",
+    "showCompleted": "Show completed ({{count}})",
+    "hideCompleted": "Hide completed ({{count}})",
+    "markedByYou": "Marked as done by you.",
+    "task": {
+      "cv": {
+        "title": "Bring your CV into German format",
+        "desc": "{{done}} of {{total}} points on the CV checklist are done.",
+        "doneDesc": "All {{total}} points on the CV checklist are done."
+      },
+      "linkedin": {
+        "title": "Prepare your LinkedIn profile",
+        "desc": "{{done}} of {{total}} points on the checklist are done.",
+        "doneDesc": "All {{total}} points on the checklist are done."
+      },
+      "xing": {
+        "title": "Set up your XING profile",
+        "desc": "{{done}} of {{total}} points on the checklist are done. Not targeting German-speaking employers? Mark it as done.",
+        "doneDesc": "All {{total}} points on the checklist are done."
+      },
+      "visa": {
+        "title": "Complete your visa documents",
+        "desc": "{{done}} of {{total}} documents for the {{list}} are ready.",
+        "doneDesc": "All {{total}} documents for the {{list}} are ready."
+      }
+    },
+    "event": {
+      "followups_one": "{{count}} next step is due in your applications",
+      "followups_other": "{{count}} next steps are due in your applications",
+      "followupsDesc": "Record what happened, and the portal suggests the next step.",
+      "jobs_one": "{{count}} new job for international candidates this week",
+      "jobs_other": "{{count}} new jobs for international candidates this week",
+      "jobsField_one": "{{count}} new job in {{field}} this week",
+      "jobsField_other": "{{count}} new jobs in {{field}} this week",
+      "jobsDesc": "Add the ones that fit to your applications with one click."
+    }
+  },
   "tracker": {
     "title": "Your applications",
     "lead": "Every application with its next step: what you need to do and by when. When the day comes, the portal asks you what happened and suggests the step after.",

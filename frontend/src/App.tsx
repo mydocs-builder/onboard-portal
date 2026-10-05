@@ -15,6 +15,7 @@ import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
 import { CvPage } from "./pages/CvPage";
+import { OverviewPage } from "./pages/OverviewPage";
 import { NotFoundPage, PlaceholderPage } from "./pages/PlaceholderPage";
 
 function Loading() {
@@ -45,7 +46,7 @@ function GuestOnly() {
 }
 
 const PLACEHOLDERS: NavId[] = [
-  "overview", "jobs", "companies", "boards", "agencies",
+  "jobs", "companies", "boards", "agencies",
   "german", "knowledge", "contract", "plan", "account",
 ];
 
@@ -70,6 +71,7 @@ export function App() {
           {PLACEHOLDERS.map((id) => (
             <Route key={id} path={NAV_PATH[id]} element={<PlaceholderPage id={id} />} />
           ))}
+          <Route path="/" element={<OverviewPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/cv" element={<CvPage />} />
           <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
