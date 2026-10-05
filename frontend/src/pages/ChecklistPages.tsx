@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useChecklists, type Checklist } from "../checklists/useChecklists";
 import { ChecklistItems, ChecklistProgress } from "../components/Checklist";
@@ -8,6 +8,8 @@ import { PageStatus } from "../components/PageStatus";
 import { IMMIGRATION_CALL_URL } from "../lib/links";
 import { PLAN_NAME } from "../lib/plan";
 import { usePortal } from "../portal/PortalProvider";
+import { placeChecklist } from "../portal/checklistNav";
+import { NotFoundPage } from "./PlaceholderPage";
 
 /** Reiter je Checkliste; erscheinen nur, wenn ein Menüpunkt mehr als eine aktive Checkliste hat. */
 function ListTabs({ lists, current }: { lists: Checklist[]; current: Checklist }) {
@@ -76,6 +78,42 @@ export function VisaPage() {
           <ChecklistProgress list={current} labelKey="checklist.ready" />
           <ChecklistItems list={current} done={done} onToggle={toggle} />
           {current.legal_note && <div className="quelle">{current.legal_note}</div>}
+        </>
+      )}
+    </>
+  );
+}
+
+/**
+ * Seite einer Checkliste mit eigenem Menüeintrag (src/portal/checklistNav.ts). Titel, Punkte und
+ * Fundstellenzeile kommen aus der Datenbank; die Seite braucht für eine neue Checkliste keine Änderung.
+ */
+export function OwnChecklistPage() {
+  const { t } = useTranslation();
+  const { key = "" } = useParams();
+  const { locked } = usePortal();
+  const { status, lists, done, toggle } = useChecklists(key, "key");
+  const list = lists[0];
+  const lockedItems = locked.filter((row) => row.kind === "checklist_item" && row.area === key);
+
+  if (status === "ready" && !list) return <NotFoundPage />;
+  const place = list ? placeChecklist(list.area) : null;
+
+  return (
+    <>
+      {place?.kind === "own" && <div className="eyebrow">{t(`nav.groups.${place.group}`)}</div>}
+      {list && <h1 className="t1">{list.title}</h1>}
+      <PageStatus status={status} />
+      {list && (
+        <>
+          {list.items.length > 0 && <ChecklistProgress list={list} />}
+          <ChecklistItems list={list} done={done} onToggle={toggle} />
+          {list.legal_note && <div className="quelle">{list.legal_note}</div>}
+          {lockedItems.length > 0 && (
+            <LockHint title={t("lock.fromPlan", { plan: PLAN_NAME[lockedItems[0].min_plan] })} style={{ marginTop: 32 }}>
+              {t("checklist.lockedItems", { count: lockedItems.length })}
+            </LockHint>
+          )}
         </>
       )}
     </>

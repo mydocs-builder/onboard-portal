@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { supabase, type PlanLevel, type Tables } from "../lib/supabase";
 import type { Database } from "../lib/database.types";
 import { BlockedPage } from "../pages/BlockedPage";
+import type { ChecklistRef } from "./checklistNav";
 
 export type LockedRow = Database["public"]["Functions"]["locked_content"]["Returns"][number];
 
@@ -26,6 +27,8 @@ export type Portal = {
   lockedAreas: Record<LockArea, boolean>;
   /** "Jobs for internationals" erscheint erst, wenn ein Job veröffentlicht ist. */
   showJobs: boolean;
+  /** Aktive Checklisten; ihr Feld area bestimmt, wo sie im Menü erscheinen (checklistNav.ts). */
+  checklists: (ChecklistRef & { locked: boolean })[];
   /** "Interview and guide" erscheint erst, wenn dort ein Leitfaden veröffentlicht ist. */
   showKnowledge: boolean;
   /** Erste Sitzung nach dem ersten Login: "Welcome aboard". */
@@ -53,7 +56,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     if (!userId) return;
-    const [profile, access, plan, today, settings, registration, locked, companies, jobs, agencies, glossary, knowledge] =
+    const [profile, access, plan, today, settings, registration, locked, companies, jobs, agencies, glossary, knowledge, checklists, checklistItems] =
       await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
         supabase.from("plan_access").select("*").eq("user_id", userId).maybeSingle(),
@@ -67,6 +70,8 @@ export function PortalProvider({ children }: { children: ReactNode }) {
         count("agencies"),
         count("glossary_terms"),
         supabase.from("articles").select("id", { count: "exact", head: true }).in("area", ["interview", "guide"]),
+        supabase.from("checklists").select("id, key, title, area, sort").eq("active", true).order("sort"),
+        supabase.from("checklist_items").select("checklist_id").eq("active", true),
       ]);
 
     if (profile.error || today.error) {
@@ -113,6 +118,14 @@ export function PortalProvider({ children }: { children: ReactNode }) {
           contract: nothingVisible(glossary) && hasLocked("glossary_term"),
           knowledge: nothingVisible(knowledge) && hasLocked("article", ["interview", "guide"]),
         },
+        // Gesperrt: Die Stufe sieht keinen Punkt der Checkliste, es gibt aber gesperrte.
+        checklists: (checklists.data ?? []).map((list) => ({
+          key: list.key,
+          title: list.title,
+          area: list.area,
+          sort: list.sort,
+          locked: !(checklistItems.data ?? []).some((item) => item.checklist_id === list.id) && hasLocked("checklist_item", [list.key]),
+        })),
         showJobs: !nothingVisible(jobs) || hasLocked("job"),
         showKnowledge: !nothingVisible(knowledge) || hasLocked("article", ["interview", "guide"]),
         firstSession,

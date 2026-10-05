@@ -90,7 +90,9 @@
     "hideExample": "Hide example",
     "copy": "Copy text",
     "copied": "Copied. Replace the parts in brackets.",
-    "copyFailed": "Select the text and copy it."
+    "copyFailed": "Select the text and copy it.",
+    "lockedItems_one": "{{count}} more point of this checklist is included in a higher plan.",
+    "lockedItems_other": "{{count}} more points of this checklist are included in a higher plan."
   },
   "article": {
     "eyebrow": "Guide · {{area}}"

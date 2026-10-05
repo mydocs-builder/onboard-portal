@@ -13,7 +13,7 @@ import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 import { AccountPage, ACCOUNT_DELETED_KEY } from "./pages/AccountPage";
 import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
-import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
+import { FirstDayPage, OwnChecklistPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
 import { BillingSuccessPage } from "./pages/billing/BillingSuccessPage";
 import { CheckoutPage } from "./pages/billing/CheckoutPage";
 import { PlanPage } from "./pages/billing/PlanPage";
@@ -99,6 +99,7 @@ export function App() {
           <Route path={PATHS.linkedin} element={<ProfilesPage />} />
           <Route path={PATHS.checklist} element={<VisaPage />} />
           <Route path={PATHS.arrival} element={<FirstDayPage />} />
+          <Route path={PATHS.ownChecklist} element={<OwnChecklistPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

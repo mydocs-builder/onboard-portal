@@ -12,8 +12,11 @@ export type Checklist = Tables<"checklists"> & {
 
 type State = { status: "loading" | "error" | "ready"; lists: Checklist[]; done: Set<string> };
 
-/** Lädt die aktiven Checklisten eines Menüpunkts (area) samt eigenem Fortschritt. */
-export function useChecklists(area: string) {
+/**
+ * Lädt aktive Checklisten samt eigenem Fortschritt: alle eines Bereichs (area), oder eine einzelne
+ * über ihren Schlüssel (key), wenn sie einen eigenen Menüeintrag hat.
+ */
+export function useChecklists(value: string, by: "area" | "key" = "area") {
   const { t } = useTranslation();
   const flash = useToast();
   const [state, setState] = useState<State>({ status: "loading", lists: [], done: new Set() });
@@ -21,7 +24,7 @@ export function useChecklists(area: string) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const lists = await supabase.from("checklists").select("*").eq("area", area).eq("active", true).order("sort");
+      const lists = await supabase.from("checklists").select("*").eq(by, value).eq("active", true).order("sort");
       if (lists.error) return !cancelled && setState((s) => ({ ...s, status: "error" }));
       const ids = lists.data.map((list) => list.id);
       const [items, progress] = await Promise.all([
@@ -38,7 +41,7 @@ export function useChecklists(area: string) {
       });
     })();
     return () => { cancelled = true; };
-  }, [area]);
+  }, [value, by]);
 
   const toggle = useCallback(async (itemId: string) => {
     let wasDone = false;
