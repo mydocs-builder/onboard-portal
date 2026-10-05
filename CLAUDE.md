@@ -51,4 +51,12 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 
 ## Offene Punkte im Fahrplan
 
+- **Admin-Bereich, Seite "Zustimmungstexte"** (Wortlaut der Zustimmung beim Kauf, Tabelle `consent_texts`):
+  - Fassungen anzeigen, je Fassung mit der Zahl der Käufe, die sich darauf beziehen
+  - neue Fassung anlegen
+  - eine Fassung aktiv schalten, mit Bestätigung
+  - kein Bearbeiten und kein Löschen bestehender Fassungen
+  - Warnhinweis, solange keine Fassung aktiv ist (dann lässt sich nichts kaufen)
+- **Admin-Bereich, Seite "Startphase":** beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
+
 - **Inaktive Konten löschen (noch nicht bauen):** Konten ohne Login und ohne Pass werden nach 24 Monaten gelöscht, mit Ankündigung per Mail 30 Tage vorher (entschieden in `docs/datenmodell.md`, "Offene Fragen"). Gehört in die tägliche Funktion; braucht eine neue Mail-Art in `email_log` und einen Mailtext von Patrick.
