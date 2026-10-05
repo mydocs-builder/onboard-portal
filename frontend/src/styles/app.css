@@ -51,3 +51,11 @@ a.btn2.extlink,a.btn2{font:600 16px var(--sans)}
 
 .listcount{margin:0 0 16px}
 .filters + .listcount,.filters + .empty{margin-top:-8px}
+
+/* Seitenleiste (Kandidatenportal und Admin-Bereich): etwa 28 px Abstand vor jeder Rubrik, über jeder
+   Rubrik außer der ersten eine Linie, zwischen den Punkten einer Gruppe 2 px. Nicht einklappbar. */
+.side .navgroup + .navgroup{margin-top:28px}
+.side .navgroup.line{margin-top:14px}
+.side .navgroup.line::before{content:"";display:block;height:1px;background:var(--line);margin:0 24px 14px}
+.side .nav + .nav{margin-top:2px}
+.side .grp{font:600 14px var(--sans);letter-spacing:1.5px;text-transform:uppercase;color:var(--grey)}

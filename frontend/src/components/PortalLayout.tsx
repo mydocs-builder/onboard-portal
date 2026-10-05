@@ -73,8 +73,9 @@ export function PortalLayout() {
 
       <div className="frame">
         <nav className="side" aria-label={t("nav.aria")}>
-          {groups.map(({ group, entries }) => (
-            <div key={group ?? "top"} style={{ marginBottom: 18 }}>
+          {groups.map(({ group, entries }, index) => (
+            // Über jeder Rubrik außer der ersten steht eine Linie (Klasse "line", siehe app.css).
+            <div key={group ?? "top"} className={"navgroup" + (group && groups.slice(0, index).some((earlier) => earlier.group) ? " line" : "")}>
               {group && <div className="grp">{t(`nav.groups.${group}`)}</div>}
               {entries.map(navLink)}
             </div>
