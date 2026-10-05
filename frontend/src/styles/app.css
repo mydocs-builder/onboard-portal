@@ -1,0 +1,39 @@
+/* Ergänzungen zum übernommenen Prototyp-CSS: Links mit Schaltflächen-Aussehen, Hilfsklassen,
+   Fokus und die Darstellung von Markdown. */
+
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+
+a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--turq);outline-offset:2px}
+
+a.nav{text-decoration:none;color:var(--blue)}
+a.who,a.brandlink{text-decoration:none;color:var(--blue)}
+a.btn,a.btn2,a.sb{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+a.linkh{display:inline-block;text-decoration:none;color:var(--blue)}
+a.linkh:hover{text-decoration:underline;text-underline-offset:4px}
+a.linkbtn,a.back{display:inline-flex;align-items:center;color:var(--blue)}
+a.back{text-decoration:none}
+.btn[disabled],.sb[disabled]{opacity:.6;cursor:default}
+
+.loading{min-height:60vh;display:flex;flex-direction:column;gap:20px;align-items:center;justify-content:center;font-size:17px;padding:32px;text-align:center}
+.footwrap{padding:0 32px 96px}
+.empty{font-size:17px;line-height:1.55;max-width:760px}
+
+@media (max-width:860px){
+.mnav a{flex:1;min-height:60px;display:flex;align-items:center;justify-content:center;border-top:3px solid transparent;font:500 14px var(--sans);color:var(--blue);text-decoration:none;padding:0 2px}
+.mnav a.on,.mnav button.on{border-top-color:var(--turq);font-weight:600}
+.footwrap{padding:0 16px 96px}
+.hright .whoname{display:none}
+}
+
+/* Leitfäden aus Markdown */
+.read h3{font-family:var(--serif);font-weight:500;font-size:1.25rem;margin:28px 0 10px}
+.read ul,.read ol{max-width:760px;margin:0 0 18px;padding-left:22px}
+.read li{font-size:clamp(1.05rem,1rem + 0.25vw,1.15rem);line-height:1.6;margin-bottom:8px}
+.read strong{font-weight:600}
+.read blockquote{margin:28px 0;border-left:3px solid var(--turq);padding:4px 0 4px 20px;max-width:760px}
+.read blockquote p{font-size:17px;margin:0 0 12px}
+.read blockquote p:last-child{margin:0}
+
+@media (max-width:860px){
+.sheet{max-height:calc(100vh - 61px);overflow-y:auto}
+}

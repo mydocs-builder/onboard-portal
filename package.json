@@ -6,7 +6,9 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "functions:serve": "supabase functions serve --env-file .env"
+    "functions:serve": "supabase functions serve --env-file .env",
+    "db:types": "supabase gen types typescript --local > frontend/src/lib/database.types.ts",
+    "dev": "npm --prefix frontend run dev"
   },
   "devDependencies": {
     "supabase": "2.119.0"

@@ -21,6 +21,20 @@ npm run db:stop
 
 Studio: http://127.0.0.1:54323, Mails (Mailpit): http://127.0.0.1:54324, API: http://127.0.0.1:54321. Die lokalen Schlüssel zeigt `npx supabase status`.
 
+### Frontend
+
+```bash
+npm --prefix frontend install
+npm run dev        # Portal unter http://127.0.0.1:5173
+npm run db:types   # Datenbanktypen für das Frontend neu erzeugen, nach jeder Migration
+npm --prefix frontend run test        # Tests der Frontend-Logik (Vitest)
+npm --prefix frontend run typecheck
+```
+
+`frontend/.env.example` nach `frontend/.env.local` kopieren und eintragen: `VITE_SUPABASE_URL=http://127.0.0.1:54321` und als `VITE_SUPABASE_ANON_KEY` den öffentlichen Schlüssel (anon) aus `npx supabase status`. Ins Frontend gehört nur dieser öffentliche Schlüssel, nie der Service-Role-Schlüssel.
+
+Adresse und Port sind fest (127.0.0.1:5173), weil die Links in den Mails (`site_url` in `supabase/config.toml`) und die Rückkehr von Stripe (`PORTAL_URL` in `.env`) dorthin zeigen.
+
 ### Lokale Testkonten
 
 `supabase/seed.sql` legt vier Konten an, nur für die lokale Entwicklung, nie für die Produktion: `free@example.com`, `starter@example.com`, `plus@example.com`, `admin@example.com`. Das gemeinsame Passwort steht in `supabase/seed.sql` unter `dev_password`. Dazu vier Platzhalterdateien für die Vorlagen aus `supabase/storage/templates/`.

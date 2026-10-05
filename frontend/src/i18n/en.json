@@ -1,0 +1,84 @@
+{
+  "brand": { "name": "Onboard Germany", "portal": "Candidate portal", "homeAria": "Onboard Germany, main website" },
+  "common": {
+    "loading": "Loading …",
+    "loadError": "This page could not be loaded. Please check your connection and try again.",
+    "retry": "Try again",
+    "saveError": "That did not work. Please try again.",
+    "seePlans": "See plans",
+    "newTab": "opens in a new tab",
+    "cancel": "Cancel",
+    "save": "Save",
+    "signOut": "Sign out",
+    "notFoundTitle": "Page not found",
+    "notFoundText": "This page does not exist or has moved.",
+    "backToOverview": "Back to the overview",
+    "comingSoon": "This section is being built."
+  },
+  "plans": { "free": "Free", "starter": "Starter", "plus": "Plus" },
+  "fields": {
+    "it": "IT",
+    "engineering": "Engineering",
+    "nursing_care": "Nursing and care",
+    "healthcare": "Healthcare, other",
+    "logistics": "Logistics"
+  },
+  "nav": {
+    "aria": "Portal",
+    "locked": "Not included in your plan",
+    "more": "More",
+    "groups": {
+      "start": "Get started",
+      "search": "Job search",
+      "preparation": "Preparation",
+      "found": "Job found, what now?",
+      "account": "Your account"
+    },
+    "items": {
+      "overview": "Overview",
+      "cv": "CV and cover letter",
+      "linkedin": "LinkedIn and XING",
+      "applications": "Applications",
+      "jobs": "Jobs for internationals",
+      "companies": "Companies",
+      "boards": "Job boards",
+      "agencies": "Recruitment agencies",
+      "checklist": "Visa checklist",
+      "german": "German for the job",
+      "knowledge": "Interview and guide",
+      "contract": "Employment contract",
+      "arrival": "From offer to first day",
+      "plan": "Plan and billing",
+      "account": "Account settings"
+    },
+    "short": { "overview": "Overview", "cv": "CV", "linkedin": "LinkedIn", "applications": "Applic." }
+  },
+  "footer": {
+    "website": "onboard-germany.de",
+    "imprint": "Legal notice",
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  },
+  "blocked": {
+    "title": "Your account is blocked",
+    "text": "You cannot use the portal at the moment. If you think this is a mistake, please contact Onboard Germany."
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "lead": "Welcome back. Sign in to continue your job search.",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "create": "Create one for free",
+      "signedOut": "You have been signed out.",
+      "backToWebsite": "Back to onboard-germany.de",
+      "errorMissing": "Please enter your email address and password.",
+      "errorInvalid": "Email address or password is not correct.",
+      "errorUnconfirmed": "Please confirm your email address first. We have sent you a link.",
+      "errorOther": "Sign-in did not work. Please try again."
+    }
+  }
+}
