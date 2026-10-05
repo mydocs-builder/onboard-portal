@@ -348,9 +348,9 @@
     "email": "Email address",
     "emailCurrent": "Current address",
     "emailNew": "New email address",
-    "emailHint": "We send a confirmation link to the new address. Your sign-in changes once you have confirmed it.",
+    "emailHint": "We send a confirmation link to your current and to your new address. Your sign-in changes once you have clicked both.",
     "emailSubmit": "Send confirmation link",
-    "emailSent": "Confirmation link sent to {{email}}.",
+    "emailSent": "Confirmation links sent to your current address and to {{email}}.",
     "emailChanged": "Your email address has been changed.",
     "emailSame": "This is already your email address.",
     "emailTaken": "This email address cannot be used. Please choose another one.",
@@ -590,7 +590,9 @@
     "link": {
       "title": "This link is no longer valid",
       "text": "The link has expired or was already used. Sign in, or request a new link.",
-      "newReset": "Request a new link to reset your password"
+      "newReset": "Request a new link to reset your password",
+      "firstTitle": "One more confirmation needed",
+      "firstText": "Thank you, this address is confirmed. Please also click the link we sent to your other email address. Your sign-in changes once both are confirmed."
     },
     "forgot": {
       "title": "Reset your password",

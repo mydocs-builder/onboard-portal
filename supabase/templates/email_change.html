@@ -1,6 +1,6 @@
 <p>{{ if .Data.first_name }}Hi {{ .Data.first_name }},{{ else }}Hello,{{ end }}</p>
-<p>Please confirm that you want to use this address for your Onboard Germany account:<br>
+<p>Please confirm that you want to change the email address of your Onboard Germany account to {{ .NewEmail }}:<br>
 <a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a></p>
-<p>Until you confirm, your current address stays active. If you did not request this change, please ignore this email.</p>
+<p>If you did not request this change, do not click the link and contact us.</p>
 <p>Best regards<br>
 Onboard Germany</p>

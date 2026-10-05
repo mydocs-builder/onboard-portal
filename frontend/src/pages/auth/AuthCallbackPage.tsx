@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/AuthProvider";
-import { initialLinkError } from "../../lib/initialUrl";
+import { firstOfTwoConfirmations, initialLinkError } from "../../lib/initialUrl";
 
 /**
  * Ziel aller Links aus Mails (Bestätigung, Passwort zurücksetzen, E-Mail-Änderung, Einladung).
@@ -24,6 +24,17 @@ export function AuthCallbackPage() {
   const next = search.get("next");
   const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
+  if (firstOfTwoConfirmations) {
+    return (
+      <>
+        <h1 className="t1">{t("auth.link.firstTitle")}</h1>
+        <p className="pm">{t("auth.link.firstText")}</p>
+        <div className="aform">
+          <Link className="btn2" to={session ? "/account" : "/login"}>{session ? t("nav.items.account") : t("auth.backToLogin")}</Link>
+        </div>
+      </>
+    );
+  }
   if (session && !initialLinkError) return <Navigate to={target} replace />;
   if (!initialLinkError && (loading || !waited)) return <div className="loading" role="status">{t("common.loading")}</div>;
 
