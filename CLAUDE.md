@@ -106,6 +106,15 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 - Die Aufbewahrungsfrist der Zustimmungen (drei Kalenderjahre) wird mit den Rechtstexten noch geprüft.
 - Eine eigene eingeschränkte Datenbankrolle für n8n (Phase 2) ist vorgemerkt, nicht gebaut.
 
+## Aufgaben bei Patrick
+
+- [ ] Server buchen: Deutschland oder EU, 8 GB RAM, mit Auftragsverarbeitungsvertrag
+- [ ] Subdomain `my.onboard-germany.de` per DNS auf den Server richten
+- [ ] rapidmail für Transaktionsmails klären: SMTP-Zugang, kostenloses Kontingent, Auftragsverarbeitungsvertrag
+- [ ] Steuerfrage digitale Leistungen ins Ausland (OSS) mit der Steuerberatung klären
+- [x] GitHub-Konto und Repository
+- [x] Stripe-Konto im Testmodus
+
 ## Vor dem Verkaufsstart
 
 - [ ] **Stripe, Konto:** öffentliche Unternehmensdaten, Kontoauszug-Bezeichnung ONBOARD GERMANY, Branding, Kunden-E-Mails für erfolgreiche Zahlungen und Erstattungen. Ohne die Kunden-E-Mails für erfolgreiche Zahlungen stimmt der Rechnungssatz der Kaufbestätigung nicht ("You will receive your invoice in a separate email from Stripe", `supabase/functions/_shared/emails.ts`).
