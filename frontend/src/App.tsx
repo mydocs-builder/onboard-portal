@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
 import { CvPage } from "./pages/CvPage";
@@ -44,7 +45,7 @@ function GuestOnly() {
 }
 
 const PLACEHOLDERS: NavId[] = [
-  "overview", "applications", "jobs", "companies", "boards", "agencies",
+  "overview", "jobs", "companies", "boards", "agencies",
   "german", "knowledge", "contract", "plan", "account",
 ];
 
@@ -69,6 +70,7 @@ export function App() {
           {PLACEHOLDERS.map((id) => (
             <Route key={id} path={NAV_PATH[id]} element={<PlaceholderPage id={id} />} />
           ))}
+          <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/cv" element={<CvPage />} />
           <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
           <Route path="/profiles" element={<ProfilesPage />} />
