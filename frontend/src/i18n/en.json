@@ -189,6 +189,34 @@
     "note": "The ad itself always opens on the original site. Ads are removed when they go offline or after 30 days.",
     "lock": "Current job ads for international candidates, with filters and a direct link to the ad. One click adds a job to your applications."
   },
+  "german": {
+    "title": "German for applications and interviews",
+    "lead": "The phrases you need for the cover letter, the phone call and the interview, plus the vocabulary of your field. Each with the English meaning and when to use it.",
+    "tab": { "cover_letter": "Cover letter", "phone": "Phone call", "interview": "Interview", "vocabulary": "Vocabulary: {{field}}" },
+    "general": "general",
+    "intro": {
+      "cover_letter": "A German cover letter is formal and short. These phrases cover the parts every letter needs.",
+      "phone": "Phone calls are where many candidates lose confidence. Prepare the opening and the two or three sentences you will need.",
+      "interview": "Interviews in Germany are structured and fairly direct. These phrases help you describe your experience and ask your own questions.",
+      "vocabularyOwn": "Terms you will hear in job ads and interviews in your field.",
+      "vocabularyGeneral": "Set your field under Account settings to see the vocabulary for your profession."
+    },
+    "col": { "german": "German", "english": "English", "usage": "When to use it" },
+    "lock": "The Free plan shows the phrases for the cover letter. Phone call, interview and the vocabulary for your field come with Starter."
+  },
+  "knowledge": {
+    "title": "Interviews and the complete guide",
+    "lead": "How job interviews in Germany are structured, and the full contents of the guide Land your first job in Germany to read online.",
+    "lock": "Interview preparation and the complete guide to read online."
+  },
+  "contract": {
+    "title": "Your employment contract, explained",
+    "lead": "German employment contracts use terms that are not obvious, even with good German. This page explains what the common clauses are about, so that you know what to look for before you sign.",
+    "generalTitle": "General information.",
+    "generalText": "This page explains common terms. We do not review individual contracts.",
+    "lookFor": "Look for:",
+    "lock": "Probation period, notice period, fixed term, working hours and overtime, holiday, pay and collective agreements, explained in plain language."
+  },
   "overview": {
     "welcomeAboard": "Welcome aboard, {{name}}",
     "welcomeBack": "Welcome back, {{name}}",
