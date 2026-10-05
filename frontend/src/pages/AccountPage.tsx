@@ -7,6 +7,7 @@ import { FIELDS, isField } from "../lib/fields";
 import { supabase } from "../lib/supabase";
 import { usePortal } from "../portal/PortalProvider";
 import { callbackUrl, MIN_PASSWORD_LENGTH } from "./auth/RegisterPage";
+import { PATHS } from "../routes";
 
 export const ACCOUNT_DELETED_KEY = "og.accountDeleted";
 
@@ -104,7 +105,7 @@ function EmailAddress() {
     if (next.toLowerCase() === email.toLowerCase()) return setError(t("account.emailSame"));
     setBusy(true);
     setError("");
-    const { error: failure } = await supabase.auth.updateUser({ email: next }, { emailRedirectTo: callbackUrl("/account?changed=email") });
+    const { error: failure } = await supabase.auth.updateUser({ email: next }, { emailRedirectTo: callbackUrl(`${PATHS.account}?changed=email`) });
     setBusy(false);
     if (failure) {
       if (failure.code === "email_exists") return setError(t("account.emailTaken"));

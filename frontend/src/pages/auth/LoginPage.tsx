@@ -5,6 +5,7 @@ import { SIGNED_OUT_KEY } from "../../components/PortalLayout";
 import { MAIN_URL } from "../../lib/links";
 import { supabase } from "../../lib/supabase";
 import { ACCOUNT_DELETED_KEY } from "../AccountPage";
+import { PATHS } from "../../routes";
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -66,9 +67,9 @@ export function LoginPage() {
         </div>
         {error && <div className="ferr" role="alert">{error}</div>}
         <button className="btn" type="submit" disabled={busy}>{t("auth.login.submit")}</button>
-        <Link className="linkbtn" to="/forgot-password">{t("auth.login.forgot")}</Link>
+        <Link className="linkbtn" to={PATHS.forgotPassword}>{t("auth.login.forgot")}</Link>
       </form>
-      <p className="aswitch">{t("auth.login.noAccount")} <Link className="linkbtn" to="/register">{t("auth.login.create")}</Link></p>
+      <p className="aswitch">{t("auth.login.noAccount")} <Link className="linkbtn" to={PATHS.register}>{t("auth.login.create")}</Link></p>
     </>
   );
 }

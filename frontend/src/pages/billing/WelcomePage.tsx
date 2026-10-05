@@ -6,6 +6,7 @@ import { PageStatus } from "../../components/PageStatus";
 import type { PlanLevel } from "../../lib/supabase";
 import { usePortal } from "../../portal/PortalProvider";
 import { PRESELECTED_PLAN_KEY } from "../auth/RegisterPage";
+import { PATHS, checkoutPath } from "../../routes";
 
 export const WELCOME_SEEN_KEY = "og.welcomeSeen";
 
@@ -26,12 +27,12 @@ export function WelcomePage() {
     return isPaidPlan(preselected) ? preselected : "free";
   });
 
-  if (!portal.salesEnabled || portal.plan !== "free") return <Navigate to="/" replace />;
+  if (!portal.salesEnabled || portal.plan !== "free") return <Navigate to={PATHS.overview} replace />;
 
   function proceed() {
     sessionStorage.setItem(WELCOME_SEEN_KEY, "1");
     localStorage.removeItem(PRESELECTED_PLAN_KEY);
-    navigate(plan === "free" ? "/" : `/checkout?plan=${plan}&length=${length}`, { replace: true });
+    navigate(plan === "free" ? PATHS.overview : checkoutPath(plan, length), { replace: true });
   }
 
   const options: PlanLevel[] = ["free", "starter", "plus"];
@@ -60,7 +61,7 @@ export function WelcomePage() {
       </div>
       <div className="aform" style={{ marginTop: 24 }}>
         <button className="btn" onClick={proceed}>{plan === "free" ? t("welcome.startFree") : t("welcome.continueWith", { plan: t(`plans.${plan}`) })}</button>
-        <Link className="linkbtn" to="/plan" onClick={() => sessionStorage.setItem(WELCOME_SEEN_KEY, "1")}>{t("welcome.included")}</Link>
+        <Link className="linkbtn" to={PATHS.plan} onClick={() => sessionStorage.setItem(WELCOME_SEEN_KEY, "1")}>{t("welcome.included")}</Link>
       </div>
     </>
   );

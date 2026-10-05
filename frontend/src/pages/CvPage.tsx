@@ -9,6 +9,7 @@ import { useToast } from "../components/Toast";
 import { supabase, type Tables } from "../lib/supabase";
 import { PLAN_NAME } from "../lib/plan";
 import { usePortal } from "../portal/PortalProvider";
+import { PATHS, guidePath } from "../routes";
 
 type Content = { templates: Tables<"templates">[]; articles: Tables<"articles">[] };
 
@@ -86,8 +87,8 @@ export function CvPage() {
             <div className="num">{String(index + 1).padStart(2, "0")}</div>
             <div>
               {guide.slug
-                ? <Link className="linkh" to={`/cv/guides/${guide.slug}`}>{guide.title}</Link>
-                : <Link className="linkh" to="/plan">{guide.title}</Link>}
+                ? <Link className="linkh" to={guidePath("cv", guide.slug)}>{guide.title}</Link>
+                : <Link className="linkh" to={PATHS.plan}>{guide.title}</Link>}
               {guide.lead && <p className="sdesc">{guide.lead}</p>}
               {guide.minPlan && <div className="lockline">{t("lock.fromPlanShort", { plan: guide.minPlan })}</div>}
             </div>

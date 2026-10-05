@@ -3,6 +3,7 @@ import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/AuthProvider";
 import { firstOfTwoConfirmations, initialLinkError } from "../../lib/initialUrl";
+import { PATHS } from "../../routes";
 
 /**
  * Ziel aller Links aus Mails (Bestätigung, Passwort zurücksetzen, E-Mail-Änderung, Einladung).
@@ -22,7 +23,7 @@ export function AuthCallbackPage() {
 
   // Nur Ziele im Portal, keine fremden Adressen.
   const next = search.get("next");
-  const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  const target = next && next.startsWith(PATHS.overview) && !next.startsWith("//") ? next : PATHS.overview;
 
   if (firstOfTwoConfirmations) {
     return (
@@ -30,7 +31,7 @@ export function AuthCallbackPage() {
         <h1 className="t1">{t("auth.link.firstTitle")}</h1>
         <p className="pm">{t("auth.link.firstText")}</p>
         <div className="aform">
-          <Link className="btn2" to={session ? "/account" : "/login"}>{session ? t("nav.items.account") : t("auth.backToLogin")}</Link>
+          <Link className="btn2" to={session ? PATHS.account : PATHS.login}>{session ? t("nav.items.account") : t("auth.backToLogin")}</Link>
         </div>
       </>
     );
@@ -43,8 +44,8 @@ export function AuthCallbackPage() {
       <h1 className="t1">{t("auth.link.title")}</h1>
       <p className="pm">{t("auth.link.text")}</p>
       <div className="aform">
-        <Link className="btn2" to={session ? "/" : "/login"}>{session ? t("common.backToOverview") : t("auth.backToLogin")}</Link>
-        {!session && <Link className="linkbtn" to="/forgot-password">{t("auth.link.newReset")}</Link>}
+        <Link className="btn2" to={session ? PATHS.overview : PATHS.login}>{session ? t("common.backToOverview") : t("auth.backToLogin")}</Link>
+        {!session && <Link className="linkbtn" to={PATHS.forgotPassword}>{t("auth.link.newReset")}</Link>}
       </div>
     </>
   );

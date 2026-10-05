@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../../lib/supabase";
 import { callbackUrl } from "./RegisterPage";
+import { PATHS } from "../../routes";
 
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -19,7 +20,7 @@ export function ForgotPasswordPage() {
     }
     setBusy(true);
     setError("");
-    const { error: failure } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: callbackUrl("/reset-password") });
+    const { error: failure } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: callbackUrl(PATHS.resetPassword) });
     setBusy(false);
     // Neutral bestätigen, ohne zu verraten, ob die Adresse registriert ist. Nur die Sendebegrenzung wird gemeldet.
     if (failure?.code === "over_email_send_rate_limit") setError(t("auth.register.errorRate"));
@@ -31,7 +32,7 @@ export function ForgotPasswordPage() {
       <>
         <h1 className="t1">{t("auth.forgot.sentTitle")}</h1>
         <p className="pm">{t("auth.forgot.sentText")}</p>
-        <div className="aform"><Link className="btn2" to="/login">{t("auth.backToLogin")}</Link></div>
+        <div className="aform"><Link className="btn2" to={PATHS.login}>{t("auth.backToLogin")}</Link></div>
       </>
     );
   }
@@ -47,7 +48,7 @@ export function ForgotPasswordPage() {
         </div>
         {error && <div className="ferr" role="alert">{error}</div>}
         <button className="btn" type="submit" disabled={busy}>{t("auth.forgot.submit")}</button>
-        <Link className="linkbtn" to="/login">{t("auth.backToLogin")}</Link>
+        <Link className="linkbtn" to={PATHS.login}>{t("auth.backToLogin")}</Link>
       </form>
     </>
   );

@@ -11,14 +11,15 @@ import { overviewSteps, type Progress, type TaskKey } from "../overview/steps";
 import { usePortal } from "../portal/PortalProvider";
 import { isDue, isOpen } from "../tracker/logic";
 import { shouldChoosePlan } from "./billing/WelcomePage";
+import { PATHS, checklistTabPath } from "../routes";
 
 const TASK_PATH: Record<TaskKey | "followups" | "jobs", string> = {
-  cv: "/cv",
-  linkedin: "/profiles?list=linkedin",
-  xing: "/profiles?list=xing",
-  visa: "/visa",
-  followups: "/applications",
-  jobs: "/jobs",
+  cv: PATHS.cv,
+  linkedin: checklistTabPath("linkedin", "linkedin"),
+  xing: checklistTabPath("linkedin", "xing"),
+  visa: PATHS.checklist,
+  followups: PATHS.applications,
+  jobs: PATHS.jobs,
 };
 
 type Data = {
@@ -107,7 +108,7 @@ export function OverviewPage() {
     t(`overview.task.${key}.${variant}`, { done: progress.done, total: progress.total, list: data?.visaTitle });
 
   // Nach der ersten Anmeldung zuerst zur Stufenwahl, wenn der Verkauf läuft.
-  if (shouldChoosePlan(portal)) return <Navigate to="/welcome" replace />;
+  if (shouldChoosePlan(portal)) return <Navigate to={PATHS.welcome} replace />;
 
   return (
     <>

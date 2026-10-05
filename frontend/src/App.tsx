@@ -1,4 +1,4 @@
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "./auth/AuthProvider";
 import { AuthLayout } from "./components/AuthLayout";
@@ -23,6 +23,14 @@ import { CvPage } from "./pages/CvPage";
 import { AgenciesPage, CompaniesPage, JobBoardsPage, JobsPage } from "./pages/ListPages";
 import { OverviewPage } from "./pages/OverviewPage";
 import { NotFoundPage } from "./pages/PlaceholderPage";
+import { PATHS, REDIRECTS, redirectTarget } from "./routes";
+
+/** Weiterleitung einer früheren Adresse auf die heutige (REDIRECTS in src/routes.ts). */
+function Redirect({ to }: { to: string }) {
+  const params = useParams();
+  const location = useLocation();
+  return <Navigate to={redirectTarget(to, params, location.search, location.hash)} replace />;
+}
 
 function Loading() {
   const { t } = useTranslation();
@@ -37,7 +45,7 @@ function RequireAuth() {
   if (!session) {
     // Nach dem Abmelden merkt sich das Login die letzte Seite nicht; das nächste Konto startet auf der Übersicht.
     const signedOut = sessionStorage.getItem(SIGNED_OUT_KEY) === "1" || sessionStorage.getItem(ACCOUNT_DELETED_KEY) === "1";
-    return <Navigate to="/login" replace state={signedOut ? null : { from: location.pathname + location.search }} />;
+    return <Navigate to={PATHS.login} replace state={signedOut ? null : { from: location.pathname + location.search }} />;
   }
   return <PortalProvider><Outlet /></PortalProvider>;
 }
@@ -47,48 +55,50 @@ function GuestOnly() {
   const { session, loading } = useAuth();
   const location = useLocation();
   if (loading) return <Loading />;
-  if (session) return <Navigate to={(location.state as { from?: string } | null)?.from ?? "/"} replace />;
+  if (session) return <Navigate to={(location.state as { from?: string } | null)?.from ?? PATHS.overview} replace />;
   return <Outlet />;
 }
 
 export function App() {
   return (
     <Routes>
+      {REDIRECTS.map(({ from, to }) => <Route key={from} path={from} element={<Redirect to={to} />} />)}
+
       <Route element={<AuthLayout />}>
         <Route element={<GuestOnly />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/check-inbox" element={<CheckInboxPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path={PATHS.login} element={<LoginPage />} />
+          <Route path={PATHS.register} element={<RegisterPage />} />
+          <Route path={PATHS.checkInbox} element={<CheckInboxPage />} />
+          <Route path={PATHS.forgotPassword} element={<ForgotPasswordPage />} />
         </Route>
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path={PATHS.authCallback} element={<AuthCallbackPage />} />
         <Route element={<RequireAuth />}>
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/welcome" element={<WelcomePage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/billing/success" element={<BillingSuccessPage />} />
+          <Route path={PATHS.resetPassword} element={<ResetPasswordPage />} />
+          <Route path={PATHS.welcome} element={<WelcomePage />} />
+          <Route path={PATHS.checkout} element={<CheckoutPage />} />
+          <Route path={PATHS.billingSuccess} element={<BillingSuccessPage />} />
         </Route>
       </Route>
 
       <Route element={<RequireAuth />}>
         <Route element={<PortalLayout />}>
-          <Route path="/" element={<OverviewPage />} />
-          <Route path="/applications" element={<ApplicationsPage />} />
-          <Route path="/jobs" element={<JobsPage />} />
-          <Route path="/companies" element={<CompaniesPage />} />
-          <Route path="/job-boards" element={<JobBoardsPage />} />
-          <Route path="/agencies" element={<AgenciesPage />} />
-          <Route path="/german" element={<GermanPage />} />
-          <Route path="/interview-guide" element={<KnowledgePage />} />
-          <Route path="/interview-guide/:slug" element={<ArticlePage parent="knowledge" />} />
-          <Route path="/contract" element={<ContractPage />} />
-          <Route path="/plan" element={<PlanPage />} />
-          <Route path="/account" element={<AccountPage />} />
-          <Route path="/cv" element={<CvPage />} />
-          <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
-          <Route path="/profiles" element={<ProfilesPage />} />
-          <Route path="/visa" element={<VisaPage />} />
-          <Route path="/first-day" element={<FirstDayPage />} />
+          <Route path={PATHS.overview} element={<OverviewPage />} />
+          <Route path={PATHS.applications} element={<ApplicationsPage />} />
+          <Route path={PATHS.jobs} element={<JobsPage />} />
+          <Route path={PATHS.companies} element={<CompaniesPage />} />
+          <Route path={PATHS.boards} element={<JobBoardsPage />} />
+          <Route path={PATHS.agencies} element={<AgenciesPage />} />
+          <Route path={PATHS.german} element={<GermanPage />} />
+          <Route path={PATHS.knowledge} element={<KnowledgePage />} />
+          <Route path={PATHS.knowledgeGuide} element={<ArticlePage parent="knowledge" />} />
+          <Route path={PATHS.contract} element={<ContractPage />} />
+          <Route path={PATHS.plan} element={<PlanPage />} />
+          <Route path={PATHS.account} element={<AccountPage />} />
+          <Route path={PATHS.cv} element={<CvPage />} />
+          <Route path={PATHS.cvGuide} element={<ArticlePage parent="cv" />} />
+          <Route path={PATHS.linkedin} element={<ProfilesPage />} />
+          <Route path={PATHS.checklist} element={<VisaPage />} />
+          <Route path={PATHS.arrival} element={<FirstDayPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

@@ -9,6 +9,7 @@ import { formatDate } from "../../lib/dates";
 import { PLAN_RANK } from "../../lib/plan";
 import { supabase, type PlanLevel, type Tables } from "../../lib/supabase";
 import { usePortal } from "../../portal/PortalProvider";
+import { checkoutPath } from "../../routes";
 
 type Period = Tables<"plan_periods">;
 const fullyRefunded = (period: Period) => period.amount_cents !== null && (period.refunded_cents ?? 0) >= period.amount_cents && period.amount_cents > 0;
@@ -139,7 +140,7 @@ function PlanCard({ id, current, month, quarter, onFree }: { id: PlanLevel; curr
       {id === "free" && isCurrent && <button className="btn2" disabled>{t("plan.currentPlan")}</button>}
       {id === "free" && !isCurrent && <button className="btn2" onClick={onFree}>{t("plan.continueFree")}</button>}
       {id !== "free" && available && (
-        <Link className={higher || isCurrent ? "btn" : "btn2"} to={`/checkout?plan=${id}`}>
+        <Link className={higher || isCurrent ? "btn" : "btn2"} to={checkoutPath(id)}>
           {isCurrent ? t("plan.extend") : higher ? t("plan.get", { plan: t(`plans.${id}`) }) : t("plan.getAfter", { plan: t(`plans.${id}`) })}
         </Link>
       )}

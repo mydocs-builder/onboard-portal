@@ -82,7 +82,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 39 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 48 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 
@@ -90,6 +90,7 @@ Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 39 Tests der Frontend-Logik 
 - `src/portal/PortalProvider.tsx` lädt nach der Anmeldung Profil, Stufe (`effective_plan`), heutiges Datum (`portal_today`), Grenzwerte und `locked_content()`. Das Schloss im Menü wird daraus abgeleitet: Ein Bereich gilt als gesperrt, wenn die Stufe dort nichts sieht und es gesperrte Einträge gibt.
 - Logik mit Tests: `src/tracker/logic.ts` (Vorschläge beim Statuswechsel, Fälligkeit, "What happened?", Dubletten), `src/overview/steps.ts` (nächste Schritte, "Completed") und `src/lib/emailSuggestion.ts` (Hinweis bei Tippfehlern in verbreiteten E-Mail-Domains).
 - Gestaltung: `src/styles/portal.css` ist das CSS des Prototyps mit Farben und Schriften als Variablen, `src/styles/app.css` die Ergänzungen. Kleinste Schriftgröße 14 px (Styleguide); der Prototyp hatte stellenweise 11 bis 13 px.
+- Adressen und Menü stehen je an genau einer Stelle: `src/routes.ts` hält die Adresse jeder Seite (im übrigen Code steht keine Adresse als Text), `src/portal/nav.ts` Gruppen, Reihenfolge und Einträge des Menüs; die Beschriftung kommt aus den Texten (`nav.items.*`, `nav.groups.*`). Ändert sich eine Adresse, kommt die alte in `REDIRECTS` in `src/routes.ts` und leitet auf die neue weiter. Außerhalb des Frontends stehen Portal-Adressen nur in `create-checkout` (Rückkehr von Stripe) und in den Mailtexten.
 - Links aus Mails führen auf `/auth/callback` (optional mit `?next=`). Die Rückkehr von Stripe führt auf `/billing/success` und `/plan?checkout=cancelled`.
 - Nach jeder Migration `npm run db:types` ausführen und die erzeugte Datei mit einchecken.
 

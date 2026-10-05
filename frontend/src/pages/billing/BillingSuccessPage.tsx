@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formatDate } from "../../lib/dates";
 import { supabase, type Tables } from "../../lib/supabase";
 import { usePortal } from "../../portal/PortalProvider";
+import { PATHS } from "../../routes";
 
 const ATTEMPTS = 15;
 const INTERVAL_MS = 2000;
@@ -56,7 +57,7 @@ export function BillingSuccessPage() {
       <>
         <h1 className="t1">{t("success.pendingTitle")}</h1>
         <p className="pm">{t("success.pendingText")}</p>
-        <div className="aform"><Link className="btn2" to="/plan">{t("nav.items.plan")}</Link></div>
+        <div className="aform"><Link className="btn2" to={PATHS.plan}>{t("nav.items.plan")}</Link></div>
       </>
     );
   }
@@ -73,7 +74,7 @@ export function BillingSuccessPage() {
         {(period.credit_days ?? 0) > 0 && " " + t("success.credit", { count: period.credit_days! })}
         {" "}{t("success.invoice")}
       </p>
-      <div className="aform"><Link className="btn" to="/">{t("success.enter")}</Link></div>
+      <div className="aform"><Link className="btn" to={PATHS.overview}>{t("success.enter")}</Link></div>
     </>
   );
 }

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useToast } from "../../components/Toast";
 import { supabase } from "../../lib/supabase";
 import { MIN_PASSWORD_LENGTH } from "./RegisterPage";
+import { PATHS } from "../../routes";
 
 /** Neues Passwort setzen, nach dem Link aus der Mail (Passwort vergessen oder Einladung). */
 export function ResetPasswordPage() {
@@ -36,7 +37,7 @@ export function ResetPasswordPage() {
       return;
     }
     flash(t("auth.reset.done"));
-    navigate("/", { replace: true });
+    navigate(PATHS.overview, { replace: true });
   }
 
   return (

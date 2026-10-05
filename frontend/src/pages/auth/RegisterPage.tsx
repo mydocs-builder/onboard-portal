@@ -7,6 +7,7 @@ import { suggestEmail } from "../../lib/emailSuggestion";
 import { FIELDS } from "../../lib/fields";
 import { PRIVACY_URL, TERMS_URL } from "../../lib/links";
 import { supabase } from "../../lib/supabase";
+import { PATHS } from "../../routes";
 
 export const MIN_PASSWORD_LENGTH = 10;
 // Auf der Website vorgewählte Stufe (/register?plan=plus); die Stufenwahl nach der Bestätigung liest sie.
@@ -14,7 +15,7 @@ export const PRESELECTED_PLAN_KEY = "og.preselectedPlan";
 /** Angaben der Registrierung ohne Passwort; "Wrong address? Change it" füllt das Formular damit wieder aus. */
 export type RegistrationDetails = { first: string; last: string; email: string; code: string; field: string };
 export const callbackUrl = (next?: string) =>
-  `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+  `${window.location.origin}${PATHS.authCallback}${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
 export function RegisterPage() {
   const { t } = useTranslation();
@@ -82,7 +83,7 @@ export function RegisterPage() {
       return;
     }
     const details: RegistrationDetails = { first: form.first.trim(), last: form.last.trim(), email, code: form.code.trim(), field: form.field };
-    navigate("/check-inbox", { state: { email, details } });
+    navigate(PATHS.checkInbox, { state: { email, details } });
   }
 
   // Hinweis bei typischen Tippfehlern in verbreiteten Domains; nur ein Vorschlag, keine Sperre.
@@ -139,7 +140,7 @@ export function RegisterPage() {
         {error && <div className="ferr" role="alert">{error}</div>}
         <button className="btn" type="submit" disabled={busy || !info}>{t("auth.register.submit")}</button>
       </form>
-      <p className="aswitch">{t("auth.register.already")} <Link className="linkbtn" to="/login">{t("auth.login.submit")}</Link></p>
+      <p className="aswitch">{t("auth.register.already")} <Link className="linkbtn" to={PATHS.login}>{t("auth.login.submit")}</Link></p>
     </>
   );
 }

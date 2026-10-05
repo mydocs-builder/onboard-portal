@@ -7,6 +7,7 @@ import { PageStatus } from "../components/PageStatus";
 import { PLAN_NAME } from "../lib/plan";
 import { supabase, type Enums, type Tables } from "../lib/supabase";
 import { usePortal } from "../portal/PortalProvider";
+import { guidePath } from "../routes";
 
 type Status = "loading" | "error" | "ready";
 type Category = Enums<"phrase_category">;
@@ -101,7 +102,7 @@ export function KnowledgePage() {
           <div className="step" key={article.id}>
             <div className="num">{String(index + 1).padStart(2, "0")}</div>
             <div>
-              <Link className="linkh" to={`/interview-guide/${article.slug}`}>{article.title}</Link>
+              <Link className="linkh" to={guidePath("knowledge", article.slug)}>{article.title}</Link>
               {article.lead && <p className="sdesc">{article.lead}</p>}
             </div>
           </div>

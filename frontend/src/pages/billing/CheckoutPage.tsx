@@ -9,6 +9,7 @@ import { formatDate } from "../../lib/dates";
 import type { Database } from "../../lib/database.types";
 import { supabase } from "../../lib/supabase";
 import { usePortal } from "../../portal/PortalProvider";
+import { PATHS } from "../../routes";
 
 type Preview = Database["public"]["Functions"]["preview_pass"]["Returns"][number];
 type Consent = { version: string; body: string };
@@ -40,7 +41,7 @@ export function CheckoutPage() {
     supabase.rpc("preview_pass", { p_plan: paidPlan, p_length: length }).then(({ data }) => setPreview(data?.[0] ?? null));
   }, [paidPlan, length]);
 
-  if (!paidPlan || !salesEnabled) return <Navigate to="/plan" replace />;
+  if (!paidPlan || !salesEnabled) return <Navigate to={PATHS.plan} replace />;
 
   const planName = t(`plans.${paidPlan}`);
   const own = prices[paidPlan] ?? {};
@@ -130,7 +131,7 @@ export function CheckoutPage() {
               {error && <div className="ferr" role="alert" style={{ marginTop: 12 }}>{error}</div>}
               <div className="aform" style={{ marginTop: 24 }}>
                 <button className="btn" onClick={pay} disabled={busy}>{t("checkout.pay", { price: formatEuro(preview.amount_cents) })}</button>
-                <Link className="linkbtn" to="/plan">{t("checkout.changePlan")}</Link>
+                <Link className="linkbtn" to={PATHS.plan}>{t("checkout.changePlan")}</Link>
               </div>
             </>
           )}

@@ -4,6 +4,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { useToast } from "../../components/Toast";
 import { supabase } from "../../lib/supabase";
 import { callbackUrl, type RegistrationDetails } from "./RegisterPage";
+import { PATHS } from "../../routes";
 
 // Der Bestätigungslink lässt sich je Konto nur begrenzt oft erneut senden. Durchgesetzt wird das in
 // der Datenbank (app_settings.confirmation_resend_limit); Supabase Auth meldet die Ablehnung aber nur
@@ -30,7 +31,7 @@ export function CheckInboxPage() {
   const [count, setCount] = useState(() => (email ? resendsSoFar(email) : 0));
   const limitReached = refused || (limit !== null && count >= limit);
 
-  if (!email) return <Navigate to="/login" replace />;
+  if (!email) return <Navigate to={PATHS.login} replace />;
 
   async function resend() {
     setBusy(true);
@@ -54,7 +55,7 @@ export function CheckInboxPage() {
           components={{
             b: <strong style={{ fontWeight: 600 }} />,
             // Zurück zur Registrierung, mit den schon gemachten Angaben (ohne Passwort).
-            change: <Link to="/register" state={{ prefill: state?.details ?? { first: "", last: "", email, code: "", field: "" } }} />,
+            change: <Link to={PATHS.register} state={{ prefill: state?.details ?? { first: "", last: "", email, code: "", field: "" } }} />,
           }}
         />
       </p>
@@ -62,7 +63,7 @@ export function CheckInboxPage() {
         {limitReached
           ? <div className="ferr" role="alert">{t("auth.inbox.resendLimit")}</div>
           : <button className="btn2" onClick={resend} disabled={busy}>{t("auth.inbox.resend")}</button>}
-        <Link className="linkbtn" to="/login">{t("auth.backToLogin")}</Link>
+        <Link className="linkbtn" to={PATHS.login}>{t("auth.backToLogin")}</Link>
       </div>
     </>
   );
