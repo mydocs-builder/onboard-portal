@@ -128,7 +128,7 @@ Ohne bestätigte Zustimmung zur aktiven Fassung des Wortlauts erzeugt `create-ch
 | grant\_until | Datum |
 | sales\_enabled | ja/nein |
 
-**stripe\_events**: Ereignis-ID von Stripe als Primärschlüssel, Typ, Zeitpunkt. Jede Meldung wird genau einmal verarbeitet.
+**stripe\_events**: id (Ereignis-ID von Stripe, Primärschlüssel), type, received\_at. Jede Meldung wird genau einmal verarbeitet.
 
 **audit\_log**: user\_id (leer bei Einträgen ohne Bezug zu einem Nutzerkonto, etwa endgültig gelöschten Listeneinträgen), actor (stripe, system oder Admin-Name), text, Zeitpunkt. Das Änderungsprotokoll im Admin-Bereich; Einträge werden nie geändert, auch nicht vom Server.
 
@@ -270,6 +270,24 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 - Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe, bei Formulierungen, Glossar und Listen nur die Anzahl.
 - "Heute" rechnet überall in deutscher Zeit.
 
+**Funktionen der Datenbank im Überblick**
+
+| Funktion | Zweck | Aufruf durch |
+| --- | --- | --- |
+| `portal_today()` | heutiges Datum in deutscher Zeit | angemeldete Nutzer, Server |
+| `is_active_user()`, `is_admin()` | Rollenprüfung in den Zugriffsregeln (angemeldet und nicht gesperrt; Admin mit zweitem Faktor) | angemeldete Nutzer, Server |
+| `effective_plan(user)` | gültige Stufe | angemeldete Nutzer (nur eigene), Admin, Server |
+| `pass_days(length)`, `is_open_application(status)` | Laufzeit eines Passes in Tagen; ob eine Bewerbung noch läuft | angemeldete Nutzer, Server |
+| `mark_first_login()` | setzt first\_login\_at beim ersten Login | angemeldete Nutzer |
+| `registration_info()` | Startphase für die Registrierung | Besucher, angemeldete Nutzer |
+| `public_settings()`, `locked_content()` | Grenzwerte und gesperrte Inhalte für das Frontend | angemeldete Nutzer |
+| `purge_list_entry(list, id)` | archivierten Listeneintrag endgültig löschen | Admin |
+| `begin_checkout(...)`, `attach_checkout_session(...)` | Kauf beginnen, Zustimmung festhalten | Server (`create-checkout`) |
+| `grant_pass(...)` | bezahlten Pass freischalten | Server (Webhook, Abgleich) |
+| `record_refund(...)` | Erstattung an der Planphase vermerken | Server (Abgleich) |
+| `daily_run()`, `daily_mails()`, `daily_mail_sent(...)` | tägliche Funktion | Server (`daily`) |
+| `call_daily_function()` | ruft die Edge Function `daily` auf | Zeitplan der Datenbank (pg\_cron) |
+
 ## Stufenlogik
 
 Eine Datenbankfunktion `effective_plan(user)` liefert die gültige Stufe; alle Zugriffsregeln auf Inhalte und Listen fragen nur sie.
@@ -325,7 +343,7 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 - **Erstattete vorgemerkte Pässe:** Ein vollständig erstatteter Pass (refunded\_cents erreicht amount\_cents), der noch nicht begonnen hat, zählt nicht mehr als Pass. Die tägliche Funktion startet ihn nicht und verschickt keine Mail dazu, er verhindert die Erinnerung vor Ablauf nicht, und `grant_pass` hängt neue Pässe nicht hinter ihn und rechnet ihn beim Upgrade nicht um. Die Planphase bleibt mit dem Vermerk der Erstattung stehen. Eine Teilerstattung ändert nichts. Ein bereits laufender erstatteter Pass bleibt Sache des Admins.
 - **Noch nicht gebaut:** das Löschen inaktiver Konten nach 24 Monaten mit Ankündigung 30 Tage vorher; dafür fehlt auch eine Mail-Art in email\_log.
 
-**email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at. Eindeutig je Art, Bezug und Tag.
+**email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at, sent\_on (Tag des Versands in deutscher Zeit). Eindeutig je Nutzer, Art, Bezug und Tag.
 
 **Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
 
