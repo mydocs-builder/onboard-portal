@@ -1,0 +1,6 @@
+<p>{{ if .Data.first_name }}Hi {{ .Data.first_name }},{{ else }}Hello,{{ end }}</p>
+<p>Thank you for creating your account in the Onboard Germany candidate portal. Please confirm your email address to activate it:<br>
+<a href="{{ .ConfirmationURL }}">{{ .ConfirmationURL }}</a></p>
+<p>The link is valid for 24 hours. If you did not create an account, you can ignore this email.</p>
+<p>Best regards<br>
+Onboard Germany</p>

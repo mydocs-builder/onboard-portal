@@ -65,7 +65,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 - Startphase: beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
 - Änderungen des Admins an Plan und Sperre sollen im Änderungsprotokoll landen; das ist für Admin-Aktionen noch nicht gebaut.
 
-**Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`). Auf dem Server laufen nur die Migrationen, nie `supabase/seed.sql`: keine Testkonten, keine Beispieldaten, kein Verkauf durch die Seed-Daten. Das echte Admin-Konto bekommt einen eigenen zweiten Faktor, nicht das Geheimnis aus den Seed-Daten.
+**Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`). Die vier Mailtexte von Supabase Auth (Bestätigung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) müssen auf dem Server genauso hinterlegt werden wie lokal: Betreff und Vorlage aus `supabase/config.toml` und `supabase/templates/`, dazu dieselbe Gültigkeit der Links (`otp_expiry`, 24 Stunden) und `double_confirm_changes = false`. Auf dem Server laufen nur die Migrationen, nie `supabase/seed.sql`: keine Testkonten, keine Beispieldaten, kein Verkauf durch die Seed-Daten. Das echte Admin-Konto bekommt einen eigenen zweiten Faktor, nicht das Geheimnis aus den Seed-Daten.
 
 **Später, inaktive Konten:** Konten ohne Login und ohne Pass nach 24 Monaten löschen, Ankündigung per Mail 30 Tage vorher. Gehört in die tägliche Funktion; braucht eine neue Mail-Art in `email_log` und einen Mailtext von Patrick.
 
@@ -93,6 +93,8 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 **Entscheidungen, die nicht im Datenmodell stehen**
 
 - Mailtexte in `supabase/functions/_shared/emails.ts` sind von Patrick freigegeben (fünf Mails der täglichen Funktion, Kaufbestätigung). Reiner Text, kein HTML. Änderungen am Wortlaut nur nach Rücksprache.
+- Die vier Mails von Supabase Auth (Bestätigung der Registrierung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) stehen in `supabase/templates/`, Betreff in `supabase/config.toml`; Wortlaut von Patrick freigegeben (5. Oktober 2026). Supabase Auth verschickt Mails nur als HTML, deshalb enthalten die Vorlagen nichts außer Absätzen und dem Link, ohne Gestaltung. Die Anrede nimmt den Vornamen aus den Angaben der Registrierung (`first_name`). Alle Links gelten 24 Stunden (`otp_expiry`), auch der zum Zurücksetzen des Passworts.
+- Eine E-Mail-Änderung wird nur an der neuen Adresse bestätigt (`double_confirm_changes = false`), wie im Umfang festgelegt.
 - `create-checkout` erwartet `consent_version`; das Frontend liest die aktive Fassung aus `consent_texts` und schickt deren Versionskennung mit.
 - Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
 - In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen aus den Tests vom 4. und 5. Oktober.
