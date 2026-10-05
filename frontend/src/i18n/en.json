@@ -1,5 +1,9 @@
 {
-  "brand": { "name": "Onboard Germany", "portal": "Candidate portal", "homeAria": "Onboard Germany, main website" },
+  "brand": {
+    "name": "Onboard Germany",
+    "portal": "Candidate portal",
+    "homeAria": "Onboard Germany, main website"
+  },
   "common": {
     "loading": "Loading …",
     "loadError": "This page could not be loaded. Please check your connection and try again.",
@@ -15,7 +19,11 @@
     "backToOverview": "Back to the overview",
     "nothingYet": "Nothing here yet. This section is being prepared."
   },
-  "plans": { "free": "Free", "starter": "Starter", "plus": "Plus" },
+  "plans": {
+    "free": "Free",
+    "starter": "Starter",
+    "plus": "Plus"
+  },
   "fields": {
     "it": "IT",
     "engineering": "Engineering",
@@ -51,7 +59,12 @@
       "plan": "Plan and billing",
       "account": "Account settings"
     },
-    "short": { "overview": "Overview", "cv": "CV", "linkedin": "LinkedIn", "applications": "Applic." }
+    "short": {
+      "overview": "Overview",
+      "cv": "CV",
+      "linkedin": "LinkedIn",
+      "applications": "Applic."
+    }
   },
   "footer": {
     "website": "onboard-germany.de",
@@ -79,7 +92,9 @@
     "copied": "Copied. Replace the parts in brackets.",
     "copyFailed": "Select the text and copy it."
   },
-  "article": { "eyebrow": "Guide · {{area}}" },
+  "article": {
+    "eyebrow": "Guide · {{area}}"
+  },
   "cv": {
     "title": "Your CV and cover letter",
     "lead": "The CV is the first thing an employer in Germany sees from you. Bring it into German format before you send the first application.",
@@ -112,8 +127,18 @@
     "callButton": "Book the call"
   },
   "signals": {
-    "companies": { "english_ads": "English job ads", "relocation_support": "Relocation support", "visa_support": "Visa support", "recognition_partnership": "Recognition partnership" },
-    "jobs": { "english_ads": "Ad in English", "relocation_support": "Relocation support", "visa_support": "Visa support", "recognition_partnership": "Recognition partnership" },
+    "companies": {
+      "english_ads": "English job ads",
+      "relocation_support": "Relocation support",
+      "visa_support": "Visa support",
+      "recognition_partnership": "Recognition partnership"
+    },
+    "jobs": {
+      "english_ads": "Ad in English",
+      "relocation_support": "Relocation support",
+      "visa_support": "Visa support",
+      "recognition_partnership": "Recognition partnership"
+    },
     "tipAria": "What does recognition partnership mean?",
     "tipTitle": "Recognition partnership.",
     "tipText": "You can start work in Germany while your qualification is still being recognised. You agree to apply for recognition right after arrival, and the employer lets you complete the qualification measures the recognition authority requires as part of your job. You need a concrete job offer, at least sufficient German and a state-recognised qualification from abroad: vocational training of at least two years or a university degree.",
@@ -126,21 +151,55 @@
     "allIndustries": "All industries",
     "employerType": "Type of employer",
     "allTypes": "All types",
-    "employerTypes": { "hospital": "Hospital", "care_home": "Care home", "outpatient": "Outpatient care" },
+    "employerTypes": {
+      "hospital": "Hospital",
+      "care_home": "Care home",
+      "outpatient": "Outpatient care"
+    },
     "signal": "Signal",
     "signals": "Signals",
     "allSignals": "All signals",
     "all": "All",
     "yes": "Yes",
     "no": "No",
-    "noMatch": "No entries match these filters. Change a filter to see more."
+    "clear": "Clear filters",
+    "count": {
+      "companies_one": "{{count}} company",
+      "companies_other": "{{count}} companies",
+      "boards_one": "{{count}} job board",
+      "boards_other": "{{count}} job boards",
+      "agencies_one": "{{count}} agency",
+      "agencies_other": "{{count}} agencies",
+      "jobs_one": "{{count}} job",
+      "jobs_other": "{{count}} jobs"
+    },
+    "countOf": {
+      "companies_one": "{{shown}} of {{count}} company",
+      "companies_other": "{{shown}} of {{count}} companies",
+      "boards_one": "{{shown}} of {{count}} job board",
+      "boards_other": "{{shown}} of {{count}} job boards",
+      "agencies_one": "{{shown}} of {{count}} agency",
+      "agencies_other": "{{shown}} of {{count}} agencies",
+      "jobs_one": "{{shown}} of {{count}} job",
+      "jobs_other": "{{shown}} of {{count}} jobs"
+    },
+    "none": {
+      "companies": "No companies match your filters",
+      "boards": "No job boards match your filters",
+      "agencies": "No agencies match your filters",
+      "jobs": "No jobs match your filters"
+    }
   },
   "boards": {
     "title": "Where to search, by field",
     "lead": "The general boards cover every industry. The specialised ones are often less crowded and closer to the right employers.",
     "field": "Field",
     "allFields": "All fields",
-    "col": { "name": "Job board", "field": "Field", "focus": "Focus" },
+    "col": {
+      "name": "Job board",
+      "field": "Field",
+      "focus": "Focus"
+    },
     "lockTitle": "The Free plan shows the general boards.",
     "lockText": "Boards by industry and field are included from the {{plan}} plan."
   },
@@ -152,10 +211,17 @@
     "allFields": "All fields",
     "generalists": "Generalists",
     "model": "Way of working",
-    "models": { "direct": "Direct placement", "temp": "Temporary agency work", "both": "Direct placement and temporary work" },
+    "models": {
+      "direct": "Direct placement",
+      "temp": "Temporary agency work",
+      "both": "Direct placement and temporary work"
+    },
     "abroadFilter": "Candidates abroad",
     "abroadYes": "Recruits from abroad",
-    "col": { "name": "Agency", "abroad": "Recruits from abroad" },
+    "col": {
+      "name": "Agency",
+      "abroad": "Recruits from abroad"
+    },
     "lockAll": "How agencies work, what to watch out for with your visa, how to apply through them and a list of agencies. Specialised agencies with filters are part of Plus.",
     "lockSomeTitle": "Starter shows the large generalist agencies.",
     "lockSome": "Specialised agencies by field, with filters for the way they work and for recruiting from abroad, are included in the {{plan}} plan."
@@ -163,7 +229,10 @@
   "companies": {
     "title": "Companies that hire internationally",
     "lead": "Employers that show signs of hiring from abroad: job ads in English, relocation support on the careers page or in job ads, or a visa process run by the employer. Each signal comes with the date we last checked it.",
-    "col": { "name": "Company", "checked": "Last checked" },
+    "col": {
+      "name": "Company",
+      "checked": "Last checked"
+    },
     "note": "A signal shows that a company has hired from abroad or says it does. It is not a promise that it will hire you.",
     "lock": "Companies with signs of international hiring, filtered by industry and signal, with a link to each website."
   },
@@ -171,8 +240,6 @@
     "title": "Current jobs for international candidates",
     "lead": "Job ads written in English or mentioning relocation, visa support or a recognition partnership, collected from job boards and company careers pages. Ads for temporary agency work are left out.",
     "fieldNote": "Filtered for your field: {{field}}. Change the filter to see all jobs.",
-    "count_one": "{{count}} job",
-    "count_other": "{{count}} jobs",
     "posted": "Posted",
     "anyTime": "Any time",
     "last7": "Last 7 days",
@@ -191,7 +258,12 @@
   "german": {
     "title": "German for applications and interviews",
     "lead": "The phrases you need for the cover letter, the phone call and the interview, plus the vocabulary of your field. Each with the English meaning and when to use it.",
-    "tab": { "cover_letter": "Cover letter", "phone": "Phone call", "interview": "Interview", "vocabulary": "Vocabulary: {{field}}" },
+    "tab": {
+      "cover_letter": "Cover letter",
+      "phone": "Phone call",
+      "interview": "Interview",
+      "vocabulary": "Vocabulary: {{field}}"
+    },
     "general": "general",
     "intro": {
       "cover_letter": "A German cover letter is formal and short. These phrases cover the parts every letter needs.",
@@ -200,7 +272,11 @@
       "vocabularyOwn": "Terms you will hear in job ads and interviews in your field.",
       "vocabularyGeneral": "Set your field under Account settings to see the vocabulary for your profession."
     },
-    "col": { "german": "German", "english": "English", "usage": "When to use it" },
+    "col": {
+      "german": "German",
+      "english": "English",
+      "usage": "When to use it"
+    },
     "lock": "The Free plan shows the phrases for the cover letter. Phone call, interview and the vocabulary for your field come with Starter."
   },
   "knowledge": {
@@ -225,14 +301,24 @@
     "kvNext": "Next pass",
     "passFree": "Free of charge",
     "passManual": "Free access, granted by Onboard Germany",
-    "pass": { "month": "1-month pass", "quarter": "3-month pass" },
-    "length": { "month": "1 month", "quarter": "3 months" },
+    "pass": {
+      "month": "1-month pass",
+      "quarter": "3-month pass"
+    },
+    "length": {
+      "month": "1 month",
+      "quarter": "3 months"
+    },
     "noEnd": "No end date",
     "untilThenFree": "{{date}}, then Free unless you buy a new pass",
     "nextPass": "{{plan}}, {{from}} to {{until}}",
     "purchases": "Your purchases",
     "noPurchases": "You have not bought a pass yet.",
-    "col": { "date": "Date", "pass": "Pass", "amount": "Amount" },
+    "col": {
+      "date": "Date",
+      "pass": "Pass",
+      "amount": "Amount"
+    },
     "passLine": "{{plan}}, {{length}}",
     "refunded": "{{amount}} refunded",
     "invoiceNote": "Your invoices were sent to you by email from Stripe. If you need a copy, please contact us.",
@@ -243,7 +329,11 @@
     "pilotPlus": "You have the full Plus plan free of charge until {{date}}. We will let you know in good time before paid plans start.",
     "pilotOther": "We will let you know as soon as paid plans are available.",
     "badge": "Most complete",
-    "sub": { "free": "To get started", "starter": "For your own job search", "plus": "With current jobs" },
+    "sub": {
+      "free": "To get started",
+      "starter": "For your own job search",
+      "plus": "With current jobs"
+    },
     "forMonth": "for 1 month",
     "forQuarter": "for 3 months",
     "orQuarter": "or {{price}} for 3 months, ends automatically",
@@ -287,7 +377,10 @@
     "title": "Your {{plan}} pass",
     "lead": "Choose how long your pass should run. Both end automatically.",
     "lengthAria": "Pass length",
-    "length": { "month": "1 month", "quarter": "3 months" },
+    "length": {
+      "month": "1 month",
+      "quarter": "3 months"
+    },
     "best": "Best value",
     "oneTime": "one-time payment",
     "perMonth": "{{price}} per month, one-time payment",
@@ -331,8 +424,15 @@
   "welcome": {
     "title": "Choose how to start",
     "lead": "Your account is confirmed. Start with Free, or choose a plan now. You can change it at any time.",
-    "sub": { "free": "to get started", "starter": "for your own job search", "plus": "with current jobs" },
-    "price": { "month": "{{price}} for 1 month", "quarter": "{{price}} for 3 months" },
+    "sub": {
+      "free": "to get started",
+      "starter": "for your own job search",
+      "plus": "with current jobs"
+    },
+    "price": {
+      "month": "{{price}} for 1 month",
+      "quarter": "{{price}} for 3 months"
+    },
     "startFree": "Start with Free",
     "continueWith": "Continue with {{plan}}",
     "included": "What is included in each plan?"
@@ -435,24 +535,72 @@
     "limitTitle": "Limit reached.",
     "limitText": "The Free plan holds up to {{limit}} applications. Starter and Plus have no limit.",
     "limitToast": "The Free plan holds up to 10 applications.",
-    "col": { "company": "Company", "position": "Position", "status": "Status", "applied": "Applied", "next": "Next step", "actions": "Actions" },
+    "col": {
+      "company": "Company",
+      "position": "Position",
+      "status": "Status",
+      "applied": "Applied",
+      "next": "Next step",
+      "actions": "Actions"
+    },
     "jobAd": "Job ad",
     "dueToday": "Due today",
     "dueSince": "Due since {{date}}",
     "edit": "Edit",
     "editAria": "Edit {{company}}",
     "status": {
-      "planned": "Planned", "applied": "Applied", "interview": "Interview", "offer": "Offer",
-      "accepted": "Accepted", "rejected": "Rejected", "no_response": "No response", "withdrawn": "Withdrawn"
+      "planned": "Planned",
+      "applied": "Applied",
+      "interview": "Interview",
+      "offer": "Offer",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "no_response": "No response",
+      "withdrawn": "Withdrawn"
     },
     "next": {
-      "apply": { "label": "Apply", "date": "Apply by", "button": "Update", "hint": "Send your application by this date. Earlier is better, job ads can go offline without notice." },
-      "follow_up": { "label": "Follow up", "date": "Follow up on", "button": "Follow up", "hint": "If you have not heard back by this date, send a short email asking about the status. The template is under CV and cover letter." },
-      "interview": { "label": "Interview", "date": "Interview on", "button": "Update", "hint": "Prepare with the interview guide and German for the job. You get a reminder by email the day before." },
-      "documents": { "label": "Send documents", "date": "Send by", "button": "Update", "hint": "The employer has asked for further documents. Send them by this date." },
-      "decision": { "label": "Ask about the decision", "date": "Ask on", "button": "Follow up", "hint": "If you have not heard back after the interview by this date, ask politely about the timeline." },
-      "offer_reply": { "label": "Reply to the offer", "date": "Reply by", "button": "Update", "hint": "Reply to the offer by this date. Compare the contract terms first, see Employment contract." },
-      "none": { "label": "No next step", "date": "Next step on", "button": "Update", "hint": "This application is closed. You find it in the history of the application." }
+      "apply": {
+        "label": "Apply",
+        "date": "Apply by",
+        "button": "Update",
+        "hint": "Send your application by this date. Earlier is better, job ads can go offline without notice."
+      },
+      "follow_up": {
+        "label": "Follow up",
+        "date": "Follow up on",
+        "button": "Follow up",
+        "hint": "If you have not heard back by this date, send a short email asking about the status. The template is under CV and cover letter."
+      },
+      "interview": {
+        "label": "Interview",
+        "date": "Interview on",
+        "button": "Update",
+        "hint": "Prepare with the interview guide and German for the job. You get a reminder by email the day before."
+      },
+      "documents": {
+        "label": "Send documents",
+        "date": "Send by",
+        "button": "Update",
+        "hint": "The employer has asked for further documents. Send them by this date."
+      },
+      "decision": {
+        "label": "Ask about the decision",
+        "date": "Ask on",
+        "button": "Follow up",
+        "hint": "If you have not heard back after the interview by this date, ask politely about the timeline."
+      },
+      "offer_reply": {
+        "label": "Reply to the offer",
+        "date": "Reply by",
+        "button": "Update",
+        "hint": "Reply to the offer by this date. Compare the contract terms first, see Employment contract."
+      },
+      "none": {
+        "label": "No next step",
+        "date": "Next step on",
+        "button": "Update",
+        "hint": "This application is closed. You find it in the history of the application."
+      }
     },
     "nextIntro": "Next step: {{step}}.",
     "addTitle": "New application",
@@ -481,8 +629,12 @@
     "deleted": "Application deleted.",
     "whatHappened": "What happened?",
     "outcomeTitle": {
-      "apply": "Apply: {{company}}", "follow_up": "Follow-up: {{company}}", "decision": "Decision: {{company}}",
-      "interview": "Interview: {{company}}", "documents": "Documents: {{company}}", "offer_reply": "Offer: {{company}}"
+      "apply": "Apply: {{company}}",
+      "follow_up": "Follow-up: {{company}}",
+      "decision": "Decision: {{company}}",
+      "interview": "Interview: {{company}}",
+      "documents": "Documents: {{company}}",
+      "offer_reply": "Offer: {{company}}"
     },
     "outcomeIntro": {
       "apply": "You planned to apply by {{date}}. What happened?",
@@ -493,20 +645,71 @@
       "offer_reply": "Your reply to the offer was due on {{date}}. What happened?"
     },
     "choices": {
-      "apply": { "applied": "I have applied", "later": "Not yet, remind me later", "skip": "I will not apply" },
-      "follow_up": { "waiting": "I followed up and am waiting for an answer", "reply": "I have received an answer", "later": "Not yet, remind me later", "close": "No answer, close the application" },
-      "decision": { "waiting": "I asked and am waiting for an answer", "reply": "I have received an answer", "later": "Not yet, remind me later", "close": "No answer, close the application" },
-      "interview": { "done": "The interview took place", "reply": "I have already received an answer", "later": "The date has moved" },
-      "documents": { "sent": "I have sent the documents", "later": "Not yet, remind me later" },
-      "offer_reply": { "accept": "I accept the offer", "decline": "I decline the offer", "later": "I need more time" }
+      "apply": {
+        "applied": "I have applied",
+        "later": "Not yet, remind me later",
+        "skip": "I will not apply"
+      },
+      "follow_up": {
+        "waiting": "I followed up and am waiting for an answer",
+        "reply": "I have received an answer",
+        "later": "Not yet, remind me later",
+        "close": "No answer, close the application"
+      },
+      "decision": {
+        "waiting": "I asked and am waiting for an answer",
+        "reply": "I have received an answer",
+        "later": "Not yet, remind me later",
+        "close": "No answer, close the application"
+      },
+      "interview": {
+        "done": "The interview took place",
+        "reply": "I have already received an answer",
+        "later": "The date has moved"
+      },
+      "documents": {
+        "sent": "I have sent the documents",
+        "later": "Not yet, remind me later"
+      },
+      "offer_reply": {
+        "accept": "I accept the offer",
+        "decline": "I decline the offer",
+        "later": "I need more time"
+      }
     },
     "channelLabel": "How did you follow up?",
-    "channelOption": { "email": "Email", "phone": "Phone", "linkedin": "LinkedIn message", "xing": "XING message" },
-    "channel": { "email": "email", "phone": "phone", "linkedin": "LinkedIn message", "xing": "XING message" },
+    "channelOption": {
+      "email": "Email",
+      "phone": "Phone",
+      "linkedin": "LinkedIn message",
+      "xing": "XING message"
+    },
+    "channel": {
+      "email": "email",
+      "phone": "phone",
+      "linkedin": "LinkedIn message",
+      "xing": "XING message"
+    },
     "answerLabel": "What was the answer?",
-    "answer": { "interview": "Invited to an interview", "documents": "Asked for further documents", "offer": "Offer", "rejected": "Rejection" },
-    "answerDate": { "interview": "Interview on", "documents": "Send documents by", "offer": "Reply to the offer by", "rejected": "Date" },
-    "choiceDate": { "waiting": "Next follow-up on", "later": "Remind me on", "applied": "Follow up on", "done": "Ask about the decision on", "sent": "Follow up on" },
+    "answer": {
+      "interview": "Invited to an interview",
+      "documents": "Asked for further documents",
+      "offer": "Offer",
+      "rejected": "Rejection"
+    },
+    "answerDate": {
+      "interview": "Interview on",
+      "documents": "Send documents by",
+      "offer": "Reply to the offer by",
+      "rejected": "Date"
+    },
+    "choiceDate": {
+      "waiting": "Next follow-up on",
+      "later": "Remind me on",
+      "applied": "Follow up on",
+      "done": "Ask about the decision on",
+      "sent": "Follow up on"
+    },
     "date": "Date",
     "noteOptional": "Note (optional)",
     "willBeSaved": "Will be saved as: {{text}}",

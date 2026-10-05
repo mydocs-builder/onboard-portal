@@ -48,3 +48,6 @@ a.btn2.extlink,a.btn2{font:600 16px var(--sans)}
 .infobox{margin:28px 0}
 .infobox + .infobox{margin-top:-28px;padding-top:0}
 .read .quelle{margin-top:14px}
+
+.listcount{margin:0 0 16px}
+.filters + .listcount,.filters + .empty{margin-top:-8px}

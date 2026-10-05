@@ -31,9 +31,26 @@ function Website({ url }: { url: string | null }) {
   return safe ? <ExternalLink href={safe}>{displayUrl(safe)}</ExternalLink> : <>-</>;
 }
 
-function NoMatch({ show }: { show: boolean }) {
+type ListName = "companies" | "boards" | "agencies" | "jobs";
+
+/**
+ * Zähler über einer Liste: "48 companies", mit Filter "12 of 48 companies", ohne Treffer ein Hinweis
+ * mit "Clear filters". total sind die Einträge, die die Stufe sehen darf; anderes liefert die Datenbank nicht.
+ */
+function ListCount({ list, shown, total, onClear }: { list: ListName; shown: number; total: number; onClear: () => void }) {
   const { t } = useTranslation();
-  return show ? <p className="empty">{t("lists.noMatch")}</p> : null;
+  if (shown === 0) {
+    return (
+      <p className="empty" role="status">
+        {t(`lists.none.${list}`)} <button className="linkbtn" onClick={onClear}>{t("lists.clear")}</button>
+      </p>
+    );
+  }
+  return (
+    <p className="meta listcount" role="status">
+      {shown === total ? t(`lists.count.${list}`, { count: total }) : t(`lists.countOf.${list}`, { count: total, shown })}
+    </p>
+  );
 }
 
 // --- Job boards ---------------------------------------------------------------------------------
@@ -66,7 +83,8 @@ export function JobBoardsPage() {
               </Select>
             </div>
           )}
-          <div className="tbox">
+          <ListCount list="boards" shown={shown.length} total={rows.length} onClear={() => setCategory("all")} />
+          {shown.length > 0 && <div className="tbox">
             <table className="tbl">
               <thead><tr><th>{t("boards.col.name")}</th><th>{t("boards.col.field")}</th><th>{t("boards.col.focus")}</th><th>{t("lists.website")}</th></tr></thead>
               <tbody>
@@ -80,7 +98,7 @@ export function JobBoardsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div>}
         </>
       )}
       {lockedBoards.length > 0 && (
@@ -150,7 +168,8 @@ export function AgenciesPage() {
               </Select>
             </div>
           )}
-          <div className="tbox">
+          <ListCount list="agencies" shown={shown.length} total={rows.length} onClear={() => { setField("all"); setModel("all"); setAbroad("all"); }} />
+          {shown.length > 0 && <div className="tbox">
             <table className="tbl wide">
               <thead>
                 <tr><th>{t("agencies.col.name")}</th><th>{t("agencies.field")}</th><th>{t("agencies.model")}</th><th>{t("agencies.col.abroad")}</th><th>{t("lists.region")}</th><th>{t("lists.website")}</th></tr>
@@ -168,8 +187,7 @@ export function AgenciesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-          <NoMatch show={shown.length === 0} />
+          </div>}
           {lockedAgencies.length > 0 && (
             <LockHint title={t("agencies.lockSomeTitle")} style={{ marginTop: 32 }}>{t("agencies.lockSome", { plan: PLAN_NAME[lockedAgencies[0].min_plan] })}</LockHint>
           )}
@@ -234,7 +252,8 @@ export function CompaniesPage() {
       {rows.length > 0 && (
         <>
           <IndustryFilters prefix="c" labels="companies" industry={industry} setIndustry={setIndustry} type={type} setType={setType} signal={signal} setSignal={setSignal} />
-          <div className="tbox">
+          <ListCount list="companies" shown={shown.length} total={rows.length} onClear={() => { setIndustry("all"); setType("all"); setSignal("all"); }} />
+          {shown.length > 0 && <div className="tbox">
             <table className="tbl wide">
               <thead>
                 <tr><th>{t("companies.col.name")}</th><th>{t("lists.industry")}</th><th>{t("lists.region")}</th><th>{t("lists.signals")}</th><th>{t("lists.website")}</th><th>{t("companies.col.checked")}</th></tr>
@@ -252,8 +271,7 @@ export function CompaniesPage() {
                 ))}
               </tbody>
             </table>
-          </div>
-          <NoMatch show={shown.length === 0} />
+          </div>}
           <p className="sample">{t("companies.note")}</p>
         </>
       )}
@@ -315,7 +333,6 @@ export function JobsPage() {
       {lockedAreas.jobs && <LockHint title={t("lock.inPlan", { plan: PLAN_NAME[lockedJobs[0].min_plan] })}>{t("jobs.lock")}</LockHint>}
       {rows.length > 0 && (
         <>
-          <div className="row" style={{ marginBottom: 20 }}><span className="meta">{t("jobs.count", { count: rows.length })}</span></div>
           <IndustryFilters prefix="j" labels="jobs" industry={industry} setIndustry={setIndustry} type={type} setType={setType} signal={signal} setSignal={setSignal}>
             <Select id="j-age" label={t("jobs.posted")} value={age} onChange={setAge}>
               <option value="all">{t("jobs.anyTime")}</option>
@@ -323,7 +340,8 @@ export function JobsPage() {
               <option value="3">{t("jobs.last3")}</option>
             </Select>
           </IndustryFilters>
-          <div className="tbox">
+          <ListCount list="jobs" shown={shown.length} total={rows.length} onClear={() => { setIndustry("all"); setType("all"); setSignal("all"); setAge("all"); }} />
+          {shown.length > 0 && <div className="tbox">
             <table className="tbl wide">
               <thead>
                 <tr><th>{t("tracker.col.position")}</th><th>{t("tracker.col.company")}</th><th>{t("tracker.location")}</th><th>{t("lists.signals")}</th><th>{t("jobs.posted")}</th><th><span className="sr-only">{t("tracker.col.actions")}</span></th></tr>
@@ -351,8 +369,7 @@ export function JobsPage() {
                 })}
               </tbody>
             </table>
-          </div>
-          <NoMatch show={shown.length === 0} />
+          </div>}
           <p className="sample">{t("jobs.note")}</p>
         </>
       )}
