@@ -545,8 +545,18 @@ isOneToOne: false
 "pass_days":
 { Args: { "length": Database["public"]['Enums']["pass_length"] }; Returns: number
                            },
+"pass_terms":
+{ Args: { "p_length": Database["public"]['Enums']["pass_length"],"p_plan": Database["public"]['Enums']["plan_level"],"p_user_id": string }; Returns: {
+              "credit_days": number,"current_plan": Database["public"]['Enums']["plan_level"],"current_source": Database["public"]['Enums']["access_source"],"ends_on": string,"starts_on": string,"upgrade": boolean
+            }[]
+                           },
 "portal_today":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"preview_pass":
+{ Args: { "p_length": Database["public"]['Enums']["pass_length"],"p_plan": Database["public"]['Enums']["plan_level"] }; Returns: {
+              "amount_cents": number,"credit_days": number,"current_plan": Database["public"]['Enums']["plan_level"],"current_source": Database["public"]['Enums']["access_source"],"ends_on": string,"starts_on": string,"upgrade": boolean
+            }[]
                            },
 "public_settings":
 { Args: Record<PropertyKey, never>; Returns: {

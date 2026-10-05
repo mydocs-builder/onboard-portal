@@ -51,7 +51,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 
 - **E-Mail und Passwort** liegen nur in `auth.users`. Eine E-Mail-Änderung läuft über den Bestätigungsablauf von Supabase.
 - **Status "Eingeladen"** ergibt sich daraus, dass `first_login_at` leer und `invited_by_admin` gesetzt ist; kein eigenes Feld.
-- **Konto löschen** entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Zwei Ausnahmen: `purchase_consents` behält den Nachweis der Zustimmung ohne Nutzerbezug bis zum Ende der Aufbewahrungsfrist, und `plan_periods` behält alle Phasen (Pass, Pilot, manuell) für die Auswertung; die Nutzer-ID wird durch eine zufällige Kennung je gelöschtem Konto ersetzt, ohne Zuordnungstabelle. reason bleibt, stripe\_session\_id wird entfernt.
+- **Konto löschen** läuft über die Edge Function `delete-account`: Der angemeldete Nutzer bestätigt mit seinem Passwort, die Funktion prüft es mit einer eigenen Anmeldung und löscht dann das Konto mit dem Service-Role-Schlüssel. Das entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Zwei Ausnahmen: `purchase_consents` behält den Nachweis der Zustimmung ohne Nutzerbezug bis zum Ende der Aufbewahrungsfrist, und `plan_periods` behält alle Phasen (Pass, Pilot, manuell) für die Auswertung; die Nutzer-ID wird durch eine zufällige Kennung je gelöschtem Konto ersetzt, ohne Zuordnungstabelle. reason bleibt, stripe\_session\_id wird entfernt.
 
 ## Zugang, Pässe und Startphase
 
@@ -91,6 +91,7 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 - **Upgrade:** gilt sofort. Umgerechnet wird der gesamte bezahlte Restwert: die Resttage des laufenden Passes einschließlich des heutigen Tages und die volle Laufzeit aller vorgemerkten Pässe niedrigerer Stufe, jeweils zum aktiven Listenpreis pro Tag ihrer eigenen Stufe und Länge. Die Summe wird durch den Tagespreis des neuen Passes geteilt, einmal abgerundet und in credit\_days vermerkt. Danach gibt es eine durchgehende Laufzeit der höheren Stufe. Kostenlose Freischaltungen werden nicht umgerechnet. Die bisherige Stufe des Zugangs steht in upgraded\_from, auch wenn nichts umgerechnet wurde.
 - **Ersetzte Pässe:** Die umgerechneten vorgemerkten Pässe werden nicht gelöscht, sondern über superseded\_by als ersetzt markiert und bleiben für die Auswertung erhalten. Die tägliche Funktion startet ersetzte Phasen nicht. Der Pass, der beim Upgrade gerade lief, bleibt unmarkiert.
 - **Dieselbe Stripe-Session** schaltet nur einmal frei; ein zweiter Aufruf liefert das erste Ergebnis zurück.
+- **Eine Rechnung, zwei Wege:** Beginn, Ende und Umrechnung berechnet allein die Datenbankfunktion `pass_terms(user, plan, length)`; sie ändert nichts. `grant_pass` schaltet mit ihrem Ergebnis frei, `preview_pass(plan, length)` zeigt es dem angemeldeten Kandidaten vorab für die Bestellübersicht, nur für das eigene Konto: Beginn, Ablaufdatum, ob es ein Upgrade ist, umgerechnete Tage, laufende Stufe und deren Quelle, Preis. `pass_terms` selbst darf nur der Server aufrufen. Gesperrte Konten und Pässe ohne aktiven Preis erhalten keine Vorschau. Die Vorschau gilt für den Tag der Anzeige; bezahlt der Kandidat erst an einem späteren Tag, rechnet `grant_pass` mit dem dann gültigen Stand.
 
 **Zustimmung beim Kauf** (sofortiger Beginn, Erlöschen des Widerrufsrechts)
 
@@ -283,6 +284,8 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 | `public_settings()`, `locked_content()` | Grenzwerte und gesperrte Inhalte für das Frontend | angemeldete Nutzer |
 | `purge_list_entry(list, id)` | archivierten Listeneintrag endgültig löschen | Admin |
 | `begin_checkout(...)`, `attach_checkout_session(...)` | Kauf beginnen, Zustimmung festhalten | Server (`create-checkout`) |
+| `pass_terms(user, plan, length)` | Laufzeit und Umrechnung eines neuen Passes berechnen, ohne etwas zu ändern | Server (über `grant_pass` und `preview_pass`) |
+| `preview_pass(plan, length)` | Vorschau für die Bestellübersicht, nur eigenes Konto | angemeldete Nutzer |
 | `grant_pass(...)` | bezahlten Pass freischalten | Server (Webhook, Abgleich) |
 | `record_refund(...)` | Erstattung an der Planphase vermerken | Server (Abgleich) |
 | `daily_run()`, `daily_mails()`, `daily_mail_sent(...)` | tägliche Funktion | Server (`daily`) |
