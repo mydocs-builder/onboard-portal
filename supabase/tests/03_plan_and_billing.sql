@@ -2,7 +2,7 @@
 -- Startphase, Protokolle, Einstellungen, Kontolöschung.
 begin;
 set search_path = public, extensions, tests;
-select plan(62);
+select plan(63);
 select tests.fixtures();
 update launch_settings set invite_code = 'TOP-SECRET';
 
@@ -71,6 +71,8 @@ select results_eq($$ select registration_mode::text, sales_enabled, pilot_plan::
   $$ values ('open', false, null::text, null::date) $$, 'registration_info() tells what the registration needs');
 select is((select to_jsonb(r) ? 'invite_code' from registration_info() r), false,
   'registration_info() does not carry the invite code');
+select is((select confirmation_resend_limit from registration_info()), 3,
+  'registration_info() carries the resend limit for the page shown before sign-in');
 
 -- Protokolle und Einstellungen
 select is_empty($$ select 1 from stripe_events $$, 'a candidate cannot read Stripe events');
@@ -83,8 +85,8 @@ select throws_ok($$ insert into stripe_events (id, type) values ('evt_fake', 'ch
 select is_empty($$ select 1 from app_settings $$, 'a candidate cannot read app_settings');
 select is_empty($$ update app_settings set value = '1000' where key = 'free_application_limit' returning 1 $$,
   'a candidate cannot raise the Free limit');
-select results_eq($$ select * from public_settings() $$, $$ values (10, 7) $$,
-  'public_settings() returns just the two limits');
+select results_eq($$ select * from public_settings() $$, $$ values (10, 7, 3) $$,
+  'public_settings() returns just the three limits');
 
 select tests.login('bianca');
 select is_empty($$ select 1 from plan_access $$, 'a blocked account cannot read its access');

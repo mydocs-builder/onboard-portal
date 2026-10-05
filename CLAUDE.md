@@ -82,7 +82,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 530 pgTAP-Tests und 39 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 531 pgTAP-Tests und 39 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 
@@ -157,6 +157,7 @@ Gebaut ist alles bis Schritt 6; 530 pgTAP-Tests und 39 Tests der Frontend-Logik 
 
 - [ ] **Stripe, Konto:** öffentliche Unternehmensdaten, Kontoauszug-Bezeichnung ONBOARD GERMANY, Branding, Kunden-E-Mails für erfolgreiche Zahlungen und Erstattungen. Ohne die Kunden-E-Mails für erfolgreiche Zahlungen stimmt der Rechnungssatz der Kaufbestätigung nicht ("You will receive your invoice in a separate email from Stripe", `supabase/functions/_shared/emails.ts`).
 - [ ] **Stripe, Rechnungen:** Rechnungsangaben mit Steuernummer bzw. USt-IdNr, mit der Steuerberatung abgestimmt
+- [ ] **Website-Links:** Adressen für Impressum und Germany Immigration Call in `frontend/src/lib/links.ts` eintragen (bis dahin Platzhalter auf die Startseite; Datenschutzerklärung und Nutzungsbedingungen folgen, sobald die Seiten existieren)
 - [ ] **Stripe Live-Modus:** Produkte und Preise neu anlegen, Webhook einrichten, Live-Preis-IDs in `prices` eintragen
 - [ ] **Umsatzsteuer** bei digitalen Leistungen ins Ausland (OSS) geklärt
 - [ ] **Zustimmungstext:** geprüfter Wortlaut angelegt und aktiv geschaltet

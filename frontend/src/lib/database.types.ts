@@ -560,7 +560,7 @@ isOneToOne: false
                            },
 "public_settings":
 { Args: Record<PropertyKey, never>; Returns: {
-              "free_application_limit": number,"pass_reminder_days": number
+              "confirmation_resend_limit": number,"free_application_limit": number,"pass_reminder_days": number
             }[]
                            },
 "purge_list_entry":
@@ -571,7 +571,7 @@ isOneToOne: false
                            },
 "registration_info":
 { Args: Record<PropertyKey, never>; Returns: {
-              "pilot_plan": Database["public"]['Enums']["plan_level"],"pilot_until": string,"registration_mode": Database["public"]['Enums']["registration_mode"],"sales_enabled": boolean
+              "confirmation_resend_limit": number,"pilot_plan": Database["public"]['Enums']["plan_level"],"pilot_until": string,"registration_mode": Database["public"]['Enums']["registration_mode"],"sales_enabled": boolean
             }[]
                            }
           }
