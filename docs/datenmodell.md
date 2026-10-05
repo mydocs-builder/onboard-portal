@@ -264,7 +264,7 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 
 **Ergänzungen nach dem ersten Bau (4. Oktober 2026)**
 
-- `app_settings` ist nur für den Admin lesbar; Kandidaten erhalten über `public_settings()` nur free\_application\_limit, pass\_reminder\_days und confirmation\_resend\_limit.
+- `app_settings` ist nur für den Admin lesbar; Kandidaten erhalten über `public_settings()` nur free\_application\_limit und pass\_reminder\_days.
 - Admin-Rechte gelten nur in einer Sitzung mit zweitem Faktor; ohne ihn verhält sich ein Admin-Konto wie ein Kandidat.
 - Veröffentlichte Einträge in Listen werden archiviert, nicht gelöscht; Löschen nur bei Entwürfen. Die Sperre ist ein Trigger und gilt für jede Rolle, auch für Server-Funktionen mit Service-Role-Schlüssel.
 - Statuswechsel in Listen: draft → published → archived und archived → published. Kein Weg führt zurück auf draft, ebenfalls für jede Rolle.

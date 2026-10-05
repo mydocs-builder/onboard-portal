@@ -560,7 +560,7 @@ isOneToOne: false
                            },
 "public_settings":
 { Args: Record<PropertyKey, never>; Returns: {
-              "confirmation_resend_limit": number,"free_application_limit": number,"pass_reminder_days": number
+              "free_application_limit": number,"pass_reminder_days": number
             }[]
                            },
 "purge_list_entry":

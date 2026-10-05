@@ -85,8 +85,8 @@ select throws_ok($$ insert into stripe_events (id, type) values ('evt_fake', 'ch
 select is_empty($$ select 1 from app_settings $$, 'a candidate cannot read app_settings');
 select is_empty($$ update app_settings set value = '1000' where key = 'free_application_limit' returning 1 $$,
   'a candidate cannot raise the Free limit');
-select results_eq($$ select * from public_settings() $$, $$ values (10, 7, 3) $$,
-  'public_settings() returns just the three limits');
+select results_eq($$ select * from public_settings() $$, $$ values (10, 7) $$,
+  'public_settings() returns just the two limits');
 
 select tests.login('bianca');
 select is_empty($$ select 1 from plan_access $$, 'a blocked account cannot read its access');
