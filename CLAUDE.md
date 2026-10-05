@@ -108,7 +108,7 @@ Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 59 Tests der Frontend-Logik 
 
 **Lokale Arbeit** (Befehle und Schritte in `README.md`)
 
-- `npm run db:start`, `db:reset`, `db:test`, `db:types`, `functions:serve`, `dev` (Portal unter http://127.0.0.1:5173). Die Supabase CLI ist in `package.json` festgeschrieben.
+- `npm run portal` startet alles auf einmal (Supabase, Funktionen, Frontend unter http://127.0.0.1:5173), `npm run portal:stripe` zusätzlich `stripe listen`; das Skript ist `scripts/portal.mjs`. Einzeln: `npm run db:start`, `db:reset`, `db:test`, `db:types`, `functions:serve`, `dev`. Die Supabase CLI ist in `package.json` festgeschrieben.
 - `frontend/.env.local` (ignoriert) enthält Adresse und öffentlichen Schlüssel (anon) der lokalen Umgebung; Vorlage ist `frontend/.env.example`.
 - Für Kauf und Kontolöschung im Browser muss `npm run functions:serve` laufen: Ohne die `.env` erlauben die Funktionen nur Aufrufe von der Adresse des Servers (`PORTAL_URL`), nicht von 127.0.0.1.
 - Testkonten aus `supabase/seed.sql`: `free@`, `starter@`, `plus@`, `admin@example.com`; Passwort unter `dev_password`.

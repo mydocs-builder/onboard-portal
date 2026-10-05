@@ -5,7 +5,34 @@ Kandidatenportal von Onboard Germany, my.onboard-germany.de.
 - `docs/` – Umfang, Datenmodell, Prototyp
 - `supabase/` – Migrationen, Edge Functions, Tests
 - `frontend/` – React-Anwendung
+- `scripts/` – Startbefehl für die lokale Umgebung
 - `server/` – Docker Compose, Caddy, Backup-, Update- und Veröffentlichungsskripte
+
+## Portal lokal ansehen
+
+Voraussetzung: Docker Desktop läuft. Dann ein Befehl im Projektordner:
+
+```bash
+npm run portal
+```
+
+Er startet Supabase, die Funktionen und das Frontend. Beim ersten Mal dauert das einige Minuten, danach wenige Sekunden.
+
+- **Portal im Browser:** http://127.0.0.1:5173
+- **Testpostfach:** http://127.0.0.1:54324 – hier landen alle Mails des Portals (Bestätigung, Passwort-Link, Kaufbestätigung). Nichts davon verlässt den Rechner.
+- **Testkonten:** `free@example.com`, `starter@example.com`, `plus@example.com`. Das gemeinsame Passwort steht in `supabase/seed.sql` unter `dev_password`.
+
+Um die Bezahlung im Stripe-Testmodus durchzuspielen, stattdessen:
+
+```bash
+npm run portal:stripe
+```
+
+Das startet zusätzlich `stripe listen` mit den beiden Ereignissen, die das Portal verarbeitet (`--events`). Der Wert `whsec_...`, den es beim Start ausgibt, muss als `STRIPE_WEBHOOK_SECRET` in `.env` stehen. Auf der Bezahlseite die Testkarte 4242 4242 4242 4242 mit beliebigem künftigem Datum und beliebiger Prüfziffer verwenden.
+
+Beenden mit Strg+C. Supabase läuft danach in Docker weiter; anhalten mit `npm run db:stop`. Die Testdaten setzt `npm run db:reset` auf den Ausgangsstand zurück.
+
+Fehlt etwas (Docker, `.env`, `frontend/.env.local`, die Pakete des Frontends), sagt der Befehl, was zu tun ist. Die einzelnen Schritte stehen im nächsten Abschnitt.
 
 ## Lokale Entwicklung
 

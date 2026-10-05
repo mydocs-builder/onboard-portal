@@ -2,6 +2,8 @@
   "name": "onboard-portal",
   "private": true,
   "scripts": {
+    "portal": "node scripts/portal.mjs",
+    "portal:stripe": "node scripts/portal.mjs --stripe",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
