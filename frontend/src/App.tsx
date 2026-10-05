@@ -15,6 +15,7 @@ import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
 import { CvPage } from "./pages/CvPage";
+import { AgenciesPage, CompaniesPage, JobBoardsPage, JobsPage } from "./pages/ListPages";
 import { OverviewPage } from "./pages/OverviewPage";
 import { NotFoundPage, PlaceholderPage } from "./pages/PlaceholderPage";
 
@@ -45,10 +46,7 @@ function GuestOnly() {
   return <Outlet />;
 }
 
-const PLACEHOLDERS: NavId[] = [
-  "jobs", "companies", "boards", "agencies",
-  "german", "knowledge", "contract", "plan", "account",
-];
+const PLACEHOLDERS: NavId[] = ["german", "knowledge", "contract", "plan", "account"];
 
 export function App() {
   return (
@@ -73,6 +71,10 @@ export function App() {
           ))}
           <Route path="/" element={<OverviewPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/companies" element={<CompaniesPage />} />
+          <Route path="/job-boards" element={<JobBoardsPage />} />
+          <Route path="/agencies" element={<AgenciesPage />} />
           <Route path="/cv" element={<CvPage />} />
           <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />
           <Route path="/profiles" element={<ProfilesPage />} />
