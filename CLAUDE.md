@@ -51,7 +51,17 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 
 ## Vor dem Verkaufsstart
 
-- **Stripe, Kunden-E-Mails:** In Stripe müssen die Kunden-E-Mails für erfolgreiche Zahlungen eingeschaltet sein. Sonst stimmt der Rechnungssatz der Kaufbestätigung nicht ("You will receive your invoice in a separate email from Stripe", `supabase/functions/_shared/emails.ts`).
+- [ ] **Stripe, Konto:** öffentliche Unternehmensdaten, Kontoauszug-Bezeichnung ONBOARD GERMANY, Branding, Kunden-E-Mails für erfolgreiche Zahlungen und Erstattungen. Ohne die Kunden-E-Mails für erfolgreiche Zahlungen stimmt der Rechnungssatz der Kaufbestätigung nicht ("You will receive your invoice in a separate email from Stripe", `supabase/functions/_shared/emails.ts`).
+- [ ] **Stripe, Rechnungen:** Rechnungsangaben mit Steuernummer bzw. USt-IdNr, mit der Steuerberatung abgestimmt
+- [ ] **Stripe Live-Modus:** Produkte und Preise neu anlegen, Webhook einrichten, Live-Preis-IDs in `prices` eintragen
+- [ ] **Umsatzsteuer** bei digitalen Leistungen ins Ausland (OSS) geklärt
+- [ ] **Zustimmungstext:** geprüfter Wortlaut angelegt und aktiv geschaltet
+- [ ] **Rechtstexte:** Nutzungsbedingungen, Datenschutzerklärung und Widerrufsbelehrung für das Portal geprüft
+- [ ] **Mailversand:** Transaktionsmails bei rapidmail geklärt, SMTP-Daten auf dem Server, Absenderdomain bestätigt
+- [ ] **Unternehmen:** Mindestzahl echter, geprüfter Unternehmen erreicht
+- [ ] **Jobbörsen:** Adressen aller Jobbörsen geöffnet und `checked_at` gesetzt
+- [ ] **Sicherheitsprüfung:** unabhängige Prüfung von Zugriffsregeln, Server und Bezahlung
+- [ ] **Startphase:** Verkauf erst einschalten, wenn alle Punkte oben erledigt sind
 
 ## Offene Punkte im Fahrplan
 
