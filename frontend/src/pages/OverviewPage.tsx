@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CheckIcon } from "../components/Icons";
 import { PageStatus } from "../components/PageStatus";
@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase";
 import { overviewSteps, type Progress, type TaskKey } from "../overview/steps";
 import { usePortal } from "../portal/PortalProvider";
 import { isDue, isOpen } from "../tracker/logic";
+import { shouldChoosePlan } from "./billing/WelcomePage";
 
 const TASK_PATH: Record<TaskKey | "followups" | "jobs", string> = {
   cv: "/cv",
@@ -104,6 +105,9 @@ export function OverviewPage() {
     : { steps: [], completed: [] };
   const taskText = (key: TaskKey, progress: Progress, variant: "desc" | "doneDesc") =>
     t(`overview.task.${key}.${variant}`, { done: progress.done, total: progress.total, list: data?.visaTitle });
+
+  // Nach der ersten Anmeldung zuerst zur Stufenwahl, wenn der Verkauf läuft.
+  if (shouldChoosePlan(portal)) return <Navigate to="/welcome" replace />;
 
   return (
     <>

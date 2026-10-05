@@ -4,7 +4,6 @@ import { useAuth } from "./auth/AuthProvider";
 import { AuthLayout } from "./components/AuthLayout";
 import { PortalLayout, SIGNED_OUT_KEY } from "./components/PortalLayout";
 import { PortalProvider } from "./portal/PortalProvider";
-import { NAV_PATH, type NavId } from "./portal/nav";
 import { AuthCallbackPage } from "./pages/auth/AuthCallbackPage";
 import { CheckInboxPage } from "./pages/auth/CheckInboxPage";
 import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
@@ -15,11 +14,15 @@ import { AccountPage, ACCOUNT_DELETED_KEY } from "./pages/AccountPage";
 import { ApplicationsPage } from "./pages/ApplicationsPage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { FirstDayPage, ProfilesPage, VisaPage } from "./pages/ChecklistPages";
+import { BillingSuccessPage } from "./pages/billing/BillingSuccessPage";
+import { CheckoutPage } from "./pages/billing/CheckoutPage";
+import { PlanPage } from "./pages/billing/PlanPage";
+import { WelcomePage } from "./pages/billing/WelcomePage";
 import { ContractPage, GermanPage, KnowledgePage } from "./pages/ContentPages";
 import { CvPage } from "./pages/CvPage";
 import { AgenciesPage, CompaniesPage, JobBoardsPage, JobsPage } from "./pages/ListPages";
 import { OverviewPage } from "./pages/OverviewPage";
-import { NotFoundPage, PlaceholderPage } from "./pages/PlaceholderPage";
+import { NotFoundPage } from "./pages/PlaceholderPage";
 
 function Loading() {
   const { t } = useTranslation();
@@ -48,8 +51,6 @@ function GuestOnly() {
   return <Outlet />;
 }
 
-const PLACEHOLDERS: NavId[] = ["plan"];
-
 export function App() {
   return (
     <Routes>
@@ -63,14 +64,14 @@ export function App() {
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
         <Route element={<RequireAuth />}>
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/billing/success" element={<BillingSuccessPage />} />
         </Route>
       </Route>
 
       <Route element={<RequireAuth />}>
         <Route element={<PortalLayout />}>
-          {PLACEHOLDERS.map((id) => (
-            <Route key={id} path={NAV_PATH[id]} element={<PlaceholderPage id={id} />} />
-          ))}
           <Route path="/" element={<OverviewPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/jobs" element={<JobsPage />} />
@@ -81,6 +82,7 @@ export function App() {
           <Route path="/interview-guide" element={<KnowledgePage />} />
           <Route path="/interview-guide/:slug" element={<ArticlePage parent="knowledge" />} />
           <Route path="/contract" element={<ContractPage />} />
+          <Route path="/plan" element={<PlanPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/cv" element={<CvPage />} />
           <Route path="/cv/guides/:slug" element={<ArticlePage parent="cv" />} />

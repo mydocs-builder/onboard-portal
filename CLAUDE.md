@@ -52,8 +52,8 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 | 3 | Seed-Daten aus `docs/prototyp.html`, Testkonten, Platzhalterdateien | erledigt |
 | 4 | Bezahlung: `create-checkout`, `stripe-webhook`, `grant_pass`, Zustimmung beim Kauf, Erstattungen | erledigt |
 | 5 | Tägliche Funktion `daily` und Mails | erledigt |
-| 6 | Frontend Kandidatenportal nach `docs/prototyp.html` | offen, als Nächstes |
-| 7 | Admin-Bereich | offen |
+| 6 | Frontend Kandidatenportal nach `docs/prototyp.html` | erledigt |
+| 7 | Admin-Bereich | offen, als Nächstes |
 | 8 | Durchtest der wichtigsten Abläufe im Browser | offen |
 | 9 | Server | offen |
 | später | Löschen inaktiver Konten | nicht bauen, bis Patrick es freigibt |
@@ -64,6 +64,8 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 - Zustimmungstexte (`consent_texts`): Fassungen anzeigen mit Zahl der Käufe, neue Fassung anlegen, aktiv schalten mit Bestätigung, kein Bearbeiten oder Löschen, Warnhinweis ohne aktive Fassung.
 - Startphase: beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
 - Änderungen des Admins an Plan und Sperre sollen im Änderungsprotokoll landen; das ist für Admin-Aktionen noch nicht gebaut.
+- Anmeldung des Admins: Nach E-Mail und Passwort fehlt im Frontend noch der Schritt für den zweiten Faktor (TOTP); bis dahin verhält sich ein Admin-Konto im Portal wie ein Kandidat.
+- Einladung: `first_name` in den Angaben des Nutzers mitgeben (Anrede der Mail) und als Ziel `/auth/callback?next=/reset-password` setzen; die Seite zum Setzen des Passworts gibt es schon.
 
 **Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`). Die vier Mailtexte von Supabase Auth (Bestätigung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) müssen auf dem Server genauso hinterlegt werden wie lokal: Betreff und Vorlage aus `supabase/config.toml` und `supabase/templates/`, dazu dieselbe Gültigkeit der Links (`otp_expiry`, 24 Stunden) und `double_confirm_changes = false`. Auf dem Server laufen nur die Migrationen, nie `supabase/seed.sql`: keine Testkonten, keine Beispieldaten, kein Verkauf durch die Seed-Daten. Das echte Admin-Konto bekommt einen eigenen zweiten Faktor, nicht das Geheimnis aus den Seed-Daten.
 
@@ -71,7 +73,16 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand vollständig.
+Gebaut ist alles bis Schritt 6; 499 pgTAP-Tests und 31 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+
+**Frontend (`frontend/`)**
+
+- Seiten unter `src/pages/`, gemeinsame Bausteine unter `src/components/`, alle Bedientexte in `src/i18n/en.json`. Inhalte (Checklisten, Leitfäden, Formulierungen, Glossar, Listen, Preise, Zustimmungstext) kommen aus der Datenbank.
+- `src/portal/PortalProvider.tsx` lädt nach der Anmeldung Profil, Stufe (`effective_plan`), heutiges Datum (`portal_today`), Grenzwerte und `locked_content()`. Das Schloss im Menü wird daraus abgeleitet: Ein Bereich gilt als gesperrt, wenn die Stufe dort nichts sieht und es gesperrte Einträge gibt.
+- Logik mit Tests: `src/tracker/logic.ts` (Vorschläge beim Statuswechsel, Fälligkeit, "What happened?", Dubletten) und `src/overview/steps.ts` (nächste Schritte, "Completed").
+- Gestaltung: `src/styles/portal.css` ist das CSS des Prototyps mit Farben und Schriften als Variablen, `src/styles/app.css` die Ergänzungen. Kleinste Schriftgröße 14 px (Styleguide); der Prototyp hatte stellenweise 11 bis 13 px.
+- Links aus Mails führen auf `/auth/callback` (optional mit `?next=`). Die Rückkehr von Stripe führt auf `/billing/success` und `/plan?checkout=cancelled`.
+- Nach jeder Migration `npm run db:types` ausführen und die erzeugte Datei mit einchecken.
 
 **Arbeitsweise**
 
@@ -82,7 +93,9 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 
 **Lokale Arbeit** (Befehle und Schritte in `README.md`)
 
-- `npm run db:start`, `db:reset`, `db:test`, `functions:serve`. Die Supabase CLI ist in `package.json` festgeschrieben.
+- `npm run db:start`, `db:reset`, `db:test`, `db:types`, `functions:serve`, `dev` (Portal unter http://127.0.0.1:5173). Die Supabase CLI ist in `package.json` festgeschrieben.
+- `frontend/.env.local` (ignoriert) enthält Adresse und öffentlichen Schlüssel (anon) der lokalen Umgebung; Vorlage ist `frontend/.env.example`.
+- Für Kauf und Kontolöschung im Browser muss `npm run functions:serve` laufen: Ohne die `.env` erlauben die Funktionen nur Aufrufe von der Adresse des Servers (`PORTAL_URL`), nicht von 127.0.0.1.
 - Testkonten aus `supabase/seed.sql`: `free@`, `starter@`, `plus@`, `admin@example.com`; Passwort unter `dev_password`.
 - Admin-Rechte gelten erst mit zweitem Faktor (TOTP). Für `admin@example.com` ist er eingerichtet; das Geheimnis steht in `seed.sql` unter `admin_totp_secret`.
 - Stripe: `stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook`. Ohne `--events` startet es bei Patrick nicht.
@@ -99,7 +112,22 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 - Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
 - In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen aus den Tests vom 4. und 5. Oktober.
 
+- Rechnungen (5. Oktober 2026): Im Portal gibt es keine Links zu Rechnungen. "Plan and billing" zeigt die Käufe mit Datum, Pass und Betrag und den Satz, dass die Rechnungen per Mail von Stripe kamen. Rechnungs-IDs werden nicht gespeichert.
+- Visa-Checkliste: nur Chancenkarte, ohne Reiter. Die Reiter erscheinen von selbst, sobald im Menüpunkt eine zweite Checkliste aktiv ist (gilt für jeden Menüpunkt mit mehreren Checklisten, so auch LinkedIn und XING).
+- Sprachumschalter und das Feld "Portal language" sind ausgeblendet, bis es die deutsche Fassung gibt.
+- Abweichungen vom Prototyp, von Patrick bestätigt: Unternehmen nur in Plus (auch in der Preiskarte), "pass" statt "subscription" beim Löschen des Kontos, "Jobs for internationals" erst mit dem ersten veröffentlichten Job, ohne Verkauf keine Stufenwahl und auf "Plan" der Pilot-Hinweis.
+- Texte zu Jobs sagen nicht "updated daily" (im Prototyp so); in Phase 1 werden Jobs von Hand gepflegt.
+- Konto löschen und Bewerbung löschen verlangen eine Bestätigung (Passwort bzw. zweiter Klick); der Prototyp löschte sofort.
+- Der Verlauf einer Bewerbung wird als fertiger englischer Satz gespeichert (`application_events.text`), nicht als Schlüssel.
+- Wer nach dem Anfordern einer E-Mail-Änderung sein Passwort ändert, macht den Bestätigungslink ungültig (Verhalten von Supabase Auth); die Seite sagt dann, dass der Link nicht mehr gilt.
+
 **Bekannte Lücken**
+
+- Die Verweise auf Impressum, Datenschutzerklärung, Nutzungsbedingungen und die Buchung des Immigration Call zeigen vorläufig auf `https://onboard-germany.de/` (`frontend/src/lib/links.ts`).
+- "Interview and guide" ist leer, solange dort kein Leitfaden veröffentlicht ist; in Free erscheint deshalb auch noch kein Schloss und kein Stufen-Hinweis.
+- Die Beispiel-Personaldienstleister haben keine Website, die Beispiel-Jobs keinen Link zur Anzeige; die Spalte Website und "View ad" sind gebaut, aber mit den Seed-Daten nicht zu sehen.
+- Die Mails von Supabase Auth gehen technisch als HTML hinaus (nur Absätze und Link). Echter reiner Text wie bei den übrigen Mails bräuchte einen eigenen Versand über einen Send-Email-Hook.
+- Das Aussehen wurde in Schritt 6 nur stichprobenhaft am Bildschirm geprüft (Login, Navigation, mobile Leiste); die übrigen Seiten über Inhalt und Verhalten. Der Blick auf jede Seite, auch mobil, gehört zu Schritt 8.
 
 - Vier Leitfäden haben im Prototyp nur Titel und Kurztext; sie sind angelegt, aber unveröffentlicht.
 - Die Verweise auf Hubs der Website in "From offer to first day" zeigen vorläufig auf `https://onboard-germany.de/`.
