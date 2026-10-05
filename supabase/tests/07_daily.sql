@@ -2,7 +2,7 @@
 -- fällige Mails ableiten und vermerken. Nur der Server darf sie aufrufen.
 begin;
 set search_path = public, extensions, tests;
-select plan(39);
+select plan(43);
 select tests.fixtures();
 
 create temp table d as select portal_today() as today;
@@ -47,6 +47,20 @@ update plan_access set plan = 'plus', source = 'manual', manual_reason = 'Pilotp
 insert into plan_periods (user_id, plan, source, pass_length, starts_on, ends_on, granted_by, created_at) values
   (tests.uid('quinn'), 'plus', 'pass', 'month', portal_today() + 4, portal_today() + 33, 'stripe', now() - interval '1 day');
 
+-- rita: Starter läuft noch 20 Tage; ein für heute vorgemerkter Plus-Pass wurde vollständig erstattet
+select tests.create_user('rita');
+update plan_access set plan = 'starter', source = 'pass', pass_length = 'quarter', valid_until = portal_today() + 20
+ where user_id = tests.uid('rita');
+insert into plan_periods (id, user_id, plan, source, pass_length, starts_on, ends_on, amount_cents, granted_by, created_at, refunded_at, refunded_cents) values
+  (tests.uid('period-rita-refunded'), tests.uid('rita'), 'plus', 'pass', 'month', portal_today(), portal_today() + 29, 2900, 'stripe', now() - interval '5 days', now() - interval '1 day', 2900);
+
+-- pia: Pass gestern zu Ende; der für heute vorgemerkte Pass wurde nur teilweise erstattet
+select tests.create_user('pia');
+update plan_access set plan = 'starter', source = 'pass', pass_length = 'month', valid_until = portal_today() - 1
+ where user_id = tests.uid('pia');
+insert into plan_periods (id, user_id, plan, source, pass_length, starts_on, ends_on, amount_cents, granted_by, created_at, refunded_at, refunded_cents) values
+  (tests.uid('period-pia-partial'), tests.uid('pia'), 'starter', 'pass', 'month', portal_today(), portal_today() + 29, 1400, 'stripe', now() - interval '5 days', now() - interval '1 day', 400);
+
 -- stella: Starter-Pass endet in genau 7 Tagen; Erinnerungen an Bewerbungen abgeschaltet
 update plan_access set valid_until = portal_today() + 7 where user_id = tests.uid('stella');
 update profiles set reminders_enabled = false where user_id = tests.uid('stella');
@@ -90,8 +104,8 @@ select throws_ok($$ select daily_run() $$, '42501', null, 'visitors cannot run t
 -- ---------------------------------------------------------------------------------------------
 
 select tests.as_service();
-select is(daily_run(), jsonb_build_object('date', (select today from d), 'passes_started', 2, 'access_expired', 1, 'jobs_archived', 2, 'consents_deleted', 0),
-  'the run starts two queued passes, ends one access and archives two jobs');
+select is(daily_run(), jsonb_build_object('date', (select today from d), 'passes_started', 3, 'access_expired', 1, 'jobs_archived', 2, 'consents_deleted', 0),
+  'the run starts three queued passes, ends one access and archives two jobs');
 
 select results_eq(
   $$ select plan::text, source::text, pass_length::text, valid_until from plan_access where user_id = tests.uid('alice') $$,
@@ -102,6 +116,14 @@ select results_eq(
 select results_eq(
   $$ select plan::text, valid_until from plan_access where user_id = tests.uid('rosa') $$,
   $$ select 'plus', today + 50 from d $$, 'a superseded pass never starts');
+select results_eq(
+  $$ select plan::text, valid_until from plan_access where user_id = tests.uid('rita') $$,
+  $$ select 'starter', today + 20 from d $$, 'a fully refunded queued pass does not start');
+select results_eq(
+  $$ select plan::text, refunded_cents, superseded_by from plan_periods where id = tests.uid('period-rita-refunded') $$,
+  $$ values ('plus', 2900, null::uuid) $$, 'it stays as a plan period marked as refunded');
+select is((select valid_until from plan_access where user_id = tests.uid('pia')), (select today + 29 from d),
+  'a partly refunded queued pass starts as usual');
 select is((select plan::text from plan_access where user_id = tests.uid('ralf')), 'free',
   'an account set to Free after a refund is not granted again');
 select results_eq(
@@ -132,8 +154,10 @@ select is((select count(*) from audit_log where actor = 'system' and user_id = t
 select results_eq(
   $$ select kind::text, split_part(email, '@', 1) from daily_mails() order by 1, 2 $$,
   $$ values ('interview_tomorrow', 'alice'), ('pass_ended', 'eve'), ('pass_ending', 'stella'),
-            ('pass_started', 'alice'), ('pass_started', 'zoe'), ('reminder_next_step', 'bob') $$,
+            ('pass_started', 'alice'), ('pass_started', 'pia'), ('pass_started', 'zoe'), ('reminder_next_step', 'bob') $$,
   'exactly the due mails are listed');
+select is_empty($$ select 1 from daily_mails() where user_id = tests.uid('rita') $$,
+  'no mail announces a refunded pass as started');
 select is_empty($$ select 1 from daily_mails() where user_id = tests.uid('bianca') $$,
   'a blocked account gets no mails');
 select is_empty($$ select 1 from daily_mails() where user_id = tests.uid('quinn') $$,
@@ -166,7 +190,7 @@ select is((select data ->> 'company' from daily_mails() where kind = 'interview_
 -- Verschickte Mails vermerken
 select lives_ok($$ select daily_mail_sent(kind, user_id, ref_id) from daily_mails() $$, 'sent mails are recorded');
 select is_empty($$ select 1 from daily_mails() $$, 'afterwards nothing is due any more');
-select is((select count(*) from email_log where kind <> 'pass_ending' or user_id <> tests.uid('alice')), 6::bigint,
+select is((select count(*) from email_log where kind <> 'pass_ending' or user_id <> tests.uid('alice')), 7::bigint,
   'the email log holds one entry per mail');
 select results_eq(
   $$ select reminded_for from applications where id in (tests.uid('app-bob'), tests.uid('app-bob-2')) $$,

@@ -2,7 +2,7 @@
 -- Kauf während einer Freischaltung, doppelte Meldung, und wer die Funktion aufrufen darf.
 begin;
 set search_path = public, extensions, tests;
-select plan(59);
+select plan(66);
 select tests.fixtures();
 
 delete from prices;
@@ -224,6 +224,23 @@ select throws_ok($$ select record_refund('cs_alice_1', 1400, now()) $$, '42501',
 select tests.login('alice');
 select throws_ok($$ select record_refund('cs_alice_1', 1400, now()) $$, '42501', null, 'a candidate cannot record refunds');
 select tests.as_service();
+
+-- Ein vollständig erstatteter vorgemerkter Pass zählt nicht mehr: neue Pässe hängen sich nicht
+-- hinter ihn, und beim Upgrade wird er weder umgerechnet noch als ersetzt markiert.
+select tests.logout();
+select tests.create_user('nora');
+select tests.as_service();
+select lives_ok($$ select grant_pass(tests.uid('nora'), 'starter', 'month', 'cs_n1', 1400) $$, 'nora buys Starter');
+select lives_ok($$ select grant_pass(tests.uid('nora'), 'starter', 'month', 'cs_n2', 1400) $$, 'and queues a second pass');
+select lives_ok($$ select record_refund('cs_n2', 1400, now()) $$, 'the queued pass is refunded in full');
+select is((grant_pass(tests.uid('nora'), 'starter', 'month', 'cs_n3', 1400) ->> 'starts_on')::date, (select today + 30 from d),
+  'a new pass attaches to the running one, not behind the refunded pass');
+select is((grant_pass(tests.uid('nora'), 'plus', 'month', 'cs_n4', 2900) ->> 'credit_days')::integer, 28,
+  'an upgrade converts the running and the queued pass, but not the refunded one');
+select results_eq(
+  $$ select stripe_session_id, superseded_by is not null from plan_periods where stripe_session_id in ('cs_n2', 'cs_n3') order by 1 $$,
+  $$ values ('cs_n2', false), ('cs_n3', true) $$, 'the refunded pass is not marked as replaced; it stays as refunded');
+select is((select refunded_cents from plan_periods where stripe_session_id = 'cs_n2'), 1400, 'and keeps its refund');
 
 -- Der Kandidat sieht das Ergebnis, kann es aber nicht verändern.
 select tests.login('alice');
