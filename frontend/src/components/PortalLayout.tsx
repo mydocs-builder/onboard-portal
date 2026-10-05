@@ -26,7 +26,8 @@ export function PortalLayout() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const visible = (id: NavId) => id !== "jobs" || portal.showJobs;
+  // Jobs und "Interview and guide" erscheinen erst, wenn es dort veröffentlichte Einträge gibt.
+  const visible = (id: NavId) => (id === "jobs" ? portal.showJobs : id === "knowledge" ? portal.showKnowledge : true);
   const navItem = (id: NavId) => {
     const area = LOCK_AREA[id];
     return (

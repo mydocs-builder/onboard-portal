@@ -124,7 +124,7 @@ Gebaut ist alles bis Schritt 6; 499 pgTAP-Tests und 31 Tests der Frontend-Logik 
 **Bekannte Lücken**
 
 - Die Verweise auf Impressum, Datenschutzerklärung, Nutzungsbedingungen und die Buchung des Immigration Call zeigen vorläufig auf `https://onboard-germany.de/` (`frontend/src/lib/links.ts`).
-- "Interview and guide" ist leer, solange dort kein Leitfaden veröffentlicht ist; in Free erscheint deshalb auch noch kein Schloss und kein Stufen-Hinweis.
+- "Interview and guide" erscheint im Menü erst, wenn dort ein Leitfaden veröffentlicht ist (wie "Jobs for internationals"); bis dahin ist der Menüpunkt für alle Stufen ausgeblendet.
 - Die Beispiel-Personaldienstleister haben keine Website, die Beispiel-Jobs keinen Link zur Anzeige; die Spalte Website und "View ad" sind gebaut, aber mit den Seed-Daten nicht zu sehen.
 - Die Mails von Supabase Auth gehen technisch als HTML hinaus (nur Absätze und Link). Echter reiner Text wie bei den übrigen Mails bräuchte einen eigenen Versand über einen Send-Email-Hook.
 - Das Aussehen wurde in Schritt 6 nur stichprobenhaft am Bildschirm geprüft (Login, Navigation, mobile Leiste); die übrigen Seiten über Inhalt und Verhalten. Der Blick auf jede Seite, auch mobil, gehört zu Schritt 8.

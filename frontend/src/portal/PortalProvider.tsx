@@ -26,6 +26,8 @@ export type Portal = {
   lockedAreas: Record<LockArea, boolean>;
   /** "Jobs for internationals" erscheint erst, wenn ein Job veröffentlicht ist. */
   showJobs: boolean;
+  /** "Interview and guide" erscheint erst, wenn dort ein Leitfaden veröffentlicht ist. */
+  showKnowledge: boolean;
   /** Erste Sitzung nach dem ersten Login: "Welcome aboard". */
   firstSession: boolean;
   refresh: () => Promise<void>;
@@ -112,6 +114,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
           knowledge: nothingVisible(knowledge) && hasLocked("article", ["interview", "guide"]),
         },
         showJobs: !nothingVisible(jobs) || hasLocked("job"),
+        showKnowledge: !nothingVisible(knowledge) || hasLocked("article", ["interview", "guide"]),
         firstSession,
       },
     });
