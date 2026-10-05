@@ -90,7 +90,7 @@ select throws_ok($$ select daily_run() $$, '42501', null, 'visitors cannot run t
 -- ---------------------------------------------------------------------------------------------
 
 select tests.as_service();
-select is(daily_run(), jsonb_build_object('date', (select today from d), 'passes_started', 2, 'access_expired', 1, 'jobs_archived', 2),
+select is(daily_run(), jsonb_build_object('date', (select today from d), 'passes_started', 2, 'access_expired', 1, 'jobs_archived', 2, 'consents_deleted', 0),
   'the run starts two queued passes, ends one access and archives two jobs');
 
 select results_eq(
@@ -120,7 +120,7 @@ select results_eq(
             ('Job last day', 'published'), ('Job old', 'archived') $$,
   'jobs are archived the day after expires_on, or 30 days after posting without one');
 
-select is(daily_run() - 'date', jsonb_build_object('passes_started', 0, 'access_expired', 0, 'jobs_archived', 0),
+select is(daily_run() - 'date', jsonb_build_object('passes_started', 0, 'access_expired', 0, 'jobs_archived', 0, 'consents_deleted', 0),
   'a second run on the same day changes nothing');
 select is((select count(*) from audit_log where actor = 'system' and user_id = tests.uid('alice') and text like 'Vorgemerkter%'), 1::bigint,
   'and writes no second audit entry');

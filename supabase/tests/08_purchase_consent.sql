@@ -2,7 +2,7 @@
 -- werden Zeitpunkt, Fassung und Planphase festgehalten. Der Wortlaut ist unveränderlich.
 begin;
 set search_path = public, extensions, tests;
-select plan(41);
+select plan(52);
 select tests.fixtures();
 
 update launch_settings set sales_enabled = true;
@@ -145,6 +145,51 @@ select lives_ok($$
 $$, 'an admin replaces the wording by adding a new version');
 select throws_ok($$ update consent_texts set body = 'Changed afterwards.' where id = tests.uid('consent-new') $$, '42501', null,
   'an admin cannot change an existing wording');
+
+-- ---------------------------------------------------------------------------------------------
+-- Der Nachweis überdauert die Kontolöschung, ohne Nutzerbezug
+-- ---------------------------------------------------------------------------------------------
+
+select tests.logout();
+delete from auth.users where id = tests.uid('alice');
+select results_eq(
+  $$ select c.user_id, c.stripe_session_id, c.plan_period_id is not null, t.version
+       from purchase_consents c join consent_texts t on t.id = c.consent_text_id where c.stripe_session_id = 'cs_consent_1' $$,
+  $$ values (null::uuid, 'cs_consent_1', true, 'T-2026-02') $$,
+  'after the account is deleted the consent keeps session, plan period and wording, without the user');
+select is((select p.user_id from plan_periods p join purchase_consents c on c.plan_period_id = p.id where c.stripe_session_id = 'cs_consent_1'), null,
+  'and its plan period is anonymous as well');
+select is((select count(*) from purchase_consents where user_id is null), 2::bigint,
+  'the consent of the purchase that was not completed stays too');
+
+-- ---------------------------------------------------------------------------------------------
+-- Aufbewahrung bis zum Ende des dritten Kalenderjahres nach dem Kauf
+-- ---------------------------------------------------------------------------------------------
+
+create temp table y as select extract(year from portal_today())::integer as this_year;
+grant select on y to public;
+insert into purchase_consents (id, user_id, consent_text_id, plan, pass_length, consented_at) values
+  (tests.uid('consent-4y-last-day'), null, tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 4 from y), 12, 31, 23, 30, 0, 'Europe/Berlin')),
+  (tests.uid('consent-3y-first-day'), null, tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 3 from y), 1, 1, 0, 30, 0, 'Europe/Berlin')),
+  (tests.uid('consent-1y'), tests.uid('paula'), tests.uid('consent-new'), 'plus', 'month', make_timestamptz((select this_year - 1 from y), 6, 15, 12, 0, 0, 'Europe/Berlin'));
+select is((select value from app_settings where key = 'consent_retention_years'), '3', 'the retention period is a setting, three years by default');
+
+select tests.as_service();
+select is((daily_run() ->> 'consents_deleted')::integer, 1, 'the daily job deletes consents whose retention has ended');
+select is_empty($$ select 1 from purchase_consents where id = tests.uid('consent-4y-last-day') $$,
+  'a purchase from four calendar years ago is gone');
+select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-3y-first-day') $$,
+  'a purchase from three calendar years ago stays until the end of this year');
+select isnt_empty($$ select 1 from purchase_consents where stripe_session_id = 'cs_consent_1' $$, 'recent consents stay');
+select isnt_empty($$ select 1 from plan_periods where stripe_session_id is null and deleted_account_id is not null $$,
+  'deleting a consent never deletes a plan period');
+
+select tests.logout();
+update app_settings set value = '1' where key = 'consent_retention_years';
+select tests.as_service();
+select is((daily_run() ->> 'consents_deleted')::integer, 1, 'a shorter retention period takes effect on the next run');
+select isnt_empty($$ select 1 from purchase_consents where id = tests.uid('consent-1y') $$,
+  'with one year, last year''s purchase stays until the end of this year');
 
 select * from finish();
 rollback;
