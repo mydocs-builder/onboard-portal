@@ -2,7 +2,7 @@
 -- Quelle aller Texte: docs/prototyp.html (klickbarer Prototyp vom 3. Oktober 2026).
 --
 -- Unternehmen, Jobs und Personaldienstleister sind BEISPIELDATEN, keine echten Arbeitgeber:
--- Namen beginnen mit "Beispiel", Adressen enden auf ".example", und source ist 'example'.
+-- Namen beginnen mit "Beispiel", Adressen enden auf ".example" oder liegen unter example.com, und source ist 'example'.
 -- Vor dem Livegang werden sie durch recherchierte Einträge ersetzt:
 --   delete ... where source = 'example' (als Entwurf) bzw. archivieren und purge_list_entry().
 -- Jobbörsen sind echte Anbieter aus dem Prototyp; checked_at bleibt leer, bis Patrick jede Adresse geöffnet hat.
@@ -268,14 +268,14 @@ insert into public.job_boards (name, website, category, focus, status, source, m
   ('academics', 'https://academics.de', 'Research', 'Research, universities and science', 'published', 'prototype', 'starter');
 
 -- BEISPIELDATEN: Personaldienstleister. Generalisten ab Starter, spezialisierte in Plus.
-insert into public.agencies (name, field, model, recruits_abroad, region, specialised, status, source, min_plan) values
-  ('Beispiel Personal GmbH', null, 'both', false, 'Nationwide', false, 'published', 'example', 'starter'),
-  ('Beispiel Executive Search', null, 'direct', true, 'Nationwide', false, 'published', 'example', 'starter'),
-  ('Beispiel Zeitarbeit AG', null, 'temp', false, 'Nationwide', false, 'published', 'example', 'starter'),
-  ('Beispiel IT Recruiting', 'it', 'direct', true, 'Berlin, Munich', true, 'published', 'example', 'plus'),
-  ('Beispiel Care Recruitment', 'nursing_care', 'direct', true, 'Nationwide', true, 'published', 'example', 'plus'),
-  ('Beispiel Engineering Talents', 'engineering', 'direct', true, 'South Germany', true, 'published', 'example', 'plus'),
-  ('Beispiel Tech Staffing', 'it', 'temp', false, 'North Rhine-Westphalia', true, 'published', 'example', 'plus');
+insert into public.agencies (name, website, field, model, recruits_abroad, region, specialised, status, source, min_plan) values
+  ('Beispiel Personal GmbH', 'https://example.com/agencies/personal-gmbh', null, 'both', false, 'Nationwide', false, 'published', 'example', 'starter'),
+  ('Beispiel Executive Search', 'https://example.com/agencies/executive-search', null, 'direct', true, 'Nationwide', false, 'published', 'example', 'starter'),
+  ('Beispiel Zeitarbeit AG', 'https://example.com/agencies/zeitarbeit-ag', null, 'temp', false, 'Nationwide', false, 'published', 'example', 'starter'),
+  ('Beispiel IT Recruiting', 'https://example.com/agencies/it-recruiting', 'it', 'direct', true, 'Berlin, Munich', true, 'published', 'example', 'plus'),
+  ('Beispiel Care Recruitment', 'https://example.com/agencies/care-recruitment', 'nursing_care', 'direct', true, 'Nationwide', true, 'published', 'example', 'plus'),
+  ('Beispiel Engineering Talents', 'https://example.com/agencies/engineering-talents', 'engineering', 'direct', true, 'South Germany', true, 'published', 'example', 'plus'),
+  ('Beispiel Tech Staffing', 'https://example.com/agencies/tech-staffing', 'it', 'temp', false, 'North Rhine-Westphalia', true, 'published', 'example', 'plus');
 
 -- BEISPIELDATEN: Unternehmen. Das Prüfdatum bleibt relativ zum heutigen Tag, damit die Liste lokal aktuell wirkt.
 insert into public.companies (id, name, website, domain, industry, employer_type, region, signals, status, source, checked_at) values
@@ -290,16 +290,16 @@ insert into public.companies (id, name, website, domain, industry, employer_type
   (md5('seed:company:Beispiel Energie GmbH')::uuid, 'Beispiel Energie GmbH', 'https://beispiel-energie.example', 'beispiel-energie.example', 'engineering', null, 'Hesse', '{english_ads}', 'published', 'example', public.portal_today() - 18);
 
 -- BEISPIELDATEN: Jobs. Das Datum bleibt relativ zum heutigen Tag, sonst wären sie nach 30 Tagen abgelaufen.
-insert into public.jobs (title, company_name, company_id, location, industry, employer_type, signals, posted_on, status, source) values
-  ('Senior Backend Engineer (Go)', 'Beispiel Cloud GmbH', md5('seed:company:Beispiel Cloud GmbH')::uuid, 'Berlin', 'it', null, '{english_ads,visa_support}', public.portal_today() - 1, 'published', 'example'),
-  ('Data Analyst', 'Beispiel Software AG', md5('seed:company:Beispiel Software AG')::uuid, 'Munich', 'it', null, '{english_ads,relocation_support}', public.portal_today() - 2, 'published', 'example'),
-  ('Pflegefachkraft Intensivstation', 'Beispiel Klinikum', md5('seed:company:Beispiel Klinikum')::uuid, 'Cologne', 'nursing_care', 'hospital', '{relocation_support,recognition_partnership}', public.portal_today() - 3, 'published', 'example'),
-  ('Pflegefachkraft Altenpflege', 'Beispiel Seniorenresidenz', md5('seed:company:Beispiel Seniorenresidenz')::uuid, 'Leipzig', 'nursing_care', 'care_home', '{recognition_partnership}', public.portal_today() - 1, 'published', 'example'),
-  ('Registered Nurse, Outpatient Care', 'Beispiel Pflegedienst', md5('seed:company:Beispiel Pflegedienst')::uuid, 'Hanover', 'nursing_care', 'outpatient', '{english_ads,relocation_support}', public.portal_today() - 4, 'published', 'example'),
-  ('Pflegefachkraft Kardiologie', 'Beispiel Klinikum', md5('seed:company:Beispiel Klinikum')::uuid, 'Cologne', 'nursing_care', 'hospital', '{recognition_partnership,visa_support}', public.portal_today() - 7, 'published', 'example'),
-  ('Mechanical Design Engineer', 'Beispiel Maschinenbau KG', md5('seed:company:Beispiel Maschinenbau KG')::uuid, 'Stuttgart', 'engineering', null, '{english_ads,relocation_support}', public.portal_today() - 5, 'published', 'example'),
-  ('Logistics Planner', 'Beispiel Logistik GmbH', md5('seed:company:Beispiel Logistik GmbH')::uuid, 'Hamburg', 'logistics', null, '{english_ads}', public.portal_today() - 8, 'published', 'example'),
-  ('Electrical Engineer, Grid Projects', 'Beispiel Energie GmbH', md5('seed:company:Beispiel Energie GmbH')::uuid, 'Frankfurt', 'engineering', null, '{english_ads}', public.portal_today() - 11, 'published', 'example');
+insert into public.jobs (title, company_name, company_id, location, industry, employer_type, signals, url, posted_on, status, source) values
+  ('Senior Backend Engineer (Go)', 'Beispiel Cloud GmbH', md5('seed:company:Beispiel Cloud GmbH')::uuid, 'Berlin', 'it', null, '{english_ads,visa_support}', 'https://example.com/jobs/senior-backend-engineer-go', public.portal_today() - 1, 'published', 'example'),
+  ('Data Analyst', 'Beispiel Software AG', md5('seed:company:Beispiel Software AG')::uuid, 'Munich', 'it', null, '{english_ads,relocation_support}', 'https://example.com/jobs/data-analyst', public.portal_today() - 2, 'published', 'example'),
+  ('Pflegefachkraft Intensivstation', 'Beispiel Klinikum', md5('seed:company:Beispiel Klinikum')::uuid, 'Cologne', 'nursing_care', 'hospital', '{relocation_support,recognition_partnership}', 'https://example.com/jobs/pflegefachkraft-intensivstation', public.portal_today() - 3, 'published', 'example'),
+  ('Pflegefachkraft Altenpflege', 'Beispiel Seniorenresidenz', md5('seed:company:Beispiel Seniorenresidenz')::uuid, 'Leipzig', 'nursing_care', 'care_home', '{recognition_partnership}', 'https://example.com/jobs/pflegefachkraft-altenpflege', public.portal_today() - 1, 'published', 'example'),
+  ('Registered Nurse, Outpatient Care', 'Beispiel Pflegedienst', md5('seed:company:Beispiel Pflegedienst')::uuid, 'Hanover', 'nursing_care', 'outpatient', '{english_ads,relocation_support}', 'https://example.com/jobs/registered-nurse-outpatient-care', public.portal_today() - 4, 'published', 'example'),
+  ('Pflegefachkraft Kardiologie', 'Beispiel Klinikum', md5('seed:company:Beispiel Klinikum')::uuid, 'Cologne', 'nursing_care', 'hospital', '{recognition_partnership,visa_support}', 'https://example.com/jobs/pflegefachkraft-kardiologie', public.portal_today() - 7, 'published', 'example'),
+  ('Mechanical Design Engineer', 'Beispiel Maschinenbau KG', md5('seed:company:Beispiel Maschinenbau KG')::uuid, 'Stuttgart', 'engineering', null, '{english_ads,relocation_support}', 'https://example.com/jobs/mechanical-design-engineer', public.portal_today() - 5, 'published', 'example'),
+  ('Logistics Planner', 'Beispiel Logistik GmbH', md5('seed:company:Beispiel Logistik GmbH')::uuid, 'Hamburg', 'logistics', null, '{english_ads}', 'https://example.com/jobs/logistics-planner', public.portal_today() - 8, 'published', 'example'),
+  ('Electrical Engineer, Grid Projects', 'Beispiel Energie GmbH', md5('seed:company:Beispiel Energie GmbH')::uuid, 'Frankfurt', 'engineering', null, '{english_ads}', 'https://example.com/jobs/electrical-engineer-grid-projects', public.portal_today() - 11, 'published', 'example');
 
 -- ---------------------------------------------------------------------------------------------
 -- LOKALE TESTKONTEN – nur für die Entwicklung, nie für die Produktion.

@@ -109,7 +109,7 @@ Gebaut ist alles bis Schritt 6; 499 pgTAP-Tests und 31 Tests der Frontend-Logik 
 - Die vier Mails von Supabase Auth (Bestätigung der Registrierung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) stehen in `supabase/templates/`, Betreff in `supabase/config.toml`; Wortlaut von Patrick freigegeben (5. Oktober 2026). Supabase Auth verschickt Mails nur als HTML, deshalb enthalten die Vorlagen nichts außer Absätzen und dem Link, ohne Gestaltung. Die Anrede nimmt den Vornamen aus den Angaben der Registrierung (`first_name`). Alle Links gelten 24 Stunden (`otp_expiry`), auch der zum Zurücksetzen des Passworts.
 - Eine E-Mail-Änderung wird an der alten und an der neuen Adresse bestätigt (`double_confirm_changes = true`, Entscheidung von Patrick am 5. Oktober 2026); beide erhalten dieselbe Mail, die die neue Adresse nennt. Die Anmeldung wechselt erst, wenn beide Links geklickt sind.
 - `create-checkout` erwartet `consent_version`; das Frontend liest die aktive Fassung aus `consent_texts` und schickt deren Versionskennung mit.
-- Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
+- Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example` oder liegt unter `example.com`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
 - In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen aus den Tests vom 4. und 5. Oktober.
 
 - Rechnungen (5. Oktober 2026): Im Portal gibt es keine Links zu Rechnungen. "Plan and billing" zeigt die Käufe mit Datum, Pass und Betrag und den Satz, dass die Rechnungen per Mail von Stripe kamen. Rechnungs-IDs werden nicht gespeichert.
@@ -125,7 +125,6 @@ Gebaut ist alles bis Schritt 6; 499 pgTAP-Tests und 31 Tests der Frontend-Logik 
 
 - Die Verweise auf Impressum, Datenschutzerklärung, Nutzungsbedingungen und die Buchung des Immigration Call zeigen vorläufig auf `https://onboard-germany.de/` (`frontend/src/lib/links.ts`).
 - "Interview and guide" erscheint im Menü erst, wenn dort ein Leitfaden veröffentlicht ist (wie "Jobs for internationals"); bis dahin ist der Menüpunkt für alle Stufen ausgeblendet.
-- Die Beispiel-Personaldienstleister haben keine Website, die Beispiel-Jobs keinen Link zur Anzeige; die Spalte Website und "View ad" sind gebaut, aber mit den Seed-Daten nicht zu sehen.
 - Die Mails von Supabase Auth gehen technisch als HTML hinaus (nur Absätze und Link). Echter reiner Text wie bei den übrigen Mails bräuchte einen eigenen Versand über einen Send-Email-Hook.
 - Das Aussehen wurde in Schritt 6 nur stichprobenhaft am Bildschirm geprüft (Login, Navigation, mobile Leiste); die übrigen Seiten über Inhalt und Verhalten. Der Blick auf jede Seite, auch mobil, gehört zu Schritt 8.
 
