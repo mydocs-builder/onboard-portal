@@ -75,7 +75,7 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 
 **Arbeitsweise**
 
-- Nach jedem abgeschlossenen Schritt committen. Pushen kann nur Patrick (`git push origin main`): die Anmeldung bei GitHub braucht den Browser.
+- Nach jedem abgeschlossenen Schritt committen, direkt auf `main`. Pushen nur, wenn Patrick es sagt. Scheitert der Push an der Anmeldung, muss Patrick ihn einmal selbst ausführen (die Anmeldung bei GitHub braucht den Browser).
 - Committete Migrationen werden nicht mehr geändert; jede Änderung ist eine neue Migration. Geänderte Funktionen werden dort mit `create or replace` vollständig neu angegeben.
 - Neue Funktionen sind für niemanden ausführbar, bis ein `grant execute` dasteht (Standardrechte sind entzogen).
 - `.env` enthält Patricks Stripe-Testschlüssel. Werte nicht auslesen oder anzeigen; nur prüfen, ob sie gesetzt sind.
