@@ -22,6 +22,7 @@ import { ContractPage, GermanPage, KnowledgePage } from "./pages/ContentPages";
 import { CvPage } from "./pages/CvPage";
 import { AgenciesPage, CompaniesPage, JobBoardsPage, JobsPage } from "./pages/ListPages";
 import { OverviewPage } from "./pages/OverviewPage";
+import { NewsletterConfirmPage } from "./pages/NewsletterConfirmPage";
 import { NotFoundPage } from "./pages/PlaceholderPage";
 import { PATHS, REDIRECTS, redirectTarget } from "./routes";
 
@@ -72,6 +73,7 @@ export function App() {
           <Route path={PATHS.forgotPassword} element={<ForgotPasswordPage />} />
         </Route>
         <Route path={PATHS.authCallback} element={<AuthCallbackPage />} />
+        <Route path={PATHS.newsletterConfirm} element={<NewsletterConfirmPage />} />
         <Route element={<RequireAuth />}>
           <Route path={PATHS.resetPassword} element={<ResetPasswordPage />} />
           <Route path={PATHS.welcome} element={<WelcomePage />} />

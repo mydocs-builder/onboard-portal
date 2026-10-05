@@ -53,6 +53,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
   const userId = user?.id;
   const email = user?.email ?? "";
   const firstLoginMarked = useRef(false);
+  const newsletterMailAsked = useRef(false);
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -96,6 +97,13 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       firstLoginMarked.current = true;
       sessionStorage.setItem(FIRST_SESSION_KEY, userId);
       await supabase.rpc("mark_first_login");
+    }
+
+    // Newsletter bei der Registrierung bestellt: Die Bestätigungsmail (Double-Opt-in) geht hinaus, sobald
+    // das Konto bestätigt ist und das Portal zum ersten Mal lädt. Der Server verschickt sie nur einmal.
+    if (profile.data.newsletter_status === "pending" && !newsletterMailAsked.current) {
+      newsletterMailAsked.current = true;
+      supabase.functions.invoke("newsletter", { body: { action: "send" } }).catch(() => {});
     }
 
     const limits = settings.data?.[0];

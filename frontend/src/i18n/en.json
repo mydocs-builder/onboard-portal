@@ -439,7 +439,6 @@
     "details": "Personal details",
     "field": "Your field",
     "fieldNotSet": "Not set",
-    "reminders": "Send me an email when a next step in my applications is due.",
     "saveDetails": "Save details",
     "detailsSaved": "Details saved.",
     "email": "Email address",
@@ -779,7 +778,8 @@
       "errorTerms": "Please agree to the Terms of Use.",
       "errorRate": "Too many emails were requested in a short time. Please try again in a few minutes.",
       "errorOther": "Your account could not be created. If you have already registered with this address, please check your inbox and spam folder for the confirmation link.",
-      "didYouMean": "Did you mean"
+      "didYouMean": "Did you mean",
+      "optional": "Optional"
     },
     "inbox": {
       "title": "Check your inbox",
@@ -821,5 +821,31 @@
     "download": "Download",
     "downloadAria": "Download: {{title}}",
     "downloadError": "The download could not be started. Please try again."
+  },
+  "emails": {
+    "title": "Emails from us",
+    "reminders": "Reminders for your applications",
+    "remindersText": "One email on the day a next step is due, and the day before an interview.",
+    "newsletter": "Newsletter",
+    "newsletterText": "Job search tips and news from Onboard Germany. You can unsubscribe at any time.",
+    "waiting": "Waiting for your confirmation. Please check your inbox.",
+    "sendAgain": "Send again",
+    "confirmationSent": "We have sent you an email. Please confirm your subscription.",
+    "confirmationResent": "Confirmation email sent again.",
+    "unsubscribed": "You have unsubscribed from the newsletter.",
+    "tooSoon": "We have just sent you the email. Please wait a minute before asking again.",
+    "sendLimit": "We have sent the confirmation email several times. Please check your spam folder.",
+    "mailFailed": "The confirmation email could not be sent. Please try \"Send again\" in a moment.",
+    "talent": "Talent pool",
+    "talentText": "We let you know when the Onboard Germany talent pool opens.",
+    "talentNote": "This does not share your data with anyone.",
+    "confirm": {
+      "activeTitle": "Your newsletter subscription is confirmed",
+      "activeText": "Thank you. You will receive the Onboard Germany newsletter from now on. You can unsubscribe at any time under Account settings.",
+      "invalidTitle": "This link is no longer valid",
+      "invalidText": "The link was already used, or the subscription was cancelled in the meantime. You can check and change the newsletter under Account settings.",
+      "errorTitle": "That did not work",
+      "errorText": "The subscription could not be confirmed right now. Please open the link from the email again in a moment."
+    }
   }
 }

@@ -1,12 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Checkbox } from "../components/Checkbox";
 import { useToast } from "../components/Toast";
 import { FIELDS, isField } from "../lib/fields";
 import { supabase } from "../lib/supabase";
 import { usePortal } from "../portal/PortalProvider";
 import { callbackUrl, MIN_PASSWORD_LENGTH } from "./auth/RegisterPage";
+import { EmailPreferences } from "./EmailPreferences";
 import { PATHS } from "../routes";
 
 export const ACCOUNT_DELETED_KEY = "og.accountDeleted";
@@ -32,6 +32,7 @@ export function AccountPage() {
         <PersonalDetails />
         <EmailAddress />
         <Password />
+        <EmailPreferences />
         <DeleteAccount />
       </div>
     </>
@@ -43,7 +44,7 @@ function PersonalDetails() {
   const flash = useToast();
   const portal = usePortal();
   const { profile } = portal;
-  const [form, setForm] = useState({ first: profile.first_name, last: profile.last_name, field: profile.field ?? "", reminders: profile.reminders_enabled });
+  const [form, setForm] = useState({ first: profile.first_name, last: profile.last_name, field: profile.field ?? "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -57,7 +58,6 @@ function PersonalDetails() {
       first_name: form.first.trim(),
       last_name: form.last.trim(),
       field: isField(form.field) ? form.field : null,
-      reminders_enabled: form.reminders,
     }).eq("user_id", portal.userId);
     setBusy(false);
     if (failure) return flash(t("common.saveError"));
@@ -79,9 +79,6 @@ function PersonalDetails() {
             <option value="">{t("account.fieldNotSet")}</option>
             {FIELDS.map((field) => <option key={field} value={field}>{t(`fields.${field}`)}</option>)}
           </select>
-        </div>
-        <div className="full" style={{ marginTop: -20 }}>
-          <Checkbox checked={form.reminders} onChange={(reminders) => setForm({ ...form, reminders })}>{t("account.reminders")}</Checkbox>
         </div>
         {error && <div className="full ferr" role="alert">{error}</div>}
       </div>

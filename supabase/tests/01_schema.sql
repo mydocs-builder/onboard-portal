@@ -16,8 +16,8 @@ select is_empty($$
 $$, 'every table in public has at least one explicit rule');
 
 select is((select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace
-            where n.nspname = 'public' and c.relkind = 'r'), 26::bigint,
-          'the model has 26 tables');
+            where n.nspname = 'public' and c.relkind = 'r'), 29::bigint,
+          'the model has 29 tables');
 
 select is_empty($$
   select table_name, privilege_type from information_schema.role_table_grants

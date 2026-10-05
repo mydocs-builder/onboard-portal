@@ -5,9 +5,10 @@
 // Ändert sich eine Adresse: hier den neuen Wert eintragen und die alte Adresse unter REDIRECTS
 // aufnehmen, damit Lesezeichen und Links in schon verschickten Mails weiter funktionieren.
 //
-// Außerhalb des Frontends stehen Adressen des Portals nur an zwei Stellen und müssen dann mitgeändert
-// werden: die Rückkehr von Stripe in supabase/functions/create-checkout (billingSuccess, plan) und
-// die Links in den Mailtexten unter supabase/functions/_shared/emails.ts.
+// Außerhalb des Frontends stehen Adressen des Portals nur an drei Stellen und müssen dann mitgeändert
+// werden: die Rückkehr von Stripe in supabase/functions/create-checkout (billingSuccess, plan), der
+// Bestätigungslink in supabase/functions/newsletter (newsletterConfirm) und die Links in den
+// Mailtexten unter supabase/functions/_shared/emails.ts.
 
 export const PATHS = {
   // Portal
@@ -41,6 +42,7 @@ export const PATHS = {
   welcome: "/welcome",
   checkout: "/checkout",
   billingSuccess: "/billing/success",
+  newsletterConfirm: "/newsletter/confirm",
 } as const;
 
 export type PathId = keyof typeof PATHS;

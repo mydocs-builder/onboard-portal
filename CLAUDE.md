@@ -68,6 +68,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 - Startphase: beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
 - Änderungen des Admins an Plan und Sperre sollen im Änderungsprotokoll landen; das ist für Admin-Aktionen noch nicht gebaut.
 - Seitenleiste wie im Kandidatenportal: dieselben Klassen (`side`, `navgroup`, `navgroup line`, `grp`, `nav`), dann gelten Abstände, Linien über den Rubriken und Schrift der Rubriknamen aus `frontend/src/styles/app.css` auch dort. Nicht einklappbar.
+- Newsletter und Talentpool: in der Übersicht die Zahl der Newsletter-Abonnenten (Status active) und der Talentpool-Interessenten, als Summen-Funktion; Export der Newsletter-Abonnenten mit Status active als CSV für rapidmail. Die Seite "Zustimmungstexte" pflegt auch die Wortlaute der beiden Häkchen (`marketing_consent_texts`), nach denselben Regeln wie `consent_texts`.
 - Anmeldung des Admins: Nach E-Mail und Passwort fehlt im Frontend noch der Schritt für den zweiten Faktor (TOTP); bis dahin verhält sich ein Admin-Konto im Portal wie ein Kandidat.
 - Einladung: `first_name` in den Angaben des Nutzers mitgeben (Anrede der Mail) und als Ziel `/auth/callback?next=/reset-password` setzen; die Seite zum Setzen des Passworts gibt es schon.
 
@@ -87,7 +88,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 74 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
+Gebaut ist alles bis Schritt 6; 606 pgTAP-Tests und 75 Tests der Frontend-Logik (Vitest) laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand der Datenbank vollständig.
 
 **Frontend (`frontend/`)**
 
@@ -129,6 +130,7 @@ Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 74 Tests der Frontend-Logik 
 - Seed-Daten: Unternehmen, Jobs und Personaldienstleister sind Beispieldaten (Name beginnt mit "Beispiel", Adresse endet auf `.example` oder liegt unter `example.com`, `source = 'example'`). Der Zustimmungstext in den Seed-Daten ist der Entwurf aus dem Prototyp.
 - In Patricks Stripe-Testkonto liegen Testzahlungen und zwei Test-Erstattungen aus den Tests vom 4. und 5. Oktober.
 
+- Newsletter und Talentpool (5. Oktober 2026): zwei freiwillige Häkchen bei der Registrierung und der Abschnitt "Emails from us" in den Account settings; Regeln in `docs/datenmodell.md`, Abschnitt "Newsletter und Talentpool". Die Bestätigungsmail zum Newsletter (`buildNewsletterConfirmMail` in `supabase/functions/_shared/emails.ts`) ist ein Entwurf und von Patrick noch nicht freigegeben. In "Emails from us" steht als Beschreibung von Newsletter und Talentpool der versionierte Wortlaut aus der Datenbank, nicht der Kurztext des Prototyps, damit angezeigter und festgehaltener Text übereinstimmen.
 - Rechnungen (5. Oktober 2026): Im Portal gibt es keine Links zu Rechnungen. "Plan and billing" zeigt die Käufe mit Datum, Pass und Betrag und den Satz, dass die Rechnungen per Mail von Stripe kamen. Rechnungs-IDs werden nicht gespeichert.
 - Visa-Checkliste: nur Chancenkarte, ohne Reiter. Die Reiter erscheinen von selbst, sobald im Menüpunkt eine zweite Checkliste aktiv ist (gilt für jeden Menüpunkt mit mehreren Checklisten, so auch LinkedIn und XING).
 - Sprachumschalter und das Feld "Portal language" sind ausgeblendet, bis es die deutsche Fassung gibt.
@@ -169,6 +171,7 @@ Gebaut ist alles bis Schritt 6; 548 pgTAP-Tests und 74 Tests der Frontend-Logik 
 - [ ] **Stripe Live-Modus:** Produkte und Preise neu anlegen, Webhook einrichten, Live-Preis-IDs in `prices` eintragen
 - [ ] **Umsatzsteuer** bei digitalen Leistungen ins Ausland (OSS) geklärt
 - [ ] **Zustimmungstext:** geprüfter Wortlaut angelegt und aktiv geschaltet
+- [ ] **Einwilligungstexte für Newsletter und Talentpool:** Die Wortlaute der beiden Häkchen sind Entwürfe aus dem Prototyp (lokal in `supabase/seed.sql`). Mit den Rechtstexten prüfen und die geprüften Fassungen im Admin-Bereich anlegen und aktiv schalten; ohne aktive Fassung zeigt das Portal das jeweilige Häkchen nicht an. Dabei auch klären, ob der Nachweis einer Einwilligung nach der Löschung des Kontos aufbewahrt werden muss (heute wird er mitgelöscht), und den Text der Bestätigungsmail zum Newsletter freigeben
 - [ ] **Rechtstexte:** Nutzungsbedingungen, Datenschutzerklärung und Widerrufsbelehrung für das Portal geprüft
 - [ ] **Mailversand:** Transaktionsmails bei rapidmail geklärt, SMTP-Daten auf dem Server, Absenderdomain bestätigt
 - [ ] **Unternehmen:** Mindestzahl echter, geprüfter Unternehmen erreicht

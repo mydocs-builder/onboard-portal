@@ -17,11 +17,11 @@ Das Modell bildet den freigegebenen Umfang von Phase 1 ab; spätere Erweiterunge
 
 ## Übersicht
 
-26 Tabellen in sieben Bereichen, dazu ein Speicherbereich für Vorlagendateien.
+29 Tabellen in sieben Bereichen, dazu ein Speicherbereich für Vorlagendateien.
 
 | Bereich | Tabellen |
 | --- | --- |
-| Konten | `profiles` |
+| Konten | `profiles`, `marketing_consent_texts`, `marketing_consents`, `newsletter_confirmations` |
 | Zugang und Bezahlung | `plan_access`, `plan_periods`, `stripe_events`, `launch_settings`, `prices`, `audit_log`, `consent_texts`, `purchase_consents` |
 | Bewerbungen | `applications`, `application_events` |
 | Checklisten | `checklists`, `checklist_items`, `checklist_progress`, `dismissed_tasks` |
@@ -48,6 +48,8 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 | invited\_by\_admin | ja/nein | von Patrick angelegt und eingeladen |
 | blocked\_at | Zeitpunkt | gesetzt, wenn ein Konto gesperrt ist |
 | registration\_source | Text | z. B. website, admin, navigator; für die Auswertung |
+| newsletter\_status | none, pending, active | Newsletter: nicht bestellt, bestellt und noch unbestätigt, bestätigt. Erst active zählt als Einwilligung |
+| talent\_pool | ja/nein | Interesse am Talentpool; nur das Häkchen, sonst nichts |
 | confirmation\_resends | Zahl | wie oft der Bestätigungslink erneut verschickt wurde; Standard 0, nur vom Server geschrieben |
 
 - **E-Mail und Passwort** liegen nur in `auth.users`. Eine E-Mail-Änderung läuft über den Bestätigungsablauf von Supabase.
@@ -55,6 +57,30 @@ Jedes Konto in `auth.users` bekommt beim Anlegen automatisch genau einen Eintrag
 - **Bestätigungslink erneut senden:** höchstens confirmation\_resend\_limit Mal je Konto (Standard 3). Ein Trigger auf `auth.users` zählt jeden weiteren Versand in confirmation\_resends mit und weist ihn danach mit confirmation\_resend\_limit\_reached ab; das gilt für jeden Weg, auch an der Oberfläche vorbei. Der erste Versand bei der Registrierung zählt nicht, bestätigte und eingeladene Konten sind nicht begrenzt. Eine erneute Registrierung mit derselben, noch unbestätigten Adresse verschickt den Link ebenfalls und zählt mit. Supabase Auth gibt die Ablehnung nur als allgemeinen Fehler weiter; das Portal zählt deshalb im Browser mit und zeigt den Hinweis, sobald die Grenze erreicht ist. Die Grenze liest es aus `registration_info()`, sie steht nicht im Code.
 - **Status "Eingeladen"** ergibt sich daraus, dass `first_login_at` leer und `invited_by_admin` gesetzt ist; kein eigenes Feld.
 - **Konto löschen** läuft über die Edge Function `delete-account`: Der angemeldete Nutzer bestätigt mit seinem Passwort, die Funktion prüft es mit einer eigenen Anmeldung und löscht dann das Konto mit dem Service-Role-Schlüssel. Das entfernt `auth.users` und über die Verknüpfung alle Daten des Nutzers in diesem Modell. Zwei Ausnahmen: `purchase_consents` behält den Nachweis der Zustimmung ohne Nutzerbezug bis zum Ende der Aufbewahrungsfrist, und `plan_periods` behält alle Phasen (Pass, Pilot, manuell) für die Auswertung; die Nutzer-ID wird durch eine zufällige Kennung je gelöschtem Konto ersetzt, ohne Zuordnungstabelle. reason bleibt, stripe\_session\_id wird entfernt.
+
+## Newsletter und Talentpool
+
+Zwei freiwillige Einwilligungen, bei der Registrierung nicht vorausgewählt und später in den Account settings unter "Emails from us" änderbar. Die Registrierung hängt von keiner der beiden ab. Das Portal verschickt selbst keinen Newsletter; der Versand kommt später über rapidmail.
+
+**marketing\_consent\_texts**: kind (newsletter, talent\_pool), version, language, body, active. Die Wortlaute der beiden Häkchen, versioniert wie bei der Zustimmung zum Kauf: Eine Fassung wird nie geändert oder gelöscht, für keine Rolle; nur active lässt sich umschalten, und je Art und Sprache ist genau eine Fassung aktiv. Ohne aktive Fassung bietet das Portal die jeweilige Einwilligung nicht an. Die Migrationen legen keinen Text an.
+
+**marketing\_consents**, der Nachweis: ein Eintrag je Einwilligung, Bestätigung und Widerruf
+
+| Feld | Typ | Bedeutung |
+| --- | --- | --- |
+| user\_id | Verweis | wer; mit dem Konto wird der Eintrag gelöscht |
+| kind | newsletter, talent\_pool | Art der Einwilligung |
+| action | given, confirmed, withdrawn | Häkchen gesetzt; Link aus der Bestätigungsmail geklickt (nur Newsletter); Widerruf |
+| consent\_text\_id | Verweis | die Fassung des Wortlauts, der zugestimmt wurde; bei Bestätigung und Widerruf die Fassung der betroffenen Einwilligung |
+| source | registration, account, email\_link | wo es geschah |
+| created\_at | Zeitpunkt | Zeit des Servers |
+
+- **Einträge werden nie geändert.** Schreiben können nur die Funktionen unten; der Kandidat liest seine eigenen Einträge, der Admin alle (als Nachweis).
+- **Newsletter mit Double-Opt-in:** Das Häkchen setzt newsletter\_status auf pending und hält "given" fest. Die Bestätigungsmail mit Link geht hinaus, sobald das Konto bestätigt ist und das Portal zum ersten Mal lädt, oder sofort, wenn der Newsletter in den Account settings bestellt wird. Erst der Klick auf den Link setzt active und hält "confirmed" fest. Abbestellen gilt sofort und ohne Bestätigung ("withdrawn"); ein noch offener Link wird damit wertlos.
+- **Bestätigungslink:** `newsletter\_confirmations` (user\_id, token\_hash, sends, sent\_at) hält je offener Bestellung nur den Hash des Links. Niemand liest die Tabelle über die Schnittstelle, auch der Admin nicht. Der Link gilt einmal, auch ohne Anmeldung. "Send again" stellt einen neuen Link aus und macht den alten ungültig, frühestens nach einer Minute und insgesamt newsletter\_confirmation\_sends Mal (Standard 5, in `app\_settings`).
+- **Talentpool:** nur eine Interessenbekundung. Gespeichert wird das Häkchen (talent\_pool) und sein Nachweis; es werden keine weiteren Daten erhoben oder weitergegeben.
+- **Fassung bei der Einwilligung:** Das Portal schickt die Versionskennung des angezeigten Wortlauts mit; stimmt sie nicht mit der aktiven Fassung überein, wird nichts eingetragen (bei der Registrierung stillschweigend, in den Account settings mit consent\_required).
+- **Kontolöschung:** Mit dem Konto verschwinden Stand und Nachweis. **Vermerk: Ob der Nachweis nach der Löschung des Kontos aufbewahrt werden muss, wird mit den Rechtstexten noch geprüft.**
 
 ## Zugang, Pässe und Startphase
 
@@ -258,7 +284,9 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 | `plan_access` | eigenen lesen | alle lesen, manuell ändern | alles |
 | `plan_periods` | eigene lesen | alle lesen, manuelle Phasen anlegen | alles |
 | `prices`, `launch_settings` | aktive Preise lesen; Startphase nur soweit für die Registrierung nötig | lesen und ändern | alles |
-| `consent_texts` | aktive Fassung lesen | alle lesen, neue Fassung anlegen, aktiv schalten | alles außer Wortlaut ändern oder löschen |
+| `consent_texts`, `marketing\_consent\_texts` | aktive Fassung lesen | alle lesen, neue Fassung anlegen, aktiv schalten | alles außer Wortlaut ändern oder löschen |
+| `marketing\_consents` | eigene lesen | alle lesen | anlegen über die Funktionen |
+| `newsletter\_confirmations` | nichts | nichts | alles |
 | `purchase_consents` | eigene lesen | alle lesen | anlegen über `begin_checkout` |
 | `stripe_events`, `email_log` | nichts | lesen | alles |
 | `audit_log` | nichts | lesen | anlegen |
@@ -282,7 +310,8 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 - Statuswechsel in Listen: draft → published → archived und archived → published. Kein Weg führt zurück auf draft, ebenfalls für jede Rolle.
 - Endgültig löschen kann nur der Admin über `purge_list_entry(list, id)`, und nur archivierte Einträge. Die Funktion schreibt einen Eintrag ins `audit_log` (ohne user\_id, actor = Name des Admins). Verweise in `applications` (company\_id, job\_id) werden dabei geleert; company und position der Bewerbung bleiben als Text.
 - Checklistenpunkte mit Fortschritt werden deaktiviert, nicht gelöscht.
-- Die Registrierung liest über `registration_info()` nur Modus, Verkaufsstatus, Pilot-Stichtag und confirmation\_resend\_limit (die Seite "Check your inbox" sieht ein Besucher vor der Anmeldung, und Besucher dürfen nur diese Funktion aufrufen); der Einladungscode wird in der Datenbank geprüft und ist nie lesbar.
+- Die Felder newsletter\_status und talent\_pool im Profil schreibt der Kandidat nicht direkt, nur über `set_newsletter()` und `set_talent_pool()`; so entsteht zu jeder Änderung ein Nachweis.
+- Die Registrierung liest über `registration_info()` nur Modus, Verkaufsstatus, Pilot-Stichtag, die aktiven Wortlaute für Newsletter und Talentpool und confirmation\_resend\_limit (die Seite "Check your inbox" sieht ein Besucher vor der Anmeldung, und Besucher dürfen nur diese Funktion aufrufen); der Einladungscode wird in der Datenbank geprüft und ist nie lesbar.
 - Gesperrte Inhalte liefert `locked_content()` mit Bereich, Titel und Mindeststufe (bei Checklistenpunkten ist der Bereich der Schlüssel der Checkliste, bei Leitfäden und Vorlagen ihr Feld area), bei Formulierungen, Glossar und Listen nur die Anzahl.
 - "Heute" rechnet überall in deutscher Zeit.
 
@@ -295,7 +324,9 @@ Drei Rollen: Kandidat (angemeldet, role = candidate), Admin (role = admin, zusä
 | `effective_plan(user)` | gültige Stufe | angemeldete Nutzer (nur eigene), Admin, Server |
 | `pass_days(length)`, `is_open_application(status)` | Laufzeit eines Passes in Tagen; ob eine Bewerbung noch läuft | angemeldete Nutzer, Server |
 | `mark_first_login()` | setzt first\_login\_at beim ersten Login | angemeldete Nutzer |
-| `registration_info()` | Startphase für die Registrierung | Besucher, angemeldete Nutzer |
+| `registration_info()` | Startphase für die Registrierung, dazu die aktiven Wortlaute der freiwilligen Einwilligungen | Besucher, angemeldete Nutzer |
+| `set_newsletter(on, version)`, `set_talent_pool(on, version)` | Newsletter und Talentpool für das eigene Konto setzen oder widerrufen, mit Nachweis | angemeldete Nutzer |
+| `newsletter_issue_token(user, resend)`, `confirm_newsletter(token)` | Bestätigungslink ausstellen und einlösen (Double-Opt-in) | Server (Edge Function `newsletter`) |
 | `public_settings()`, `locked_content()` | Grenzwerte und gesperrte Inhalte für das Frontend | angemeldete Nutzer |
 | `purge_list_entry(list, id)` | archivierten Listeneintrag endgültig löschen | Admin |
 | `begin_checkout(...)`, `attach_checkout_session(...)` | Kauf beginnen, Zustimmung festhalten | Server (`create-checkout`) |
@@ -364,9 +395,9 @@ Eine Funktion läuft täglich früh am Morgen und erledigt alles Zeitgesteuerte;
 
 **email\_log**: user\_id, kind (reminder\_next\_step, interview\_tomorrow, pass\_ending, pass\_ended, pass\_started), ref\_id, sent\_at, sent\_on (Tag des Versands in deutscher Zeit). Eindeutig je Nutzer, Art, Bezug und Tag.
 
-**Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
+**Mails außerhalb der täglichen Funktion** verschickt Supabase selbst über rapidmail: Bestätigung der Registrierung, Einladung durch den Admin, Passwort zurücksetzen, E-Mail-Änderung. Die Bestätigungsmail zum Newsletter verschickt die Edge Function `newsletter`. Die Kaufbestätigung mit Ablaufdatum verschickt der Webhook direkt nach der Zahlung, die Rechnung kommt von Stripe.
 
-**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, unconfirmed\_account\_days = 7, confirmation\_resend\_limit = 3, admin\_notify\_email.
+**app\_settings**: key, value. Grenzwerte und Texteinstellungen, etwa free\_application\_limit = 10, pass\_reminder\_days = 7, job\_default\_days = 30, consent\_retention\_years = 3, abandoned\_consent\_days = 30, unconfirmed\_account\_days = 7, confirmation\_resend\_limit = 3, newsletter\_confirmation\_sends = 5, admin\_notify\_email.
 
 ## Offene Fragen
 

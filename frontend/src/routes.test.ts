@@ -48,4 +48,8 @@ describe("address helpers", () => {
     expect(PATHS.billingSuccess).toBe("/billing/success");
     expect(PATHS.plan).toBe("/plan");
   });
+
+  it("the address of the newsletter confirmation is the one the newsletter function puts into the mail", () => {
+    expect(PATHS.newsletterConfirm).toBe("/newsletter/confirm");
+  });
 });

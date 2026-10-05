@@ -136,3 +136,17 @@ export function buildPurchaseMail(
     ]),
   };
 }
+
+// Bestätigung des Newsletters (Double-Opt-in). Erst der Klick auf den Link bestellt den Newsletter.
+// ENTWURF vom 5. Oktober 2026, von Patrick noch nicht freigegeben.
+export function buildNewsletterConfirmMail(to: string, firstName: string, link: string): Mail {
+  return {
+    to,
+    subject: "Please confirm your newsletter subscription",
+    text: body(firstName, [
+      `You asked to receive the Onboard Germany newsletter with job search tips and news. Please confirm your subscription:\n${link}`,
+      "If you did not ask for this, you can ignore this email. You will not receive the newsletter.",
+      "You can unsubscribe at any time in your portal under Account settings.",
+    ]),
+  };
+}

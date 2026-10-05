@@ -23,6 +23,13 @@ update public.launch_settings set sales_enabled = true;
 insert into public.consent_texts (version, language, body, active) values
   ('2026-10-03-prototype', 'en', 'I want access to start immediately. I understand that I lose my right of withdrawal once access has started.', true);
 
+-- Wortlaute der freiwilligen Einwilligungen (Newsletter, Talentpool), aus dem Prototyp. ENTWURF: die
+-- geprüften Wortlaute werden vor dem Start im Admin-Bereich als neue Fassung angelegt, nicht hier.
+-- Ohne aktive Fassung zeigt das Portal das jeweilige Häkchen nicht an.
+insert into public.marketing_consent_texts (kind, version, language, body, active) values
+  ('newsletter', '2026-10-05-prototype', 'en', 'Send me the Onboard Germany newsletter with job search tips and news. You can unsubscribe at any time.', true),
+  ('talent_pool', '2026-10-05-prototype', 'en', 'Let me know when the Onboard Germany talent pool opens.', true);
+
 -- Lokal gehen Hinweise der täglichen Funktion an das Testkonto des Admins.
 insert into public.app_settings (key, value) values ('admin_notify_email', 'admin@example.com');
 

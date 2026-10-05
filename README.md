@@ -78,7 +78,7 @@ Solange das Frontend keine Anmeldeseite hat, laufen die Schritte 2 und 3 über d
 
 1. `.env.example` nach `.env` kopieren. Dort `STRIPE_SECRET_KEY` (Testschlüssel `sk_test_...`) und `PORTAL_URL=http://127.0.0.1:5173` eintragen.
 2. `stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to http://127.0.0.1:54321/functions/v1/stripe-webhook` starten (die Angabe `--events` ist nötig; es sind die beiden Ereignisse, die der Webhook verarbeitet) und den ausgegebenen Wert `whsec_...` als `STRIPE_WEBHOOK_SECRET` in `.env` eintragen.
-3. `npm run functions:serve` startet die Funktionen (`create-checkout`, `stripe-webhook`, `delete-account`, `daily`) mit diesen Werten.
+3. `npm run functions:serve` startet die Funktionen (`create-checkout`, `stripe-webhook`, `delete-account`, `newsletter`, `daily`) mit diesen Werten.
 4. `npm run dev` starten, mit einem Testkonto anmelden und unter "Plan and billing" einen Pass kaufen. Auf der Bezahlseite von Stripe (Sandbox) die Testkarte 4242 4242 4242 4242 mit beliebigem künftigem Datum und beliebiger Prüfziffer verwenden.
 
 Die Regeln der Freischaltung (Beginn, Ende, Umrechnung beim Upgrade) stehen in der Datenbankfunktion `grant_pass` und sind in `supabase/tests/06_grant_pass.sql` getestet.

@@ -12,6 +12,9 @@ import { PATHS } from "../../routes";
 export const MIN_PASSWORD_LENGTH = 10;
 // Auf der Website vorgewählte Stufe (/register?plan=plus); die Stufenwahl nach der Bestätigung liest sie.
 export const PRESELECTED_PLAN_KEY = "og.preselectedPlan";
+/** Aktiver Wortlaut einer freiwilligen Einwilligung, wie ihn registration_info() liefert. */
+type OptionalConsent = { kind: "newsletter" | "talent_pool"; version: string; body: string };
+
 /** Angaben der Registrierung ohne Passwort; "Wrong address? Change it" füllt das Formular damit wieder aus. */
 export type RegistrationDetails = { first: string; last: string; email: string; code: string; field: string };
 export const callbackUrl = (next?: string) =>
@@ -26,12 +29,18 @@ export function RegisterPage() {
   const [terms, setTerms] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [info, setInfo] = useState<{ inviteOnly: boolean; salesEnabled: boolean } | null>(null);
+  const [info, setInfo] = useState<{ inviteOnly: boolean; salesEnabled: boolean; optional: OptionalConsent[] } | null>(null);
+  // Freiwillige Einwilligungen (Newsletter, Talentpool): nicht vorausgewählt, die Registrierung hängt von keiner ab.
+  const [chosen, setChosen] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     supabase.rpc("registration_info").then(({ data }) => {
       const row = data?.[0];
-      setInfo({ inviteOnly: row?.registration_mode === "invite", salesEnabled: row?.sales_enabled ?? false });
+      setInfo({
+        inviteOnly: row?.registration_mode === "invite",
+        salesEnabled: row?.sales_enabled ?? false,
+        optional: (row?.optional_consents ?? []) as OptionalConsent[],
+      });
     });
   }, []);
 
@@ -70,6 +79,8 @@ export function RegisterPage() {
           ...(form.field ? { field: form.field } : {}),
           ...(info?.inviteOnly ? { invite_code: form.code.trim() } : {}),
           registration_source: "website",
+          // Mit der Versionskennung des angezeigten Wortlauts; die Datenbank hält damit die Einwilligung fest.
+          ...Object.fromEntries((info?.optional ?? []).filter((consent) => chosen[consent.kind]).map((consent) => [`${consent.kind}_consent`, consent.version])),
         },
       },
     });
@@ -137,6 +148,16 @@ export function RegisterPage() {
             components={{ terms: <ExternalLink className="" arrow={false} href={TERMS_URL}>{""}</ExternalLink>, privacy: <ExternalLink className="" arrow={false} href={PRIVACY_URL}>{""}</ExternalLink> }}
           />
         </Checkbox>
+        {info && info.optional.length > 0 && (
+          <div className="optin">
+            <div className="optlabel">{t("auth.register.optional")}</div>
+            {info.optional.map((consent) => (
+              <Checkbox key={consent.kind} checked={!!chosen[consent.kind]} onChange={(value) => setChosen((previous) => ({ ...previous, [consent.kind]: value }))}>
+                {consent.body}
+              </Checkbox>
+            ))}
+          </div>
+        )}
         {error && <div className="ferr" role="alert">{error}</div>}
         <button className="btn" type="submit" disabled={busy || !info}>{t("auth.register.submit")}</button>
       </form>

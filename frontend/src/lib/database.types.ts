@@ -353,6 +353,63 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"marketing_consent_texts": {
+                  Row: {
+                    "active": boolean,"body": string,"created_at": string,"id": string,"kind": Database["public"]['Enums']["marketing_kind"],"language": Database["public"]['Enums']["portal_language"],"updated_at": string,"version": string
+                  }
+                  Insert: {
+                    "active"?: boolean,"body": string,"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["marketing_kind"],"language"?: Database["public"]['Enums']["portal_language"],"updated_at"?: string,"version": string
+                  }
+                  Update: {
+                    "active"?: boolean,"body"?: string,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["marketing_kind"],"language"?: Database["public"]['Enums']["portal_language"],"updated_at"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"marketing_consents": {
+                  Row: {
+                    "action": Database["public"]['Enums']["marketing_action"],"consent_text_id": string | null,"created_at": string,"id": string,"kind": Database["public"]['Enums']["marketing_kind"],"source": string,"user_id": string
+                  }
+                  Insert: {
+                    "action": Database["public"]['Enums']["marketing_action"],"consent_text_id"?: string | null,"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["marketing_kind"],"source": string,"user_id": string
+                  }
+                  Update: {
+                    "action"?: Database["public"]['Enums']["marketing_action"],"consent_text_id"?: string | null,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["marketing_kind"],"source"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "marketing_consents_consent_text_id_fkey"
+      columns: ["consent_text_id"]
+isOneToOne: false
+      referencedRelation: "marketing_consent_texts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "marketing_consents_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["user_id"]
+    }
+                  ]
+                },"newsletter_confirmations": {
+                  Row: {
+                    "sends": number,"sent_at": string,"token_hash": string,"user_id": string
+                  }
+                  Insert: {
+                    "sends"?: number,"sent_at"?: string,"token_hash": string,"user_id": string
+                  }
+                  Update: {
+                    "sends"?: number,"sent_at"?: string,"token_hash"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "newsletter_confirmations_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["user_id"]
+    }
+                  ]
                 },"phrases": {
                   Row: {
                     "category": Database["public"]['Enums']["phrase_category"],"created_at": string,"english": string,"field": Database["public"]['Enums']["industry"] | null,"german": string,"id": string,"language": Database["public"]['Enums']["portal_language"],"min_plan": Database["public"]['Enums']["plan_level"],"sort": number,"updated_at": string,"usage": string | null
@@ -425,13 +482,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "blocked_at": string | null,"confirmation_resends": number,"created_at": string,"field": Database["public"]['Enums']["industry"] | null,"first_login_at": string | null,"first_name": string,"invited_by_admin": boolean,"language": Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source": string,"reminders_enabled": boolean,"role": Database["public"]['Enums']["user_role"],"updated_at": string,"user_id": string
+                    "blocked_at": string | null,"confirmation_resends": number,"created_at": string,"field": Database["public"]['Enums']["industry"] | null,"first_login_at": string | null,"first_name": string,"invited_by_admin": boolean,"language": Database["public"]['Enums']["portal_language"],"last_name": string,"newsletter_status": Database["public"]['Enums']["newsletter_status"],"registration_source": string,"reminders_enabled": boolean,"role": Database["public"]['Enums']["user_role"],"talent_pool": boolean,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name": string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name": string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id": string
+                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name": string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name": string,"newsletter_status"?: Database["public"]['Enums']["newsletter_status"],"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"talent_pool"?: boolean,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name"?: string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name"?: string,"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"updated_at"?: string,"user_id"?: string
+                    "blocked_at"?: string | null,"confirmation_resends"?: number,"created_at"?: string,"field"?: Database["public"]['Enums']["industry"] | null,"first_login_at"?: string | null,"first_name"?: string,"invited_by_admin"?: boolean,"language"?: Database["public"]['Enums']["portal_language"],"last_name"?: string,"newsletter_status"?: Database["public"]['Enums']["newsletter_status"],"registration_source"?: string,"reminders_enabled"?: boolean,"role"?: Database["public"]['Enums']["user_role"],"talent_pool"?: boolean,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -499,7 +556,24 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "attach_checkout_session":
+            "active_marketing_text":
+{ Args: { "p_kind": Database["public"]['Enums']["marketing_kind"],"p_language": Database["public"]['Enums']["portal_language"] }; Returns: {
+              "active": boolean,
+"body": string,
+"created_at": string,
+"id": string,
+"kind": Database["public"]['Enums']["marketing_kind"],
+"language": Database["public"]['Enums']["portal_language"],
+"updated_at": string,
+"version": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "marketing_consent_texts"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"attach_checkout_session":
 { Args: { "p_consent_id": string,"p_session_id": string }; Returns: undefined
                            },
 "begin_checkout":
@@ -507,6 +581,9 @@ isOneToOne: false
                            },
 "call_daily_function":
 { Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"confirm_newsletter":
+{ Args: { "p_token": string }; Returns: Database["public"]['Enums']["newsletter_status"]
                            },
 "daily_mail_sent":
 { Args: { "p_kind": Database["public"]['Enums']["email_kind"],"p_ref_id"?: string,"p_user_id": string }; Returns: undefined
@@ -534,6 +611,9 @@ isOneToOne: false
 "is_open_application":
 { Args: { "status": Database["public"]['Enums']["application_status"] }; Returns: boolean
                            },
+"last_given_marketing_text":
+{ Args: { "p_kind": Database["public"]['Enums']["marketing_kind"],"p_user_id": string }; Returns: string
+                           },
 "locked_content":
 { Args: Record<PropertyKey, never>; Returns: {
               "area": string,"entries": number,"kind": string,"min_plan": Database["public"]['Enums']["plan_level"],"title": string
@@ -541,6 +621,9 @@ isOneToOne: false
                            },
 "mark_first_login":
 { Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"newsletter_issue_token":
+{ Args: { "p_resend"?: boolean,"p_user_id": string }; Returns: Json
                            },
 "pass_days":
 { Args: { "length": Database["public"]['Enums']["pass_length"] }; Returns: number
@@ -571,12 +654,18 @@ isOneToOne: false
                            },
 "registration_info":
 { Args: Record<PropertyKey, never>; Returns: {
-              "confirmation_resend_limit": number,"pilot_plan": Database["public"]['Enums']["plan_level"],"pilot_until": string,"registration_mode": Database["public"]['Enums']["registration_mode"],"sales_enabled": boolean
+              "confirmation_resend_limit": number,"optional_consents": Json,"pilot_plan": Database["public"]['Enums']["plan_level"],"pilot_until": string,"registration_mode": Database["public"]['Enums']["registration_mode"],"sales_enabled": boolean
             }[]
+                           },
+"set_newsletter":
+{ Args: { "p_on": boolean,"p_version"?: string }; Returns: Database["public"]['Enums']["newsletter_status"]
+                           },
+"set_talent_pool":
+{ Args: { "p_on": boolean,"p_version"?: string }; Returns: boolean
                            }
           }
           Enums: {
-            "access_source": "none"|"pass"|"manual","account_grant": "none"|"starter"|"plus","agency_model": "direct"|"temp"|"both","application_source": "job_board"|"company_list"|"job_list"|"agency"|"direct"|"referral"|"other","application_status": "planned"|"applied"|"interview"|"offer"|"accepted"|"rejected"|"no_response"|"withdrawn","article_area": "cv"|"linkedin"|"interview"|"guide"|"agencies"|"contract","checklist_area": "cv"|"linkedin"|"checklist"|"arrival"|"applications"|"jobs"|"companies"|"boards"|"agencies"|"german"|"knowledge"|"contract"|"start"|"search"|"preparation"|"found","company_signal": "english_ads"|"relocation_support"|"visa_support"|"recognition_partnership","email_kind": "reminder_next_step"|"interview_tomorrow"|"pass_ending"|"pass_ended"|"pass_started","employer_type": "hospital"|"care_home"|"outpatient","import_list": "companies"|"jobs"|"agencies"|"job_boards","industry": "it"|"engineering"|"nursing_care"|"healthcare"|"logistics","list_status": "draft"|"published"|"archived","next_step_type": "apply"|"follow_up"|"interview"|"documents"|"decision"|"offer_reply"|"none","pass_length": "month"|"quarter","period_source": "pass"|"manual"|"pilot","phrase_category": "cover_letter"|"phone"|"interview"|"vocabulary","plan_level": "free"|"starter"|"plus","portal_language": "en"|"de","registration_mode": "open"|"invite","task_key": "cv"|"linkedin"|"xing"|"visa","template_format": "docx"|"pdf"|"xlsx","user_role": "candidate"|"admin"
+            "access_source": "none"|"pass"|"manual","account_grant": "none"|"starter"|"plus","agency_model": "direct"|"temp"|"both","application_source": "job_board"|"company_list"|"job_list"|"agency"|"direct"|"referral"|"other","application_status": "planned"|"applied"|"interview"|"offer"|"accepted"|"rejected"|"no_response"|"withdrawn","article_area": "cv"|"linkedin"|"interview"|"guide"|"agencies"|"contract","checklist_area": "cv"|"linkedin"|"checklist"|"arrival"|"applications"|"jobs"|"companies"|"boards"|"agencies"|"german"|"knowledge"|"contract"|"start"|"search"|"preparation"|"found","company_signal": "english_ads"|"relocation_support"|"visa_support"|"recognition_partnership","email_kind": "reminder_next_step"|"interview_tomorrow"|"pass_ending"|"pass_ended"|"pass_started","employer_type": "hospital"|"care_home"|"outpatient","import_list": "companies"|"jobs"|"agencies"|"job_boards","industry": "it"|"engineering"|"nursing_care"|"healthcare"|"logistics","list_status": "draft"|"published"|"archived","marketing_action": "given"|"confirmed"|"withdrawn","marketing_kind": "newsletter"|"talent_pool","newsletter_status": "none"|"pending"|"active","next_step_type": "apply"|"follow_up"|"interview"|"documents"|"decision"|"offer_reply"|"none","pass_length": "month"|"quarter","period_source": "pass"|"manual"|"pilot","phrase_category": "cover_letter"|"phone"|"interview"|"vocabulary","plan_level": "free"|"starter"|"plus","portal_language": "en"|"de","registration_mode": "open"|"invite","task_key": "cv"|"linkedin"|"xing"|"visa","template_format": "docx"|"pdf"|"xlsx","user_role": "candidate"|"admin"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -696,7 +785,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "access_source": ["none", "pass", "manual"],"account_grant": ["none", "starter", "plus"],"agency_model": ["direct", "temp", "both"],"application_source": ["job_board", "company_list", "job_list", "agency", "direct", "referral", "other"],"application_status": ["planned", "applied", "interview", "offer", "accepted", "rejected", "no_response", "withdrawn"],"article_area": ["cv", "linkedin", "interview", "guide", "agencies", "contract"],"checklist_area": ["cv", "linkedin", "checklist", "arrival", "applications", "jobs", "companies", "boards", "agencies", "german", "knowledge", "contract", "start", "search", "preparation", "found"],"company_signal": ["english_ads", "relocation_support", "visa_support", "recognition_partnership"],"email_kind": ["reminder_next_step", "interview_tomorrow", "pass_ending", "pass_ended", "pass_started"],"employer_type": ["hospital", "care_home", "outpatient"],"import_list": ["companies", "jobs", "agencies", "job_boards"],"industry": ["it", "engineering", "nursing_care", "healthcare", "logistics"],"list_status": ["draft", "published", "archived"],"next_step_type": ["apply", "follow_up", "interview", "documents", "decision", "offer_reply", "none"],"pass_length": ["month", "quarter"],"period_source": ["pass", "manual", "pilot"],"phrase_category": ["cover_letter", "phone", "interview", "vocabulary"],"plan_level": ["free", "starter", "plus"],"portal_language": ["en", "de"],"registration_mode": ["open", "invite"],"task_key": ["cv", "linkedin", "xing", "visa"],"template_format": ["docx", "pdf", "xlsx"],"user_role": ["candidate", "admin"]
+            "access_source": ["none", "pass", "manual"],"account_grant": ["none", "starter", "plus"],"agency_model": ["direct", "temp", "both"],"application_source": ["job_board", "company_list", "job_list", "agency", "direct", "referral", "other"],"application_status": ["planned", "applied", "interview", "offer", "accepted", "rejected", "no_response", "withdrawn"],"article_area": ["cv", "linkedin", "interview", "guide", "agencies", "contract"],"checklist_area": ["cv", "linkedin", "checklist", "arrival", "applications", "jobs", "companies", "boards", "agencies", "german", "knowledge", "contract", "start", "search", "preparation", "found"],"company_signal": ["english_ads", "relocation_support", "visa_support", "recognition_partnership"],"email_kind": ["reminder_next_step", "interview_tomorrow", "pass_ending", "pass_ended", "pass_started"],"employer_type": ["hospital", "care_home", "outpatient"],"import_list": ["companies", "jobs", "agencies", "job_boards"],"industry": ["it", "engineering", "nursing_care", "healthcare", "logistics"],"list_status": ["draft", "published", "archived"],"marketing_action": ["given", "confirmed", "withdrawn"],"marketing_kind": ["newsletter", "talent_pool"],"newsletter_status": ["none", "pending", "active"],"next_step_type": ["apply", "follow_up", "interview", "documents", "decision", "offer_reply", "none"],"pass_length": ["month", "quarter"],"period_source": ["pass", "manual", "pilot"],"phrase_category": ["cover_letter", "phone", "interview", "vocabulary"],"plan_level": ["free", "starter", "plus"],"portal_language": ["en", "de"],"registration_mode": ["open", "invite"],"task_key": ["cv", "linkedin", "xing", "visa"],"template_format": ["docx", "pdf", "xlsx"],"user_role": ["candidate", "admin"]
           }
         }
 } as const

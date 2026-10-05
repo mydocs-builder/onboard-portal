@@ -57,3 +57,14 @@ a.btn2.extlink,a.btn2{font:600 16px var(--sans)}
 .side .navgroup.line::before{content:"";display:block;height:1px;background:var(--line);margin:0 24px 14px}
 .side .nav + .nav{margin-top:2px}
 .side .grp{font:600 14px var(--sans);letter-spacing:1.5px;text-transform:uppercase;color:var(--grey)}
+
+/* Freiwillige Einwilligungen bei der Registrierung und Schalter in "Emails from us" (aus dem Prototyp;
+   die Beschriftung "Optional" in 14 px nach Styleguide). */
+.optin{border-top:1px solid var(--line);margin-top:8px;padding-top:12px}
+.optin .chk{margin-top:6px}
+.optlabel{font:600 14px var(--sans);letter-spacing:1px;text-transform:uppercase;color:var(--grey)}
+.sw{position:relative;width:48px;height:28px;border:1.5px solid var(--grey);background:var(--white);cursor:pointer;padding:0;flex:0 0 48px}
+.sw .knob{position:absolute;top:3px;left:3px;width:19px;height:19px;background:var(--grey);transition:left .15s}
+.sw.on{background:var(--turq);border-color:var(--blue)}
+.sw.on .knob{left:24px;background:var(--blue)}
+.sw[disabled]{cursor:default;opacity:.6}
