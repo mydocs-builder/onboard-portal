@@ -79,6 +79,62 @@
       "errorInvalid": "Email address or password is not correct.",
       "errorUnconfirmed": "Please confirm your email address first. We have sent you a link.",
       "errorOther": "Sign-in did not work. Please try again."
+    },
+    "backToLogin": "Back to sign in",
+    "register": {
+      "title": "Create your account",
+      "lead": "Free to start.",
+      "leadSales": "Free to start. You can choose a paid plan in the next step or later.",
+      "first": "First name",
+      "last": "Last name",
+      "passwordHint": "At least 10 characters.",
+      "code": "Invitation code",
+      "codeHint": "Registration is by invitation during the pilot phase.",
+      "field": "Your field (optional)",
+      "fieldLater": "Choose later",
+      "terms": "I agree to the <terms>Terms of Use</terms> and have read the <privacy>Privacy Policy</privacy>.",
+      "submit": "Create account",
+      "already": "Already registered?",
+      "errorFirst": "Please enter your first name.",
+      "errorLast": "Please enter your last name.",
+      "errorEmail": "Please enter a valid email address.",
+      "errorPassword": "The password needs at least 10 characters.",
+      "errorCode": "Please enter your invitation code.",
+      "errorCodeInvalid": "This invitation code is not valid.",
+      "errorTerms": "Please agree to the Terms of Use.",
+      "errorRate": "Too many emails were requested in a short time. Please try again in a few minutes.",
+      "errorOther": "Your account could not be created. Please try again."
+    },
+    "inbox": {
+      "title": "Check your inbox",
+      "text": "We have sent a link to <b>{{email}}</b>. Click it to confirm your email address. The link is valid for 24 hours.",
+      "resend": "Send the link again",
+      "resent": "Confirmation link sent again.",
+      "resendError": "The link could not be sent. Please try again in a few minutes."
+    },
+    "link": {
+      "title": "This link is no longer valid",
+      "text": "The link has expired or was already used. Sign in, or request a new link.",
+      "newReset": "Request a new link to reset your password"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "text": "Enter the email address of your account. We will send you a link to set a new password.",
+      "submit": "Send link",
+      "sentTitle": "Link sent",
+      "sentText": "If an account exists for this address, you will receive an email with a link in the next few minutes. Also check your spam folder."
+    },
+    "reset": {
+      "title": "Set your password",
+      "text": "Choose a new password for your account. At least 10 characters.",
+      "new": "New password",
+      "repeat": "Repeat new password",
+      "submit": "Save password",
+      "done": "Password saved.",
+      "errorLength": "The new password needs at least 10 characters.",
+      "errorRepeat": "The two passwords do not match.",
+      "errorSame": "Please choose a password that differs from your current one.",
+      "errorOther": "The password could not be saved. Please request a new link."
     }
   }
 }

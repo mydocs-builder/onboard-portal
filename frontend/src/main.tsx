@@ -1,3 +1,4 @@
+import "./lib/initialUrl"; // zuerst: hält die Angaben aus Mail-Links fest, bevor supabase-js sie verarbeitet
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

@@ -5,7 +5,12 @@ import { AuthLayout } from "./components/AuthLayout";
 import { PortalLayout, SIGNED_OUT_KEY } from "./components/PortalLayout";
 import { PortalProvider } from "./portal/PortalProvider";
 import { NAV_PATH, type NavId } from "./portal/nav";
+import { AuthCallbackPage } from "./pages/auth/AuthCallbackPage";
+import { CheckInboxPage } from "./pages/auth/CheckInboxPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
 import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 import { NotFoundPage, PlaceholderPage } from "./pages/PlaceholderPage";
 
 function Loading() {
@@ -46,6 +51,13 @@ export function App() {
       <Route element={<AuthLayout />}>
         <Route element={<GuestOnly />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/check-inbox" element={<CheckInboxPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        </Route>
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Route>
 

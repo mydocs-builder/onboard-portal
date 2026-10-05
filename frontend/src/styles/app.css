@@ -37,3 +37,8 @@ a.back{text-decoration:none}
 @media (max-width:860px){
 .sheet{max-height:calc(100vh - 61px);overflow-y:auto}
 }
+
+.chk{cursor:default}
+.chk button.cb{padding:0;cursor:pointer;color:var(--blue)}
+.chk > span{cursor:pointer}
+.cb{color:var(--blue)}
