@@ -58,6 +58,7 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 | 9 | Server | offen |
 | später | Löschen inaktiver Konten | nicht bauen, bis Patrick es freigibt |
 | später | Freischalt-Codes im Portal | nicht bauen, bis Patrick es freigibt |
+| später | Aufgaben der Übersicht je Checkliste einstellbar | nicht bauen, bis Patrick es freigibt |
 
 **Schritt 7, Admin-Bereich** (Deutsch): Übersicht, Auswertungen, Nutzer, Nutzer anlegen, Plan ändern, Startphase, Zustimmungstexte, Inhaltspflege, CSV-Import.
 
@@ -71,6 +72,8 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachf
 **Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`). Die vier Mailtexte von Supabase Auth (Bestätigung, Einladung, Passwort zurücksetzen, E-Mail-Änderung) müssen auf dem Server genauso hinterlegt werden wie lokal: Betreff und Vorlage aus `supabase/config.toml` und `supabase/templates/`, dazu dieselbe Gültigkeit der Links (`otp_expiry`, 24 Stunden) und `double_confirm_changes = true`. Auf dem Server laufen nur die Migrationen, nie `supabase/seed.sql`: keine Testkonten, keine Beispieldaten, kein Verkauf durch die Seed-Daten. Das echte Admin-Konto bekommt einen eigenen zweiten Faktor, nicht das Geheimnis aus den Seed-Daten.
 
 **Später, inaktive Konten:** Konten ohne Login und ohne Pass nach 24 Monaten löschen, Ankündigung per Mail 30 Tage vorher. Gehört in die tägliche Funktion; braucht eine neue Mail-Art in `email_log` und einen Mailtext von Patrick.
+
+**Später, Aufgaben der Übersicht** (vorgemerkt am 5. Oktober 2026): Je Checkliste einstellbar, ob sie als Aufgabe unter "Next steps" auf der Übersicht erscheint, statt der festen Bindung an `task_key` (heute cv, linkedin, xing, visa in `frontend/src/overview/steps.ts` und `dismissed_tasks.task_key`).
 
 **Später, Freischalt-Codes** (vorgemerkt am 5. Oktober 2026): Der Admin legt Codes an mit Stufe, Dauer in Tagen, maximaler Zahl der Einlösungen und "gültig bis". Kandidaten lösen sie unter "Plan and billing" ein. Die Freischaltung läuft wie eine manuelle, mit dem Code als Grund, und folgt denselben Regeln für Beginn und Ende wie Pässe. Rabatte auf Käufe bleiben bei den Gutscheincodes von Stripe; die Freischalt-Codes haben damit nichts zu tun.
 
