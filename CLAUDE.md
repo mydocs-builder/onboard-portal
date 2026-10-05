@@ -8,11 +8,11 @@ Abo-freies Portal mit Pässen für internationale Fachkräfte auf Jobsuche in De
 
 - `umfang-phase-1.md` – freigegebener Funktionsumfang (Export des Claude Docs)
 - `datenmodell.md` – Datenmodell mit Zugriffsregeln; beschreibt den gebauten Stand und wird von Claude gepflegt
-- `uebergabe.md` – Entscheidungen und Stand
+- `uebergabe.md` – abgelöst; verweist nur noch auf `CLAUDE.md` und `datenmodell.md`
 - `entwurf-001_billing.sql` – früher Entwurf, geht im Datenmodell auf; nicht direkt verwenden
 - `prototyp.html` – klickbarer Prototyp: Vorbild für Aussehen und Abläufe, Quelle der Seed-Texte
 
-Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.md`. Unklares nachfragen, nicht raten.
+Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md`. Unklares nachfragen, nicht raten.
 
 ## Technik
 
@@ -65,13 +65,13 @@ Bei Widersprüchen gilt `datenmodell.md` vor `umfang-phase-1.md` vor `uebergabe.
 - Startphase: beim Einschalten des Verkaufs warnen, wenn keine Fassung des Zustimmungstextes aktiv ist.
 - Änderungen des Admins an Plan und Sperre sollen im Änderungsprotokoll landen; das ist für Admin-Aktionen noch nicht gebaut.
 
-**Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`).
+**Schritt 9, Server:** docker-compose mit Caddy und Supabase, Testumgebung, Backups, Update- und Veröffentlichungsskript, Vault-Einträge für den Zeitplan der täglichen Funktion (`daily_function_url`, `daily_function_key`). Auf dem Server laufen nur die Migrationen, nie `supabase/seed.sql`: keine Testkonten, keine Beispieldaten, kein Verkauf durch die Seed-Daten. Das echte Admin-Konto bekommt einen eigenen zweiten Faktor, nicht das Geheimnis aus den Seed-Daten.
 
 **Später, inaktive Konten:** Konten ohne Login und ohne Pass nach 24 Monaten löschen, Ankündigung per Mail 30 Tage vorher. Gehört in die tägliche Funktion; braucht eine neue Mail-Art in `email_log` und einen Mailtext von Patrick.
 
 ## Aktueller Stand (5. Oktober 2026)
 
-Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand vollständig, `docs/uebergabe.md` ist der Stand vor dem Bau.
+Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.md` beschreibt den gebauten Stand vollständig.
 
 **Arbeitsweise**
 
@@ -118,4 +118,6 @@ Gebaut ist alles bis Schritt 5; 470 pgTAP-Tests laufen durch. `docs/datenmodell.
 - [ ] **Unternehmen:** Mindestzahl echter, geprüfter Unternehmen erreicht
 - [ ] **Jobbörsen:** Adressen aller Jobbörsen geöffnet und `checked_at` gesetzt
 - [ ] **Sicherheitsprüfung:** unabhängige Prüfung von Zugriffsregeln, Server und Bezahlung
+- [ ] **Server ohne Seed-Daten:** Auf dem Server sind nur die Migrationen gelaufen, nie `supabase/seed.sql`; es gibt dort keine Testkonten
+- [ ] **Admin-Konto:** Das echte Admin-Konto hat einen eigenen zweiten Faktor
 - [ ] **Startphase:** Verkauf erst einschalten, wenn alle Punkte oben erledigt sind
